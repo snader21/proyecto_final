@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { switchMap, tap, catchError } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
-import { ProveedorAiService } from 'src/proveedor-ai/ai-provider.service';
+import { ProveedorAiService } from 'src/proveedor-ai/proveedor-ai.service';
 import { generarPromptOptimizacionRutas } from './calculo-ruta.promt';
 import { ProductosService } from 'src/productos/productos.service';
 import { PedidosService } from 'src/pedidos/pedidos.service';

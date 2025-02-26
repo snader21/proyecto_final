@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { RutasModule } from './rutas/rutas.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule } from '@nestjs/config';
-import { ProveedorAiModule } from './proveedor-ai/ai-provider.module';
+import { ProveedorAiModule } from './proveedor-ai/proveedor-ai.module';
 import { ProductosModule } from './productos/productos.module';
 import { PedidosModule } from './pedidos/pedidos.module';
 

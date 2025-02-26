@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ProveedorAiService } from './ai-provider.service';
+import { ProveedorAiService } from './proveedor-ai.service';
 
 @Module({
   providers: [ProveedorAiService],
