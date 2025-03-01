@@ -13,7 +13,7 @@ export class CamionEntity {
   anio: number;
 
   @Column()
-  nombreConductor: string;
+  nombre_conductor: string;
 
   @Column()
   capacidad: number;

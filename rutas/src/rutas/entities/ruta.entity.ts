@@ -5,6 +5,7 @@ import { TipoRutaEntity } from 'src/tipos-rutas/entities/tipo-ruta.entity';
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -13,41 +14,48 @@ import {
 @Entity('ruta')
 export class RutaEntity {
   @PrimaryGeneratedColumn()
-  idRuta: number;
+  id: number;
 
   @Column()
   fecha: Date;
 
-  @ManyToOne(() => TipoRutaEntity, (tipoRuta) => tipoRuta.rutas, {
+  @ManyToOne(() => TipoRutaEntity, (tipo_ruta) => tipo_ruta.rutas, {
     nullable: false,
     onDelete: 'RESTRICT',
   })
-  tipoRuta: TipoRutaEntity;
+  @JoinColumn({ name: 'tipo_ruta_id' })
+  tipo_ruta: TipoRutaEntity;
 
   @Column()
-  duracionEstimada: number;
+  duracion_estimada: number;
+
+  @Column({
+    nullable: true,
+  })
+  duracion_final: number;
 
   @Column()
-  duracionFinal: number;
-
-  @Column()
-  distanciaTotal: number;
+  distancia_total: number;
 
   @ManyToOne(() => CamionEntity, (camion) => camion.rutas, {
     nullable: false,
     onDelete: 'RESTRICT',
   })
+  @JoinColumn({ name: 'camion_id' })
   camion: CamionEntity;
 
-  @Column()
-  vendedorId: number;
+  @Column({
+    nullable: true,
+  })
+  vendedor_id: number;
 
-  @ManyToOne(() => EstadoRutaEntity, (estadoRuta) => estadoRuta.rutas, {
+  @ManyToOne(() => EstadoRutaEntity, (estado_ruta) => estado_ruta.rutas, {
     nullable: false,
     onDelete: 'RESTRICT',
   })
-  estadoRuta: EstadoRutaEntity;
+  @JoinColumn({ name: 'estado_ruta_id' })
+  estado_ruta: EstadoRutaEntity;
 
-  @OneToMany(() => NodoRutaEntity, (nodoRuta) => nodoRuta.ruta)
-  nodosRutas: NodoRutaEntity[];
+  @OneToMany(() => NodoRutaEntity, (nodo_ruta) => nodo_ruta.ruta)
+  nodos_rutas: NodoRutaEntity[];
 }

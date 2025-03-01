@@ -1,14 +1,14 @@
 import { RutaEntity } from 'src/rutas/entities/ruta.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('estadoRuta')
+@Entity('estado_ruta')
 export class EstadoRutaEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  estadoRuta: string;
+  estado_ruta: string;
 
-  @OneToMany(() => RutaEntity, (ruta) => ruta.estadoRuta)
+  @OneToMany(() => RutaEntity, (ruta) => ruta.estado_ruta)
   rutas: RutaEntity[];
 }

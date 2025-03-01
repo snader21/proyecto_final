@@ -1,32 +1,48 @@
+import { NodoProductoEntity } from 'src/nodos-productos/entities/nodo-producto.entity';
 import { RutaEntity } from 'src/rutas/entities/ruta.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
-@Entity('nodoRuta')
+@Entity('nodo_ruta')
 export class NodoRutaEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => RutaEntity, (ruta) => ruta.nodosRutas, {
+  @ManyToOne(() => RutaEntity, (ruta) => ruta.nodos_rutas, {
     nullable: false,
-    onDelete: 'RESTRICT',
+    onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'ruta_id' })
   ruta: RutaEntity;
 
-  @Column()
-  numeroNodoProgramado: number;
+  @OneToMany(() => NodoProductoEntity, (producto) => producto.nodo_ruta)
+  productos: NodoProductoEntity[];
 
   @Column()
-  numeroNodoFinal: number;
+  numero_nodo_programado: number;
 
-  @Column()
+  @Column({
+    nullable: true,
+  })
+  numero_nodo_final: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 6 })
   latitud: number;
 
-  @Column()
+  @Column({ type: 'decimal', precision: 10, scale: 6 })
   longitud: number;
 
-  @Column()
-  horaLlegada: Date;
+  @Column({ nullable: true })
+  hora_llegada: Date;
 
-  @Column()
-  horaSalida: Date;
+  @Column({
+    nullable: true,
+  })
+  hora_salida: Date;
 }
