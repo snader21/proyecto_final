@@ -4,8 +4,30 @@ import { Observable } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 
-interface IRespuestaApi2 {
-  userId: number;
+export interface IRespuestaPedido {
+  id_pedido: string;
+  id_vendedor: string;
+  fecha_registro: string;
+  id_estado: number;
+  descripcion: string;
+  id_cliente: string;
+  id_metodo_pago: string;
+  estado_pago: string;
+  costo_envio: number;
+  id_metodo_envio: string;
+  estado: {
+    id_estado: number;
+    nombre: string;
+    descripcion: string;
+  };
+  pago: {
+    id_metodo_pago: string;
+    nombre: string;
+  };
+  envio: {
+    id_metodo_envio: string;
+    nombre: string;
+  };
 }
 
 @Injectable()
@@ -14,12 +36,12 @@ export class PedidosService {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {}
-  obtenerProductosDePedidos(id: number): Observable<IRespuestaApi2> {
-    const api = this.configService.get<string>('URL_PRODUCTOS');
-    const apiEndPoint = `${api}${id}`;
+  obtenerPedidosParaManiana(): Observable<IRespuestaPedido[]> {
+    const api = this.configService.get<string>('URL_PEDIDOS');
+    const apiEndPoint = `${api}/pedidos`;
 
     return this.httpService
-      .get<IRespuestaApi2>(apiEndPoint)
+      .get<IRespuestaPedido[]>(apiEndPoint)
       .pipe(map((respuesta) => respuesta.data));
   }
 }

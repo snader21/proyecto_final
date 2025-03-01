@@ -1,8 +1,10 @@
+import { IDatosRuta } from './rutas.service';
+
 export const generarPromptOptimizacionRutas = ({
   departure,
   orders,
   truckCapacity,
-}) => `
+}: IDatosRuta) => `
 You are an AI that optimizes delivery routes and truck allocations based on Manhattan distance between coordinates.
 
 ## **🚀 Task**
@@ -16,91 +18,63 @@ I will provide you with:
     - Volume (in liters)
 - The **truck capacity** in liters.
 
+Your job is to:
+1. Determine the minimum number of trucks needed (using as few trucks as possible).
+2. Assign orders and their products to trucks efficiently, ensuring that:
+   - **No individual product is split** between trucks.
+   - Orders can be split across trucks, but each product must remain intact.
+   - The sum of product volumes assigned to a truck does not exceed its capacity.
+3. Optimize each truck's delivery route (using Manhattan distance) so that:
+   - The truck visits delivery stops in an order that minimizes total travel distance.
+   - Each truck starts at the departure point, visits its delivery stops, and returns to the departure point.
+4. **Return the result in the following JSON format:**
+
+\`\`\`json
+{
+  "fecha": "2025-03-28T10:00:00Z", 
+  "duracionEstimada": 120, 
+  "distanciaTotal": 50, 
+  "tipoRutaId": 1,
+  "camionId": 1,
+  "nodos": [
+    {
+      "numeroNodoProgramado": 1,
+      "latitud": 19.4326,
+      "longitud": -99.1332,
+      "productos": [
+        {
+          "productoId": 101,
+          "pedidoId": "ORD001"
+        },
+        {
+          "productoId": 102,
+          "pedidoId": "ORD002"
+        }
+      ]
+    },
+    {
+      "numeroNodoProgramado": 2,
+      "latitud": 19.4500,
+      "longitud": -99.2000,
+      "productos": [
+        {
+          "productoId": 103,
+          "pedidoId": "ORD003"
+        }
+      ]
+    }
+  ]
+}
+\`\`\`
+
 ---
 
 ## **🚨 Important Constraints (DO NOT VIOLATE)**
-1️⃣ **Each product must be delivered whole. You CANNOT split a single product into multiple trucks.**  
-2️⃣ Orders **can** be split across multiple trucks, but **individual products must remain intact**.  
-3️⃣ A truck's **total assigned volume cannot exceed the truck's capacity**.  
-4️⃣ Each truck must **return to the departure location** after completing deliveries.  
-
----
-
-### **❌ Invalid Example (🚫 Product is split between two trucks - NOT ALLOWED)**
-\`\`\`json
-{
-  "trucks": [
-    {
-      "id": 1,
-      "products": [{ "product_id": "PROD003", "order_id": "ORD003", "volume": 500 }]
-    },
-    {
-      "id": 2,
-      "products": [{ "product_id": "PROD003", "order_id": "ORD003", "volume": 700 }]
-    }
-  ]
-}
-\`\`\`
-🚫 This is incorrect because **PROD003 is split into two trucks**.
-
----
-
-### **✅ Valid Example 1 (✔ An order is split between two trucks, but products remain whole)**
-\`\`\`json
-{
-  "trucks": [
-    {
-      "id": 1,
-      "products": [
-        { "product_id": "PROD001", "order_id": "ORD001", "volume": 500 }
-      ]
-    },
-    {
-      "id": 2,
-      "products": [
-        { "product_id": "PROD002", "order_id": "ORD001", "volume": 700 }
-      ]
-    }
-  ]
-}
-\`\`\`
-✔ **CORRECT!** The order "ORD001" is split between trucks **without splitting products**.
-
----
-
-### **✅ Valid Example 2 (✔ Multiple orders assigned to different trucks)**
-\`\`\`json
-{
-  "trucks": [
-    {
-      "id": 1,
-      "products": [
-        { "product_id": "PROD001", "order_id": "ORD001", "volume": 500 },
-        { "product_id": "PROD002", "order_id": "ORD002", "volume": 500 }
-      ]
-    },
-    {
-      "id": 2,
-      "products": [
-        { "product_id": "PROD003", "order_id": "ORD003", "volume": 1200 }
-      ]
-    }
-  ]
-}
-\`\`\`
-✔ **CORRECT!** Products from different orders are assigned to different trucks while remaining whole.
-
----
-
-## **📌 Your Responsibilities**
-1️⃣ **Determine the minimum number of trucks needed**, maximizing efficiency (use the fewest trucks possible).  
-2️⃣ **Assign orders and their products to trucks efficiently** while ensuring trucks do not exceed capacity.  
-   - **Keep products intact** (never split individual products across trucks).  
-   - **You can assign products from the same order to different trucks if needed**.  
-   - **Always track which original order each product belongs to**.  
-3️⃣ **Optimize the delivery route for each truck**, using Manhattan distance, **prioritizing the closest stops first**.  
-4️⃣ **Ensure trucks return to the starting point** after deliveries are complete.  
-5️⃣ **Return the response in the specified JSON format**.
+- **Each product must be delivered whole. You CANNOT split a single product into multiple trucks.**
+- Orders can be split among trucks, but **each product must remain intact**.
+- A truck's total assigned volume must not exceed its capacity.
+- Each truck must **return to the departure location** after completing deliveries.
+- **Ensure that the output strictly follows the JSON structure above.**
 
 ---
 
@@ -115,42 +89,35 @@ I will provide you with:
 
 ---
 
-## **🚀 Expected Output Format**
-The response should be a JSON object with the following structure:
-\`\`\`json
-{
-  "trucks": [
-    {
-      "id": 1,
-      "total_volume": 1000,
-      "products": [
-        {
-          "product_id": "PROD001",
-          "order_id": "ORD001",
-          "volume": 500
-        },
-        {
-          "product_id": "PROD002",
-          "order_id": "ORD002",
-          "volume": 500
-        }
-      ],
-      "route": [
-        {"lng": -99.1332, "lat": 19.4326, "type": "departure"},
-        {"lng": -99.1500, "lat": 19.4600, "type": "delivery", "order_id": "ORD002", "products": ["PROD002"]},
-        {"lng": -99.2000, "lat": 19.4500, "type": "delivery", "order_id": "ORD001", "products": ["PROD001"]},
-        {"lng": -99.1332, "lat": 19.4326, "type": "return"}
-      ]
-    }
-  ],
-  "total_trucks_used": 1,
-  "total_volume": 1000
-}
-\`\`\`
-
-🚨 **IMPORTANT:**
-- **DO NOT split a single product into multiple trucks**.
-- **Ensure all output follows the constraints**.
+## **Your Responsibilities**
+- **Calculate the optimized routes** for the minimum number of trucks needed.
+- **Assign products from orders to trucks** without splitting any product.
+- **Optimize the route** for each truck using Manhattan distance (visit the closest delivery stops first).
+- **Return the response exactly in the JSON format specified above**.
 
 ---
+
+Remember: Do not include any extra fields or text outside the JSON structure. Your output should be a valid JSON object that matches the format of the DTOs:
+
+- **CreateRutaDto:**
+  - fecha: string
+  - duracionEstimada: number
+  - distanciaTotal: number
+  - tipoRutaId: number
+  - camionId: number
+  - nodos: CreateNodoRutaDto[]
+
+- **CreateNodoRutaDto:**
+  - numeroNodoProgramado: number
+  - latitud: number
+  - longitud: number
+  - productos: CreateNodoProductoDto[]
+
+- **CreateNodoProductoDto:**
+  - productoId: number
+  - pedidoId: string
+
+---
+
+Use the input data to produce the optimal routing and output your result in the JSON format provided.
 `;

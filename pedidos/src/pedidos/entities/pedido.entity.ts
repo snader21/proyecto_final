@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { EstadoPedidoEntity } from './estado-pedido.entity';
 import { MetodoPagoEntity } from './metodo-pago.entity';
 import { MetodoEnvioEntity } from './metodo-envio.entity';

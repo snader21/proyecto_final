@@ -1,4 +1,4 @@
 export class CreateNodoProductoDto {
-  productoId: number;
-  pedidoId: number;
+  productoId: string;
+  pedidoId: string;
 }

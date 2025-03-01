@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { RutasService } from './rutas.service';
 import { CreateRutaDto } from './dto/create-ruta.dto';
 import { UpdateRutaDto } from './dto/update-ruta.dto';
