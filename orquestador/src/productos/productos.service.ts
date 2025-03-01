@@ -4,8 +4,17 @@ import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 
-interface IRespuestaApi {
-  id: number;
+export interface IRespuestaProducto {
+  id_producto: string;
+  nombre: string;
+  descripcion: string;
+  sku: string;
+  precio: number;
+  alto: number;
+  largo: number;
+  ancho: number;
+  peso: number;
+  cantidad: number;
 }
 
 @Injectable()
@@ -14,12 +23,13 @@ export class ProductosService {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {}
-  obtenerProductosParaManiana(): Observable<IRespuestaApi> {
-    const api = this.configService.get<string>('URL_PEDIDOS');
-    const apiEndPoint = `${api}/1`;
+
+  obtenerProductosDePedidos(id: string): Observable<IRespuestaProducto[]> {
+    const api = this.configService.get<string>('URL_PRODUCTOS');
+    const apiEndPoint = `${api}/productos/${id}`;
 
     return this.httpService
-      .get<IRespuestaApi>(apiEndPoint)
+      .get<IRespuestaProducto[]>(apiEndPoint)
       .pipe(map((respuesta) => respuesta.data));
   }
 }

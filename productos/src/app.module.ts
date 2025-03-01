@@ -26,11 +26,11 @@ import { UnidadMedidaEntity } from './productos/entities/unidad-medida.entity';
     ProductosModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'productos',
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '5432'),
+      username: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || 'postgres',
+      database: process.env.DB_NAME || 'productos',
       entities: [
         BodegaEntity,
         CategoriaEntity,
@@ -41,11 +41,11 @@ import { UnidadMedidaEntity } from './productos/entities/unidad-medida.entity';
         PaisEntity,
         ProductoEntity,
         UbicacionEntity,
-        UnidadMedidaEntity
+        UnidadMedidaEntity,
       ],
       dropSchema: true,
-      synchronize: true
-    })
+      synchronize: true,
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

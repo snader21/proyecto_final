@@ -1,15 +1,64 @@
 import { Injectable } from '@nestjs/common';
-import { switchMap, tap, catchError } from 'rxjs/operators';
-import { Observable, of } from 'rxjs';
+import {
+  tap,
+  catchError,
+  concatMap,
+  map,
+  filter,
+  toArray,
+  switchMap,
+} from 'rxjs/operators';
+import { from, of } from 'rxjs';
 import { ProveedorAiService } from 'src/proveedor-ai/proveedor-ai.service';
 import { generarPromptOptimizacionRutas } from './calculo-ruta.promt';
-import { ProductosService } from 'src/productos/productos.service';
-import { PedidosService } from 'src/pedidos/pedidos.service';
-import { Cron } from '@nestjs/schedule';
+import {
+  IRespuestaProducto,
+  ProductosService,
+} from 'src/productos/productos.service';
+import { IRespuestaPedido, PedidosService } from 'src/pedidos/pedidos.service';
+import { ConfigService } from '@nestjs/config';
+import { HttpService } from '@nestjs/axios';
 
-interface IRespuestaApi3 {
-  lng: number;
+export interface IPoint {
   lat: number;
+  lng: number;
+}
+
+interface IPedidoTransformado {
+  id: string;
+  lat: number;
+  lng: number;
+  productos: {
+    id: string;
+    volumen: number;
+  }[];
+}
+
+export interface IDatosRuta {
+  departure: IPoint;
+  orders: IPedidoTransformado[];
+  truckCapacity: number;
+}
+
+export interface CreateNodoProductoDto {
+  productoId: number;
+  pedidoId: string;
+}
+
+export interface CreateNodoRutaDto {
+  numeroNodoProgramado: number;
+  latitud: number;
+  longitud: number;
+  productos: CreateNodoProductoDto[];
+}
+
+export interface CreateRutaDto {
+  fecha: string;
+  duracionEstimada: number;
+  distanciaTotal: number;
+  tipoRutaId: number;
+  camionId: number;
+  nodos: CreateNodoRutaDto[];
 }
 
 @Injectable()
@@ -18,86 +67,108 @@ export class RutasService {
     private readonly aiProviderService: ProveedorAiService,
     private readonly productosService: ProductosService,
     private readonly pedidosService: PedidosService,
+    private readonly configService: ConfigService,
+    private readonly httpService: HttpService,
   ) {}
 
-  // @Cron('*/10 * * * * *')
   calcularYGuardarRuta() {
-    this.productosService
-      .obtenerProductosParaManiana()
-      .pipe(
-        tap((respuesta1) => console.log('Pedidos obtenidos', respuesta1)),
+    const capacidadCamion = 10000000;
+    const puntoPartida = {
+      lat: 19.4326,
+      lng: -99.1332,
+    };
 
-        switchMap(
-          this.pedidosService.obtenerProductosDePedidos.bind(
-            this.pedidosService,
+    console.log('entre al servicio de rutas');
+    return this.pedidosService.obtenerPedidosParaManiana().pipe(
+      tap(() => console.log('Pedidos obtenidos')),
+      concatMap((pedidos: IRespuestaPedido[]) => from(pedidos)),
+      concatMap((pedido) =>
+        this.productosService
+          .obtenerProductosDePedidos(pedido.id_pedido)
+          .pipe(
+            map((productos: IRespuestaProducto[]) => ({ pedido, productos })),
           ),
-        ),
-        tap((respuesta2) => console.log('Productos obtenidos', respuesta2)),
+      ),
+      tap(() => console.log('Productos obtenidos')),
+      filter(({ productos }) => productos && productos.length > 0),
+      map(({ pedido, productos }) => {
+        const lat = this.generarCoordenadaAleatoria(19.0, 20.0);
+        const lng = this.generarCoordenadaAleatoria(-99.5, -98.5);
 
-        switchMap(this.calcularRuta.bind(this)),
-        tap((respuesta3) => console.log('Ruta calculada', respuesta3)),
+        const productosFormateados = productos.map((producto) => {
+          const volumen =
+            producto.alto * producto.largo * producto.ancho * producto.cantidad;
 
-        switchMap(this.actualizarRuta.bind(this)),
-        tap(() => console.log('Ruta actualizada con éxito')),
+          return {
+            id: producto.id_producto,
+            volumen: volumen,
+          };
+        });
 
-        catchError((error) => {
-          console.error('Error en la cadena de observables:', error);
-          return of(null);
-        }),
-      )
-      .subscribe();
+        return {
+          id: pedido.id_pedido,
+          lat,
+          lng,
+          productos: productosFormateados,
+        };
+      }),
+      toArray(),
+      map((pedidosTransformados) => {
+        const datosRuta: IDatosRuta = {
+          departure: puntoPartida,
+          orders: pedidosTransformados,
+          truckCapacity: capacidadCamion,
+        };
+        return datosRuta;
+      }),
+      tap(() => console.log('Calculando ruta')),
+      switchMap(this.calcularRuta.bind(this)),
+      tap(() => console.log('Ruta calculada. Se procederá a guardarla')),
+      switchMap(this.actualizarRuta.bind(this)),
+      tap(() => console.log('Ruta guardada')),
+
+      catchError((error) => {
+        console.error('Error en la cadena de observables:', error);
+        return of(null);
+      }),
+    );
   }
 
-  promptEnviado = false;
-  // @Cron('*/20 * * * * *')
-  async calcularRuta() {
-    if (this.promptEnviado) return;
-    this.promptEnviado = true;
-    try {
-      const departure = { lng: -99.1332, lat: 19.4326 };
-      const orders = [
-        {
-          id: 'ORD001',
-          lng: -99.2,
-          lat: 19.45,
-          products: [{ id: 'PROD001', volume: 500 }],
-        },
-        {
-          id: 'ORD002',
-          lng: -99.15,
-          lat: 19.46,
-          products: [{ id: 'PROD002', volume: 700 }],
-        },
-        {
-          id: 'ORD003',
-          lng: -99.18,
-          lat: 19.44,
-          products: [
-            { id: 'PROD003', volume: 1000 },
-            { id: 'PROD004', volume: 500 },
-          ],
-        },
-      ];
-      const truckCapacity = 1000;
+  private generarCoordenadaAleatoria(min: number, max: number): number {
+    return min + Math.random() * (max - min);
+  }
 
-      const prompt = generarPromptOptimizacionRutas({
-        departure,
-        orders,
-        truckCapacity,
-      });
+  async calcularRuta({
+    departure,
+    orders,
+    truckCapacity,
+  }: IDatosRuta): Promise<CreateRutaDto | null> {
+    const prompt = generarPromptOptimizacionRutas({
+      departure,
+      orders,
+      truckCapacity,
+    });
+    const respuesta = await this.aiProviderService.enviarPrompt(prompt);
 
-      console.log('Enviando prompt al proveedor de AI');
-
-      const respuesta = await this.aiProviderService.enviarPrompt(prompt);
-
-      console.log('Respuesta:', respuesta.content);
-    } catch (error) {
-      console.error('Error calculando ruta:', error);
+    if (respuesta?.content) {
+      try {
+        const ruta: CreateRutaDto = JSON.parse(
+          respuesta.content,
+        ) as CreateRutaDto;
+        return ruta;
+      } catch (error) {
+        throw new Error('Error parsing AI response: ' + error);
+      }
     }
+    return null;
   }
 
-  actualizarRuta(ruta: IRespuestaApi3): Observable<null> {
-    console.log('Actualizando ruta:', ruta);
-    return of(null);
+  actualizarRuta(createRutaDto: CreateRutaDto) {
+    const api = this.configService.get<string>('URL_RUTAS');
+    const apiEndPoint = `${api}/rutas`;
+
+    return this.httpService
+      .post<CreateRutaDto>(apiEndPoint, createRutaDto)
+      .pipe(map((response) => response.data));
   }
 }

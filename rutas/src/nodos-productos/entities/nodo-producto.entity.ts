@@ -20,8 +20,8 @@ export class NodoProductoEntity {
   nodo_ruta: NodoRutaEntity;
 
   @Column()
-  producto_id: number;
+  producto_id: string;
 
   @Column()
-  pedido_id: number;
+  pedido_id: string;
 }
