@@ -78,7 +78,6 @@ export class RutasService {
       lng: -99.1332,
     };
 
-    console.log('entre al servicio de rutas');
     return this.pedidosService.obtenerPedidosParaManiana().pipe(
       tap(() => console.log('Pedidos obtenidos')),
       concatMap((pedidos: IRespuestaPedido[]) => from(pedidos)),
@@ -149,6 +148,7 @@ export class RutasService {
       truckCapacity,
     });
     const respuesta = await this.aiProviderService.enviarPrompt(prompt);
+    console.log('🚀 ~ RutasService ~ respuesta:', respuesta);
 
     if (respuesta?.content) {
       try {

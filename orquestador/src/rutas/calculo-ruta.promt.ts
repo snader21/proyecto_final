@@ -73,7 +73,10 @@ Your job is to:
 - **Each product must be delivered whole. You CANNOT split a single product into multiple trucks.**
 - Orders can be split among trucks, but **each product must remain intact**.
 - A truck's total assigned volume must not exceed its capacity.
-- Each truck must **return to the departure location** after completing deliveries.
+- Each truck's route must begin and end at the departure coordinates, which should be:
+- The FIRST node in the "nodos" array (with numeroNodoProgramado: 1)
+- The LAST node in the "nodos" array (with numeroNodoProgramado: N)
+- Both departure nodes must include the original departure coordinates even if they contain no products
 - **Ensure that the output strictly follows the JSON structure above.**
 
 ---
@@ -92,7 +95,11 @@ Your job is to:
 ## **Your Responsibilities**
 - **Calculate the optimized routes** for the minimum number of trucks needed.
 - **Assign products from orders to trucks** without splitting any product.
-- **Optimize the route** for each truck using Manhattan distance (visit the closest delivery stops first).
+- Optimize the route for each truck using Manhattan distance, considering:
+- 1. Start at departure point (first node)
+- 2. Visit delivery stops in optimal order
+- 3. Return to departure point (last node)
+- Calculate total distance including both departure and return legs
 - **Return the response exactly in the JSON format specified above**.
 
 ---
