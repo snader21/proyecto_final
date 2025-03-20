@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SafeArea } from 'capacitor-plugin-safe-area';
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -17,3 +18,14 @@ export class AppComponent {
   public labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
   constructor() {}
 }
+
+SafeArea.getSafeAreaInsets().then((data) => {
+  const { insets } = data;
+  document.body.style.setProperty('--ion-safe-area-top', `${insets.top}px`);
+  document.body.style.setProperty('--ion-safe-area-right', `${insets.right}px`);
+  document.body.style.setProperty(
+    '--ion-safe-area-bottom',
+    `${insets.bottom}px`
+  );
+  document.body.style.setProperty('--ion-safe-area-left', `${insets.left}px`);
+});
