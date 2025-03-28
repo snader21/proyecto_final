@@ -154,6 +154,12 @@ steps:
                 --min-instances 0 \
                 --max-instances 1 \
                 --allow-unauthenticated
+
+              gcloud run services add-iam-policy-binding $svc \
+                --region us-central1 \
+                --platform managed \
+                --member="allUsers" \
+                --role="roles/run.invoker"
             else
               gcloud run deploy $svc \
                 --image us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA \
@@ -165,9 +171,13 @@ steps:
                 --min-instances 0 \
                 --max-instances 1 \
                 --allow-unauthenticated \
-                --member="allUsers" \
-                --role="roles/run.invoker"
                 --add-cloudsql-instances $PROJECT_ID:us-central1:$svc
+
+                gcloud run services add-iam-policy-binding $svc \
+                  --region us-central1 \
+                  --platform managed \
+                  --member="allUsers" \
+                  --role="roles/run.invoker"
             fi
           fi
         done
