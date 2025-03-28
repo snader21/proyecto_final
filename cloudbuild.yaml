@@ -42,8 +42,16 @@ steps:
         for svc in "${SERVICES[@]}"; do
           if [ "${_SERVICE}" = "$svc" ] || [ "${_SERVICE}" = "todos" ]; then
             echo "Building and pushing $svc"
-            docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA ./$svc
+            # Build Docker image with local tag
+            docker build -t gcr.io/$PROJECT_ID/$svc:$COMMIT_SHA ./$svc
+
+            # Tag it for Artifact Registry
+            docker tag gcr.io/$PROJECT_ID/$svc:$COMMIT_SHA \
+              us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA
+
+            # Push to Artifact Registry
             docker push us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA
+
           fi
         done
 
@@ -77,12 +85,9 @@ steps:
           if [ "${_SERVICE}" = "$svc" ] || [ "${_SERVICE}" = "todos" ]; then
             echo "Creating .env.production for $svc"
             
-            # Create empty env file
-            > ./$svc/.env.production
-            
             if [ "$svc" = "orquestador" ]; then
               # Orquestador specific environment variables
-              echo "URL_PEDIDOS=${_URL_PEDIDOS}" >> ./$svc/.env.production
+              echo "URL_PEDIDOS=${_URL_PEDIDOS}" > ./$svc/.env.production
               echo "URL_PRODUCTOS=${_URL_PRODUCTOS}" >> ./$svc/.env.production
               echo "URL_RUTAS=${_URL_RUTAS}" >> ./$svc/.env.production
               echo "URL_DEEPSEEK=${_URL_DEEPSEEK}" >> ./$svc/.env.production
@@ -103,7 +108,7 @@ steps:
                 --allow-unauthenticated
             else
               # Database services environment variables
-              echo "DB_HOST=/cloudsql/$PROJECT_ID:us-central1:$svc" >> ./$svc/.env.production
+              echo "DB_HOST=/cloudsql/$PROJECT_ID:us-central1:$svc" > ./$svc/.env.production
               echo "DB_USER=${_DB_USER}" >> ./$svc/.env.production
               echo "DB_PORT=${_DB_PORT}" >> ./$svc/.env.production
               echo "DB_NAME=${_DB_NAME}" >> ./$svc/.env.production
