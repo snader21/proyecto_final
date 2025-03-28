@@ -20,6 +20,6 @@ describe('PedidosService', () => {
   });
 
   it('should be true', () => {
-    expect(true).toBe(false);
+    expect(true).toBe(true);
   });
 });
