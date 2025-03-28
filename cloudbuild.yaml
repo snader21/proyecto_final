@@ -6,9 +6,9 @@ substitutions:
   _PORT: "3000"
 
 steps:
-  # Step 1: Build and push to Artifact Registry.
-  - name: "gcr.io/cloud-builders/docker"
-    id: "build-and-push"
+  # Step 0: Detect service to deploy
+  - name: "node"
+    id: "detect-service"
     entrypoint: "bash"
     args:
       - "-c"
@@ -32,21 +32,7 @@ steps:
 
         echo "✅ Detected service: $(cat /workspace/service.txt)"
 
-        gcloud auth configure-docker us-central1-docker.pkg.dev
-
-        SERVICES=("orquestador" "pedidos" "productos" "rutas")
-
-        for svc in "${SERVICES[@]}"; do
-          if [ "$(cat /workspace/service.txt)" = "$svc" ] || [ "$(cat /workspace/service.txt)" = "todos" ]; then
-            echo "📦 Building and pushing $svc"
-            docker build -t gcr.io/$PROJECT_ID/$svc:$COMMIT_SHA ./$svc
-            docker tag gcr.io/$PROJECT_ID/$svc:$COMMIT_SHA \
-              us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA
-            docker push us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA
-          fi
-        done
-
-  # Step 2: Run tests for specified services
+  # Step 1: Run tests for specified services
   - name: "node"
     id: "run-tests"
     entrypoint: "bash"
@@ -82,9 +68,30 @@ steps:
           exit 1
         fi
 
+  # Step 2: Build and push to Artifact Registry.
+  - name: "gcr.io/cloud-builders/docker"
+    id: "build-and-push-to-artifact-registry"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        gcloud auth configure-docker us-central1-docker.pkg.dev
+
+        SERVICES=("orquestador" "pedidos" "productos" "rutas")
+
+        for svc in "${SERVICES[@]}"; do
+          if [ "$(cat /workspace/service.txt)" = "$svc" ] || [ "$(cat /workspace/service.txt)" = "todos" ]; then
+            echo "📦 Building and pushing $svc"
+            docker build -t gcr.io/$PROJECT_ID/$svc:$COMMIT_SHA ./$svc
+            docker tag gcr.io/$PROJECT_ID/$svc:$COMMIT_SHA \
+              us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA
+            docker push us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA
+          fi
+        done
+
   # Step 3: Deploy to Cloud Run
   - name: "gcr.io/cloud-builders/gcloud"
-    id: "deploy"
+    id: "deploy-to-cloud-run"
     entrypoint: "bash"
     args:
       - "-c"

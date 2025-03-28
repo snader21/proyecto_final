@@ -1,4 +1,4 @@
-import { CreateNodoProductoDto } from 'src/nodos-productos/dto/create-nodo-producto.dto';
+import { CreateNodoProductoDto } from '../../nodos-productos/dto/create-nodo-producto.dto';
 
 export class CreateNodoRutaDto {
   numeroNodoProgramado: number;
