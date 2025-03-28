@@ -7,7 +7,7 @@ substitutions:
   _SERVICE: "none"
 
 steps:
-  # Build and push to Artifact Registry.
+  # Build and push to Artifact Registry
   - name: "gcr.io/cloud-builders/gcloud"
     id: "build-and-push"
     entrypoint: "bash"
