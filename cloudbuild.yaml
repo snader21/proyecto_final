@@ -119,26 +119,38 @@ steps:
               echo "URL_DEEPSEEK=${_URL_DEEPSEEK}" >> ./$svc/.env
               echo "DEEPSEEK_MODEL=${_DEEPSEEK_MODEL}" >> ./$svc/.env
               echo "DEEPSEEK_API_KEY=$(gcloud secrets versions access latest --secret=deepseek_api_key --format='get(payload.data)' --project=$PROJECT_ID | base64 --decode)" >> ./$svc/.env
+
+              echo "🚀 Deploying $svc to Cloud Run"
+              gcloud run deploy $svc \
+                --image us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA \
+                --region us-central1 \
+                --platform managed \
+                --port 3000 \
+                --memory 512Mi \
+                --cpu 1 \
+                --min-instances 0 \
+                --max-instances 1 \
+                --allow-unauthenticated
             else
               echo "DB_HOST=/cloudsql/$PROJECT_ID:us-central1:$svc" > ./$svc/.env
               echo "DB_USER=${_DB_USER}" >> ./$svc/.env
               echo "DB_PORT=${_DB_PORT}" >> ./$svc/.env
               echo "DB_NAME=$svc" >> ./$svc/.env
               echo "DB_PASSWORD=${_DB_PASSWORD}" >> ./$svc/.env
-            fi
 
-            echo "🚀 Deploying $svc to Cloud Run"
-            gcloud run deploy $svc \
-              --image us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA \
-              --region us-central1 \
-              --platform managed \
-              --port 3000 \
-              --memory 512Mi \
-              --cpu 1 \
-              --min-instances 0 \
-              --max-instances 1 \
-              --allow-unauthenticated \
-              --add-cloudsql-instances $PROJECT_ID:us-central1:$svc \
+              echo "🚀 Deploying $svc to Cloud Run"
+              gcloud run deploy $svc \
+                --image us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA \
+                --region us-central1 \
+                --platform managed \
+                --port 3000 \
+                --memory 512Mi \
+                --cpu 1 \
+                --min-instances 0 \
+                --max-instances 1 \
+                --allow-unauthenticated \
+                --add-cloudsql-instances $PROJECT_ID:us-central1:$svc
+            fi
           fi
         done
 
