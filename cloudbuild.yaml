@@ -55,7 +55,7 @@ steps:
       - "-c"
       - |
         _SERVICE=$(cat /workspace/service.txt)
-        echo "✅ Detected service from file: $_SERVICE"
+        echo "✅✅✅✅ Detected service from file: $(cat /workspace/service.txt)"
 
         SERVICES=("orquestador" "pedidos" "productos" "rutas")
 
