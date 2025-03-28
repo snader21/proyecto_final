@@ -15,18 +15,18 @@ steps:
       - |
         echo "_COMMIT_MESSAGE is: '${_COMMIT_MESSAGE}'"
 
-        _SERVICE=""
+        export _SERVICE=""
 
         if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
-          _SERVICE="orquestador"
+          export _SERVICE="orquestador"
         elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
-          _SERVICE="pedidos"
+          export _SERVICE="pedidos"
         elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar productos\]"; then
-          _SERVICE="productos"
+          export _SERVICE="productos"
         elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar rutas\]"; then
-          _SERVICE="rutas"
+          export _SERVICE="rutas"
         elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar todos\]"; then
-          _SERVICE="todos"
+          export _SERVICE="todos"
         else
           echo "❌ No service specified in commit message"
           exit 1
@@ -57,18 +57,18 @@ steps:
       - |
         echo "_COMMIT_MESSAGE is: '${_COMMIT_MESSAGE}'"
 
-        _SERVICE=""
+        export _SERVICE=""
 
         if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
-          _SERVICE="orquestador"
+          export _SERVICE="orquestador"
         elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
-          _SERVICE="pedidos"
+          export _SERVICE="pedidos"
         elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar productos\]"; then
-          _SERVICE="productos"
+          export _SERVICE="productos"
         elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar rutas\]"; then
-          _SERVICE="rutas"
+          export _SERVICE="rutas"
         elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar todos\]"; then
-          _SERVICE="todos"
+          export _SERVICE="todos"
         else
           echo "❌ No service specified in commit message"
           exit 1
