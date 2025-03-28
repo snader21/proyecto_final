@@ -13,8 +13,9 @@ steps:
     args:
       - "-c"
       - |
-        # Detect the service to deploy from the commit message
         echo "_COMMIT_MESSAGE is: '${_COMMIT_MESSAGE}'"
+
+        SERVICE=""
 
         if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
           SERVICE="orquestador"
@@ -33,7 +34,6 @@ steps:
 
         echo "✅ Detected service: $SERVICE"
 
-        # Authenticate Docker
         gcloud auth configure-docker us-central1-docker.pkg.dev
 
         SERVICES=("orquestador" "pedidos" "productos" "rutas")
@@ -55,8 +55,9 @@ steps:
     args:
       - "-c"
       - |
-        # Detect the service to deploy again
         echo "_COMMIT_MESSAGE is: '${_COMMIT_MESSAGE}'"
+
+        SERVICE=""
 
         if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
           SERVICE="orquestador"
