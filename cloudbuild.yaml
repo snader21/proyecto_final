@@ -7,7 +7,7 @@ substitutions:
   # Add substitution for Node version if needed, e.g., _NODE_VERSION: "18"
 
 steps:
-  # Step 1: Detect which service(s) to process
+  # Step 1: Detect which service(s) to process.
   - name: "gcr.io/cloud-builders/gcloud"
     id: "detect-service"
     entrypoint: "bash"
