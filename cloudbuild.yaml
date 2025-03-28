@@ -6,7 +6,7 @@ substitutions:
   _PORT: "3000"
 
 steps:
-  # Step 1: Build and push to Artifact Registry.
+  # Step 1: Build and push to Artifact Registry
   - name: "gcr.io/cloud-builders/docker"
     id: "build-and-push"
     entrypoint: "bash"
@@ -59,21 +59,21 @@ steps:
 
         for svc in "${SERVICES[@]}"; do
           if [ "$(cat /workspace/service.txt)" = "$svc" ] || [ "$(cat /workspace/service.txt)" = "todos" ]; then
-            echo "📝 Creating .env.production for $svc"
+            echo "📝 Creating .env for $svc"
 
             if [ "$svc" = "orquestador" ]; then
-              echo "URL_PEDIDOS=${_URL_PEDIDOS}" > ./$svc/.env.production
-              echo "URL_PRODUCTOS=${_URL_PRODUCTOS}" >> ./$svc/.env.production
-              echo "URL_RUTAS=${_URL_RUTAS}" >> ./$svc/.env.production
-              echo "URL_DEEPSEEK=${_URL_DEEPSEEK}" >> ./$svc/.env.production
-              echo "DEEPSEEK_MODEL=${_DEEPSEEK_MODEL}" >> ./$svc/.env.production
-              echo "DEEPSEEK_API_KEY=$(gcloud secrets versions access latest --secret=deepseek_api_key --format='get(payload.data)' --project=$PROJECT_ID | base64 --decode)" >> ./$svc/.env.production
+              echo "URL_PEDIDOS=${_URL_PEDIDOS}" > ./$svc/.env
+              echo "URL_PRODUCTOS=${_URL_PRODUCTOS}" >> ./$svc/.env
+              echo "URL_RUTAS=${_URL_RUTAS}" >> ./$svc/.env
+              echo "URL_DEEPSEEK=${_URL_DEEPSEEK}" >> ./$svc/.env
+              echo "DEEPSEEK_MODEL=${_DEEPSEEK_MODEL}" >> ./$svc/.env
+              echo "DEEPSEEK_API_KEY=$(gcloud secrets versions access latest --secret=deepseek_api_key --format='get(payload.data)' --project=$PROJECT_ID | base64 --decode)" >> ./$svc/.env
             else
-              echo "DB_HOST=/cloudsql/$PROJECT_ID:us-central1:$svc" > ./$svc/.env.production
-              echo "DB_USER=${_DB_USER}" >> ./$svc/.env.production
-              echo "DB_PORT=${_DB_PORT}" >> ./$svc/.env.production
-              echo "DB_NAME=$svc" >> ./$svc/.env.production
-              echo "DB_PASSWORD=${_DB_PASSWORD}" >> ./$svc/.env.production
+              echo "DB_HOST=/cloudsql/$PROJECT_ID:us-central1:$svc" > ./$svc/.env
+              echo "DB_USER=${_DB_USER}" >> ./$svc/.env
+              echo "DB_PORT=${_DB_PORT}" >> ./$svc/.env
+              echo "DB_NAME=$svc" >> ./$svc/.env
+              echo "DB_PASSWORD=${_DB_PASSWORD}" >> ./$svc/.env
             fi
 
             echo "🚀 Deploying $svc to Cloud Run"
