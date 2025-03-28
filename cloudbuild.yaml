@@ -4,6 +4,7 @@ options:
 
 substitutions:
   _PORT: "3000"
+  _SERVICE: "none" # Add this line to define the _SERVICE substitution
 
 steps:
   # Detect which service to build/deploy
@@ -29,8 +30,11 @@ steps:
           SERVICE="todos"
         else
           echo "No service specified in commit message"
-          exit 0
+          exit 1  # Change to exit 1 to fail the build if no service is specified
         fi
+
+        # Write the service to a file that can be used in subsequent steps
+        echo "$SERVICE" > _service_to_deploy.txt
 
   # Build and push to Artifact Registry
   - name: "gcr.io/cloud-builders/docker"
@@ -40,6 +44,9 @@ steps:
       - "-c"
       - |
         gcloud auth configure-docker us-central1-docker.pkg.dev
+
+        # Read the service from the file
+        SERVICE=$(cat _service_to_deploy.txt)
 
         SERVICES=("orquestador" "pedidos" "productos" "rutas")
 
@@ -58,6 +65,9 @@ steps:
     args:
       - "-c"
       - |
+        # Read the service from the file
+        SERVICE=$(cat _service_to_deploy.txt)
+
         SERVICES=("orquestador" "pedidos" "productos" "rutas")
 
         for svc in "${SERVICES[@]}"; do
