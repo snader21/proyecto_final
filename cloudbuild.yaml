@@ -8,12 +8,13 @@ substitutions:
 
 steps:
   # Build and push to Artifact Registry
-  - name: "gcr.io/cloud-builders/docker"
+  - name: "gcr.io/cloud-builders/gcloud"
     id: "build-and-push"
     entrypoint: "bash"
     args:
       - "-c"
       - |
+        # Authenticate Docker
         gcloud auth configure-docker us-central1-docker.pkg.dev
 
         # Detect service from commit message if _SERVICE is "none"
@@ -79,8 +80,6 @@ steps:
             # Create empty env file
             > ./$svc/.env.production
             
-            # Fetch common secret
-            
             if [ "$svc" = "orquestador" ]; then
               # Orquestador specific environment variables
               echo "URL_PEDIDOS=${_URL_PEDIDOS}" >> ./$svc/.env.production
@@ -89,7 +88,7 @@ steps:
               echo "URL_DEEPSEEK=${_URL_DEEPSEEK}" >> ./$svc/.env.production
               echo "DEEPSEEK_MODEL=${_DEEPSEEK_MODEL}" >> ./$svc/.env.production
               echo "DEEPSEEK_API_KEY=$(gcloud secrets versions access latest --secret=deepseek_api_key --format='get(payload.data)' --project=$PROJECT_ID | base64 --decode)" >> ./$svc/.env.production
-              
+
               # Deploy orquestador
               echo "Deploying $svc to Cloud Run"
               gcloud run deploy $svc \
@@ -102,7 +101,7 @@ steps:
                 --min-instances 0 \
                 --max-instances 1 \
                 --allow-unauthenticated \
-                --set-env-vars-file=./$svc/.env.production
+                --env-vars-file=./$svc/.env.production
             else
               # Database services environment variables
               echo "DB_HOST=/cloudsql/$PROJECT_ID:us-central1:$svc" >> ./$svc/.env.production
@@ -110,7 +109,7 @@ steps:
               echo "DB_PORT=${_DB_PORT}" >> ./$svc/.env.production
               echo "DB_NAME=${_DB_NAME}" >> ./$svc/.env.production
               echo "DB_PASSWORD=${_DB_PASSWORD}" >> ./$svc/.env.production
-              
+
               # Deploy database services
               echo "Deploying $svc to Cloud Run"
               gcloud run deploy $svc \
@@ -124,7 +123,7 @@ steps:
                 --min-instances 0 \
                 --max-instances 1 \
                 --allow-unauthenticated \
-                --set-env-vars-file=./$svc/.env.production
+                --env-vars-file=./$svc/.env.production
             fi
           fi
         done
