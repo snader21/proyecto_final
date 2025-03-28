@@ -165,6 +165,8 @@ steps:
                 --min-instances 0 \
                 --max-instances 1 \
                 --allow-unauthenticated \
+                --member="allUsers" \
+                --role="roles/run.invoker"
                 --add-cloudsql-instances $PROJECT_ID:us-central1:$svc
             fi
           fi
