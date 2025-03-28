@@ -30,15 +30,14 @@ steps:
           exit 1
         fi
 
-        _SERVICE=$(cat /workspace/service.txt)
-        echo "✅ Detected service: $_SERVICE"
+        echo "✅ Detected service: $(cat /workspace/service.txt)"
 
         gcloud auth configure-docker us-central1-docker.pkg.dev
 
         SERVICES=("orquestador" "pedidos" "productos" "rutas")
 
         for svc in "${SERVICES[@]}"; do
-          if [ "$_SERVICE" = "$svc" ] || [ "$_SERVICE" = "todos" ]; then
+          if [ "$(cat /workspace/service.txt)" = "$svc" ] || [ "$(cat /workspace/service.txt)" = "todos" ]; then
             echo "📦 Building and pushing $svc"
             docker build -t gcr.io/$PROJECT_ID/$svc:$COMMIT_SHA ./$svc
             docker tag gcr.io/$PROJECT_ID/$svc:$COMMIT_SHA \
@@ -54,13 +53,12 @@ steps:
     args:
       - "-c"
       - |
-        _SERVICE=$(cat /workspace/service.txt)
-        echo "✅✅✅✅ Detected service from file: $(cat /workspace/service.txt)"
+        echo "✅ Detected service from file: $(cat /workspace/service.txt)"
 
         SERVICES=("orquestador" "pedidos" "productos" "rutas")
 
         for svc in "${SERVICES[@]}"; do
-          if [ "$_SERVICE" = "$svc" ] || [ "$_SERVICE" = "todos" ]; then
+          if [ "$(cat /workspace/service.txt)" = "$svc" ] || [ "$(cat /workspace/service.txt)" = "todos" ]; then
             echo "📝 Creating .env.production for $svc"
 
             if [ "$svc" = "orquestador" ]; then
