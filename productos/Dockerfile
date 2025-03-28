@@ -32,6 +32,8 @@ USER nodeuser
 COPY --chown=nodeuser:nodeuser --from=build /app/dist ./dist
 COPY --chown=nodeuser:nodeuser --from=build /app/package*.json ./
 
+COPY --chown=nodeuser:nodeuser .env .env
+
 # Install only production dependencies (if needed at runtime)
 RUN npm ci --production
 
