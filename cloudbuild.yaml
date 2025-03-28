@@ -4,6 +4,7 @@ options:
 
 substitutions:
   _PORT: "3000"
+  _SERVICE: "none"
 
 steps:
   # Build and push to Artifact Registry
@@ -15,28 +16,29 @@ steps:
       - |
         gcloud auth configure-docker us-central1-docker.pkg.dev
 
-        # Detect service from commit message
-        SERVICE=""
-        if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
-          SERVICE="orquestador"
-        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
-          SERVICE="pedidos"
-        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar productos\]"; then
-          SERVICE="productos"
-        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar rutas\]"; then
-          SERVICE="rutas"
-        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar todos\]"; then
-          SERVICE="todos"
-        else
-          echo "No service specified in commit message"
-          exit 1
+        # Detect service from commit message if _SERVICE is "none"
+        if [ "${_SERVICE}" = "none" ]; then
+          if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
+            export _SERVICE="orquestador"
+          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
+            export _SERVICE="pedidos"
+          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar productos\]"; then
+            export _SERVICE="productos"
+          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar rutas\]"; then
+            export _SERVICE="rutas"
+          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar todos\]"; then
+            export _SERVICE="todos"
+          else
+            echo "No service specified in commit message"
+            exit 1
+          fi
         fi
 
         # Build and push services
         SERVICES=("orquestador" "pedidos" "productos" "rutas")
 
         for svc in "${SERVICES[@]}"; do
-          if [ "$SERVICE" = "$svc" ] || [ "$SERVICE" = "todos" ]; then
+          if [ "${_SERVICE}" = "$svc" ] || [ "${_SERVICE}" = "todos" ]; then
             echo "Building and pushing $svc"
             docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA ./$svc
             docker push us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA
@@ -50,27 +52,28 @@ steps:
     args:
       - "-c"
       - |
-        # Detect service from commit message again
-        SERVICE=""
-        if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
-          SERVICE="orquestador"
-        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
-          SERVICE="pedidos"
-        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar productos\]"; then
-          SERVICE="productos"
-        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar rutas\]"; then
-          SERVICE="rutas"
-        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar todos\]"; then
-          SERVICE="todos"
-        else
-          echo "No service specified in commit message"
-          exit 1
+        # Detect service from commit message if _SERVICE is "none"
+        if [ "${_SERVICE}" = "none" ]; then
+          if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
+            export _SERVICE="orquestador"
+          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
+            export _SERVICE="pedidos"
+          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar productos\]"; then
+            export _SERVICE="productos"
+          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar rutas\]"; then
+            export _SERVICE="rutas"
+          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar todos\]"; then
+            export _SERVICE="todos"
+          else
+            echo "No service specified in commit message"
+            exit 1
+          fi
         fi
 
         SERVICES=("orquestador" "pedidos" "productos" "rutas")
 
         for svc in "${SERVICES[@]}"; do
-          if [ "$SERVICE" = "$svc" ] || [ "$SERVICE" = "todos" ]; then
+          if [ "${_SERVICE}" = "$svc" ] || [ "${_SERVICE}" = "todos" ]; then
             echo "Creating .env.production for $svc"
             
             # Create empty env file
