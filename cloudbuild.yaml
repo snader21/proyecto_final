@@ -1,0 +1,123 @@
+options:
+  logging: CLOUD_LOGGING_ONLY
+  logStreamingOption: STREAM_ON
+
+substitutions:
+  _PORT: "3000"
+
+steps:
+  # Detect which service to build/deploy
+  - name: "gcr.io/cloud-builders/gcloud"
+    id: "detect-service"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        COMMIT_MSG=$(git log -1 --pretty=%B)
+        echo "Commit message: $COMMIT_MSG"
+
+        if echo "$COMMIT_MSG" | grep -q "\[desplegar orquestador\]"; then
+          echo "orquestador" > _SERVICE
+        elif echo "$COMMIT_MSG" | grep -q "\[desplegar pedidos\]"; then
+          echo "pedidos" > _SERVICE
+        elif echo "$COMMIT_MSG" | grep -q "\[desplegar productos\]"; then
+          echo "productos" > _SERVICE
+        elif echo "$COMMIT_MSG" | grep -q "\[desplegar rutas\]"; then
+          echo "rutas" > _SERVICE
+        elif echo "$COMMIT_MSG" | grep -q "\[desplegar todos\]"; then
+          echo "todos" > _SERVICE
+        else
+          echo "No service specified in commit message"
+          exit 0
+        fi
+
+  # Build and push to Artifact Registry
+  - name: "gcr.io/cloud-builders/docker"
+    id: "build-and-push"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        SERVICE=$(cat _SERVICE)
+        gcloud auth configure-docker us-central1-docker.pkg.dev
+
+        SERVICES=("orquestador" "pedidos" "productos" "rutas")
+
+        for svc in "${SERVICES[@]}"; do
+          if [ "$SERVICE" = "$svc" ] || [ "$SERVICE" = "todos" ]; then
+            echo "Building and pushing $svc"
+            docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA ./$svc
+            docker push us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA
+          fi
+        done
+
+  # Deploy to Cloud Run with env file per service
+  - name: "gcr.io/cloud-builders/gcloud"
+    id: "deploy"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        SERVICE=$(cat _SERVICE)
+
+        SERVICES=("orquestador" "pedidos" "productos" "rutas")
+
+        for svc in "${SERVICES[@]}"; do
+          if [ "$SERVICE" = "$svc" ] || [ "$SERVICE" = "todos" ]; then
+            echo "Creating .env.production for $svc"
+            
+            # Create empty env file
+            > ./$svc/.env.production
+            
+            # Fetch common secret
+            DEEPSEEK_API_KEY=$(gcloud secrets versions access latest --secret=deepseek-api-key --format='get(payload.data)' --project=$PROJECT_ID | base64 --decode)
+            
+            if [ "$svc" = "orquestador" ]; then
+              # Orquestador specific environment variables
+              echo "URL_PEDIDOS=${_URL_PEDIDOS}" >> ./$svc/.env.production
+              echo "URL_PRODUCTOS=${_URL_PRODUCTOS}" >> ./$svc/.env.production
+              echo "URL_RUTAS=${_URL_RUTAS}" >> ./$svc/.env.production
+              echo "URL_DEEPSEEK=${_URL_DEEPSEEK}" >> ./$svc/.env.production
+              echo "DEEPSEEK_MODEL=${_DEEPSEEK_MODEL}" >> ./$svc/.env.production
+              echo "DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}" >> ./$svc/.env.production
+              
+              # Deploy orquestador
+              echo "Deploying $svc to Cloud Run"
+              gcloud run deploy $svc \
+                --image us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA \
+                --region us-central1 \
+                --platform managed \
+                --port 3000 \
+                --memory 512Mi \
+                --cpu 1 \
+                --min-instances 0 \
+                --max-instances 1 \
+                --allow-unauthenticated \
+                --set-env-vars-file=./$svc/.env.production
+            else
+              # Database services environment variables
+              echo "DB_HOST=/cloudsql/$PROJECT_ID:us-central1:$svc" >> ./$svc/.env.production
+              echo "DB_USER=${_DB_USER}" >> ./$svc/.env.production
+              echo "DB_PORT=${_DB_PORT}" >> ./$svc/.env.production
+              echo "DB_NAME=${_DB_NAME}" >> ./$svc/.env.production
+              echo "DB_PASSWORD=${_DB_PASSWORD}" >> ./$svc/.env.production
+              
+              # Deploy database services
+              echo "Deploying $svc to Cloud Run"
+              gcloud run deploy $svc \
+                --image us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA \
+                --cloud-sql-instance $PROJECT_ID:us-central1:$svc \
+                --region us-central1 \
+                --platform managed \
+                --port 3000 \
+                --memory 512Mi \
+                --cpu 1 \
+                --min-instances 0 \
+                --max-instances 1 \
+                --allow-unauthenticated \
+                --set-env-vars-file=./$svc/.env.production
+            fi
+          fi
+        done
+
+timeout: "1800s"
