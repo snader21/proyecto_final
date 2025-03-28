@@ -15,16 +15,18 @@ steps:
       - |
         echo "Commit message: ${_COMMIT_MESSAGE}"
 
+        SERVICE=""
+
         if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
-          echo "orquestador" > _SERVICE
+          SERVICE="orquestador"
         elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
-          echo "pedidos" > _SERVICE
+          SERVICE="pedidos"
         elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar productos\]"; then
-          echo "productos" > _SERVICE
+          SERVICE="productos"
         elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar rutas\]"; then
-          echo "rutas" > _SERVICE
+          SERVICE="rutas"
         elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar todos\]"; then
-          echo "todos" > _SERVICE
+          SERVICE="todos"
         else
           echo "No service specified in commit message"
           exit 0
@@ -37,7 +39,6 @@ steps:
     args:
       - "-c"
       - |
-        SERVICE=$(cat _SERVICE)
         gcloud auth configure-docker us-central1-docker.pkg.dev
 
         SERVICES=("orquestador" "pedidos" "productos" "rutas")
@@ -57,8 +58,6 @@ steps:
     args:
       - "-c"
       - |
-        SERVICE=$(cat _SERVICE)
-
         SERVICES=("orquestador" "pedidos" "productos" "rutas")
 
         for svc in "${SERVICES[@]}"; do
