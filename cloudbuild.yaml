@@ -80,7 +80,6 @@ steps:
             > ./$svc/.env.production
             
             # Fetch common secret
-            DEEPSEEK_API_KEY=$(gcloud secrets versions access latest --secret=deepseek_api_key --format='get(payload.data)' --project=$PROJECT_ID | base64 --decode)
             
             if [ "$svc" = "orquestador" ]; then
               # Orquestador specific environment variables
@@ -89,7 +88,7 @@ steps:
               echo "URL_RUTAS=${_URL_RUTAS}" >> ./$svc/.env.production
               echo "URL_DEEPSEEK=${_URL_DEEPSEEK}" >> ./$svc/.env.production
               echo "DEEPSEEK_MODEL=${_DEEPSEEK_MODEL}" >> ./$svc/.env.production
-              echo "DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}" >> ./$svc/.env.production
+              echo "DEEPSEEK_API_KEY=$(gcloud secrets versions access latest --secret=deepseek_api_key --format='get(payload.data)' --project=$PROJECT_ID | base64 --decode)" >> ./$svc/.env.production
               
               # Deploy orquestador
               echo "Deploying $svc to Cloud Run"
