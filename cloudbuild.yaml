@@ -4,89 +4,205 @@ options:
 
 substitutions:
   _PORT: "3000"
+  # Add substitution for Node version if needed, e.g., _NODE_VERSION: "18"
 
 steps:
-  # Step 1: Build and push to Artifact Registry.
+  # Step 1: Detect which service(s) to process
+  - name: "gcr.io/cloud-builders/gcloud"
+    id: "detect-service"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        echo "_COMMIT_MESSAGE is: '${_COMMIT_MESSAGE}'"
+        > /workspace/services_to_process.txt # Clear or create the file
+
+        if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
+          echo "orquestador" >> /workspace/services_to_process.txt
+        fi
+        if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
+          echo "pedidos" >> /workspace/services_to_process.txt
+        fi
+        if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar productos\]"; then
+          echo "productos" >> /workspace/services_to_process.txt
+        fi
+        if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar rutas\]"; then
+          echo "rutas" >> /workspace/services_to_process.txt
+        fi
+
+        if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar todos\]"; then
+          echo "todos" > /workspace/services_to_process.txt # Overwrite if 'todos' is present
+        fi
+
+        if [ ! -s /workspace/services_to_process.txt ]; then
+          echo "❌ No valid service tag found in commit message: '${_COMMIT_MESSAGE}'"
+          exit 1
+        fi
+
+        echo "✅ Services to process based on commit message:"
+        cat /workspace/services_to_process.txt
+
+  # Step 2: Run tests for specified services
+  - name: "node" # Use a specific Node.js image like node:18 or node:20
+    id: "run-tests"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        SERVICES_TO_PROCESS=$(cat /workspace/services_to_process.txt)
+        echo "🧪 Running tests for services: $SERVICES_TO_PROCESS"
+        > /workspace/services_passed_tests.txt # Clear or create the file
+
+        SERVICES_ARRAY=("orquestador" "pedidos" "productos" "rutas")
+        ALL_TESTS_PASSED=true
+        TESTS_WERE_RUN=false
+
+        for svc in "${SERVICES_ARRAY[@]}"; do
+          # Check if the specific service OR 'todos' is requested
+          if echo "$SERVICES_TO_PROCESS" | grep -q -w "$svc" || echo "$SERVICES_TO_PROCESS" | grep -q -w "todos"; then
+            TESTS_WERE_RUN=true
+            echo "⏳ Running tests for $svc..."
+            cd $svc
+            # Use npm ci for cleaner installs in CI environments
+            if [ -f package-lock.json ]; then
+              npm ci
+            else
+              npm install
+            fi
+            # Add specific test script if needed, e.g., npm run test:ci
+            if npm run test; then
+              echo "✅ Tests passed for $svc"
+              # Record that this service passed tests
+              echo "$svc" >> /workspace/services_passed_tests.txt
+            else
+              echo "❌ Tests failed for $svc"
+              ALL_TESTS_PASSED=false
+            fi
+            cd .. # Go back to the workspace root
+          fi
+        done
+
+        if [ "$TESTS_WERE_RUN" = "false" ]; then
+           echo "🤷 No tests were run based on commit message."
+           # If 'todos' was specified, copy it to passed tests file so build/deploy runs
+           if echo "$SERVICES_TO_PROCESS" | grep -q -w "todos"; then
+             echo "todos" > /workspace/services_passed_tests.txt
+             echo "Continuing build for 'todos' as no tests were applicable."
+           fi
+        # If 'todos' was requested and any test failed, fail the entire build
+        elif echo "$SERVICES_TO_PROCESS" | grep -q -w "todos" && [ "$ALL_TESTS_PASSED" = "false" ]; then
+           echo "🚫 Failing build because 'todos' was specified and some tests failed."
+           exit 1
+        fi
+
+        echo "--- Test Summary ---"
+        if [ -s /workspace/services_passed_tests.txt ]; then
+          echo "Services that passed tests:"
+          cat /workspace/services_passed_tests.txt
+        else
+          echo "No services passed tests."
+        fi
+        echo "--------------------"
+
+  # Step 3: Build and push ONLY if tests passed
   - name: "gcr.io/cloud-builders/docker"
     id: "build-and-push"
     entrypoint: "bash"
     args:
       - "-c"
       - |
-        echo "_COMMIT_MESSAGE is: '${_COMMIT_MESSAGE}'"
-
-        if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
-          echo "orquestador" > /workspace/service.txt
-        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
-          echo "pedidos" > /workspace/service.txt
-        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar productos\]"; then
-          echo "productos" > /workspace/service.txt
-        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar rutas\]"; then
-          echo "rutas" > /workspace/service.txt
-        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar todos\]"; then
-          echo "todos" > /workspace/service.txt
-        else
-          echo "❌ No service specified in commit message"
-          exit 1
+        if [ ! -s /workspace/services_passed_tests.txt ]; then
+          echo "🛑 Skipping build and push: No services passed tests."
+          exit 0 # Exit gracefully, not an error
         fi
 
-        echo "✅ Detected service: $(cat /workspace/service.txt)"
+        echo "🔧 Building images for services that passed tests:"
+        cat /workspace/services_passed_tests.txt
 
         gcloud auth configure-docker us-central1-docker.pkg.dev
+        SERVICES_ARRAY=("orquestador" "pedidos" "productos" "rutas")
 
-        SERVICES=("orquestador" "pedidos" "productos" "rutas")
-
-        for svc in "${SERVICES[@]}"; do
-          if [ "$(cat /workspace/service.txt)" = "$svc" ] || [ "$(cat /workspace/service.txt)" = "todos" ]; then
+        for svc in "${SERVICES_ARRAY[@]}"; do
+          # Build if the specific service OR 'todos' passed tests
+          if grep -q -w "$svc" /workspace/services_passed_tests.txt || grep -q -w "todos" /workspace/services_passed_tests.txt; then
             echo "📦 Building and pushing $svc"
-            docker build -t gcr.io/$PROJECT_ID/$svc:$COMMIT_SHA ./$svc
-            docker tag gcr.io/$PROJECT_ID/$svc:$COMMIT_SHA \
-              us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA
-            docker push us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA
+            # Check if the directory exists before building
+            if [ -d "./$svc" ]; then
+              docker build -t gcr.io/$PROJECT_ID/$svc:$COMMIT_SHA ./$svc
+              docker tag gcr.io/$PROJECT_ID/$svc:$COMMIT_SHA \
+                us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA
+              docker push us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA
+            else
+              echo "⚠️ Warning: Directory ./$svc not found. Skipping build for $svc."
+            fi
           fi
         done
 
-  # Step 2: Deploy to Cloud Run
+  # Step 4: Deploy ONLY if tests passed
   - name: "gcr.io/cloud-builders/gcloud"
     id: "deploy"
     entrypoint: "bash"
     args:
       - "-c"
       - |
-        echo "✅ Detected service from file: $(cat /workspace/service.txt)"
+        if [ ! -s /workspace/services_passed_tests.txt ]; then
+          echo "🛑 Skipping deploy: No services passed tests."
+          exit 0 # Exit gracefully
+        fi
 
-        SERVICES=("orquestador" "pedidos" "productos" "rutas")
+        echo "🚀 Deploying services that passed tests:"
+        cat /workspace/services_passed_tests.txt
 
-        for svc in "${SERVICES[@]}"; do
-          if [ "$(cat /workspace/service.txt)" = "$svc" ] || [ "$(cat /workspace/service.txt)" = "todos" ]; then
+        SERVICES_ARRAY=("orquestador" "pedidos" "productos" "rutas")
+
+        for svc in "${SERVICES_ARRAY[@]}"; do
+          # Deploy if the specific service OR 'todos' passed tests
+          if grep -q -w "$svc" /workspace/services_passed_tests.txt || grep -q -w "todos" /workspace/services_passed_tests.txt; then
+            # Check if the service directory exists before trying to access .env
+             if [ ! -d "./$svc" ]; then
+                echo "⚠️ Warning: Directory ./$svc not found. Skipping deploy for $svc."
+                continue # Skip to the next service in the loop
+             fi
+
             echo "📝 Creating .env for $svc"
+            # Create/overwrite the .env file
+            > ./$svc/.env
 
             if [ "$svc" = "orquestador" ]; then
-              echo "URL_PEDIDOS=${_URL_PEDIDOS}" > ./$svc/.env
+              echo "URL_PEDIDOS=${_URL_PEDIDOS}" >> ./$svc/.env
               echo "URL_PRODUCTOS=${_URL_PRODUCTOS}" >> ./$svc/.env
               echo "URL_RUTAS=${_URL_RUTAS}" >> ./$svc/.env
               echo "URL_DEEPSEEK=${_URL_DEEPSEEK}" >> ./$svc/.env
               echo "DEEPSEEK_MODEL=${_DEEPSEEK_MODEL}" >> ./$svc/.env
               echo "DEEPSEEK_API_KEY=$(gcloud secrets versions access latest --secret=deepseek_api_key --format='get(payload.data)' --project=$PROJECT_ID | base64 --decode)" >> ./$svc/.env
+
+              # Deploy orquestador (no SQL instance)
+              echo "☁️ Deploying $svc to Cloud Run"
+              gcloud run deploy $svc \
+                --image us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA \
+                --region us-central1 \
+                --platform managed \
+                --port 3000 \
+                --set-env-vars-from-file=./$svc/.env \
+                --memory 512Mi --cpu 1 --min-instances 0 --max-instances 1 --allow-unauthenticated
             else
-              echo "DB_HOST=/cloudsql/$PROJECT_ID:us-central1:$svc" > ./$svc/.env
+              # Deploy other services (with SQL instance)
+              echo "DB_HOST=/cloudsql/$PROJECT_ID:us-central1:$svc" >> ./$svc/.env
               echo "DB_USER=${_DB_USER}" >> ./$svc/.env
               echo "DB_PORT=${_DB_PORT}" >> ./$svc/.env
               echo "DB_NAME=$svc" >> ./$svc/.env
               echo "DB_PASSWORD=${_DB_PASSWORD}" >> ./$svc/.env
-            fi
 
-            echo "🚀 Deploying $svc to Cloud Run"
-            gcloud run deploy $svc \
-              --image us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA \
-              --region us-central1 \
-              --platform managed \
-              --port 3000 \
-              --memory 512Mi \
-              --cpu 1 \
-              --min-instances 0 \
-              --max-instances 1 \
-              --allow-unauthenticated
+              echo "☁️ Deploying $svc to Cloud Run"
+              gcloud run deploy $svc \
+                --image us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA \
+                --add-cloudsql-instances $PROJECT_ID:us-central1:$svc \
+                --region us-central1 \
+                --platform managed \
+                --port 3000 \
+                --set-env-vars-from-file=./$svc/.env \
+                --memory 512Mi --cpu 1 --min-instances 0 --max-instances 1 --allow-unauthenticated
+            fi
           fi
         done
 

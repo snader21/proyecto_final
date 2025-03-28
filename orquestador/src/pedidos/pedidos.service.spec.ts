@@ -15,4 +15,8 @@ describe('PedidosService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
+
+  it('should be true', () => {
+    expect(true).toBe(true);
+  });
 });
