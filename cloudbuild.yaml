@@ -13,17 +13,17 @@ steps:
     args:
       - "-c"
       - |
-        echo "Commit message: $COMMIT_MESSAGE"
+        echo "Commit message: ${_COMMIT_MESSAGE}"
 
-        if echo "$COMMIT_MESSAGE" | grep -q "\[desplegar orquestador\]"; then
+        if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
           echo "orquestador" > _SERVICE
-        elif echo "$COMMIT_MESSAGE" | grep -q "\[desplegar pedidos\]"; then
+        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
           echo "pedidos" > _SERVICE
-        elif echo "$COMMIT_MESSAGE" | grep -q "\[desplegar productos\]"; then
+        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar productos\]"; then
           echo "productos" > _SERVICE
-        elif echo "$COMMIT_MESSAGE" | grep -q "\[desplegar rutas\]"; then
+        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar rutas\]"; then
           echo "rutas" > _SERVICE
-        elif echo "$COMMIT_MESSAGE" | grep -q "\[desplegar todos\]"; then
+        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar todos\]"; then
           echo "todos" > _SERVICE
         else
           echo "No service specified in commit message"
