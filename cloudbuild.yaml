@@ -6,7 +6,7 @@ substitutions:
   _PORT: "3000"
 
 steps:
-  # Detect which service to build-deploy
+  # Detect which service to build/deploy
   - name: "gcr.io/cloud-builders/gcloud"
     id: "detect-service"
     entrypoint: "bash"
