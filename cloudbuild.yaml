@@ -16,20 +16,17 @@ steps:
       - |
         # Authenticate Docker
         gcloud auth configure-docker us-central1-docker.pkg.dev
-        echo "_COMMIT_MESSAGE is: '${_COMMIT_MESSAGE}'"
-
-
 
         if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
-          export _SERVICE="orquestador"
+          _SERVICE="orquestador"
         elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
-          export _SERVICE="pedidos"
+          _SERVICE="pedidos"
         elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar productos\]"; then
-          export _SERVICE="productos"
+          _SERVICE="productos"
         elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar rutas\]"; then
-          export _SERVICE="rutas"
+          _SERVICE="rutas"
         elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar todos\]"; then
-          export _SERVICE="todos"
+          _SERVICE="todos"
         else
           echo "No service specified in commit message"
           exit 1
@@ -64,15 +61,15 @@ steps:
       - |
 
         if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
-          export _SERVICE="orquestador"
+          _SERVICE="orquestador"
         elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
-          export _SERVICE="pedidos"
+          _SERVICE="pedidos"
         elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar productos\]"; then
-          export _SERVICE="productos"
+          _SERVICE="productos"
         elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar rutas\]"; then
-          export _SERVICE="rutas"
+          _SERVICE="rutas"
         elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar todos\]"; then
-          export _SERVICE="todos"
+          _SERVICE="todos"
         else
           echo "No service specified in commit message"
           exit 1
