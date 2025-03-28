@@ -72,7 +72,7 @@ steps:
               echo "DB_HOST=/cloudsql/$PROJECT_ID:us-central1:$svc" > ./$svc/.env.production
               echo "DB_USER=${_DB_USER}" >> ./$svc/.env.production
               echo "DB_PORT=${_DB_PORT}" >> ./$svc/.env.production
-              echo "DB_NAME=${_DB_NAME}" >> ./$svc/.env.production
+              echo "DB_NAME=$svc" >> ./$svc/.env.production
               echo "DB_PASSWORD=${_DB_PASSWORD}" >> ./$svc/.env.production
             fi
 
