@@ -77,7 +77,7 @@ steps:
           done
         done < /workspace/service.txt
 
-        if [ "$ALL_TESTS_PASSED" = false ]; then
+        if [ "$$ALL_TESTS_PASSED" = false ]; then
           echo "🚫 Some tests failed. Exiting."
           exit 1
         fi
