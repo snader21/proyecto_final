@@ -30,8 +30,8 @@ steps:
           exit 1
         fi
 
-        SERVICE=$(cat /workspace/service.txt)
-        echo "✅ Detected service: $SERVICE"
+        _SERVICE=$(cat /workspace/service.txt)
+        echo "✅ Detected service: $_SERVICE"
 
         gcloud auth configure-docker us-central1-docker.pkg.dev
 
@@ -54,13 +54,13 @@ steps:
     args:
       - "-c"
       - |
-        SERVICE=$(cat /workspace/service.txt)
-        echo "✅ Detected service from file: $SERVICE"
+        _SERVICE=$(cat /workspace/service.txt)
+        echo "✅ Detected service from file: $_SERVICE"
 
         SERVICES=("orquestador" "pedidos" "productos" "rutas")
 
         for svc in "${SERVICES[@]}"; do
-          if [ "$SERVICE" = "$svc" ] || [ "$SERVICE" = "todos" ]; then
+          if [ "$_SERVICE" = "$svc" ] || [ "$_SERVICE" = "todos" ]; then
             echo "📝 Creating .env.production for $svc"
 
             if [ "$svc" = "orquestador" ]; then
