@@ -101,7 +101,6 @@ steps:
                 --min-instances 0 \
                 --max-instances 1 \
                 --allow-unauthenticated \
-                --env-vars-file=./$svc/.env.production
             else
               # Database services environment variables
               echo "DB_HOST=/cloudsql/$PROJECT_ID:us-central1:$svc" >> ./$svc/.env.production
@@ -123,7 +122,6 @@ steps:
                 --min-instances 0 \
                 --max-instances 1 \
                 --allow-unauthenticated \
-                --env-vars-file=./$svc/.env.production
             fi
           fi
         done
