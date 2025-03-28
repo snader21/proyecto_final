@@ -6,7 +6,7 @@ substitutions:
   _PORT: "3000"
 
 steps:
-  # Step 0: Detect service to deploy.
+  # Step 1: Detect service to deploy
   - name: "node"
     id: "detect-service"
     entrypoint: "bash"
@@ -40,7 +40,7 @@ steps:
 
         echo "✅ Detected service: $(cat /workspace/service.txt)"
 
-  # Step 1: Run tests for specified services
+  # Step 2: Run tests
   - name: "node"
     id: "run-tests"
     entrypoint: "bash"
@@ -76,15 +76,48 @@ steps:
           exit 1
         fi
 
-  # Step 2: Build and push to Artifact Registry.
-  - name: "gcr.io/cloud-builders/docker"
-    id: "build-and-push-to-artifact-registry"
+  # Step 3: Generate .env file
+  - name: "gcr.io/cloud-builders/gcloud"
+    id: "generate-env"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        svc=$(cat /workspace/service.txt)
+
+        echo "📝 Generating .env for $svc"
+
+        if [ "$svc" = "orquestador" ]; then
+          echo "URL_PEDIDOS=${_URL_PEDIDOS}" > ./$svc/.env
+          echo "URL_PRODUCTOS=${_URL_PRODUCTOS}" >> ./$svc/.env
+          echo "URL_RUTAS=${_URL_RUTAS}" >> ./$svc/.env
+          echo "URL_DEEPSEEK=${_URL_DEEPSEEK}" >> ./$svc/.env
+          echo "DEEPSEEK_MODEL=${_DEEPSEEK_MODEL}" >> ./$svc/.env
+          echo "DEEPSEEK_API_KEY=$(gcloud secrets versions access latest --secret=deepseek_api_key --format='get(payload.data)' --project=$PROJECT_ID | base64 --decode)" >> ./$svc/.env
+        else
+          echo "DB_HOST=/cloudsql/$PROJECT_ID:us-central1:$svc" > ./$svc/.env
+          echo "DB_USER=${_DB_USER}" >> ./$svc/.env
+          echo "DB_PORT=${_DB_PORT}" >> ./$svc/.env
+          echo "DB_NAME=$svc" >> ./$svc/.env
+          echo "DB_PASSWORD=${_DB_PASSWORD}" >> ./$svc/.env
+        fi
+
+  # Step 4: Auth for Docker
+  - name: "gcr.io/cloud-builders/gcloud"
+    id: "auth-docker"
     entrypoint: "bash"
     args:
       - "-c"
       - |
         gcloud auth configure-docker us-central1-docker.pkg.dev
 
+  # Step 5: Build and push
+  - name: "gcr.io/cloud-builders/docker"
+    id: "build-and-push"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
         SERVICES=("orquestador" "pedidos" "productos" "rutas" "fabricantes" "vendedores" "clientes" "usuarios")
 
         for svc in "${SERVICES[@]}"; do
@@ -97,30 +130,20 @@ steps:
           fi
         done
 
-  # Step 3: Deploy to Cloud Run
+  # Step 6: Deploy to Cloud Run
   - name: "gcr.io/cloud-builders/gcloud"
-    id: "deploy-to-cloud-run"
+    id: "deploy"
     entrypoint: "bash"
     args:
       - "-c"
       - |
-        echo "✅ Detected service from file: $(cat /workspace/service.txt)"
-
         SERVICES=("orquestador" "pedidos" "productos" "rutas" "fabricantes" "vendedores" "clientes" "usuarios")
 
         for svc in "${SERVICES[@]}"; do
           if [ "$(cat /workspace/service.txt)" = "$svc" ] || [ "$(cat /workspace/service.txt)" = "todos" ]; then
-            echo "📝 Creating .env for $svc"
+            echo "🚀 Deploying $svc to Cloud Run"
 
             if [ "$svc" = "orquestador" ]; then
-              echo "URL_PEDIDOS=${_URL_PEDIDOS}" > ./$svc/.env
-              echo "URL_PRODUCTOS=${_URL_PRODUCTOS}" >> ./$svc/.env
-              echo "URL_RUTAS=${_URL_RUTAS}" >> ./$svc/.env
-              echo "URL_DEEPSEEK=${_URL_DEEPSEEK}" >> ./$svc/.env
-              echo "DEEPSEEK_MODEL=${_DEEPSEEK_MODEL}" >> ./$svc/.env
-              echo "DEEPSEEK_API_KEY=$(gcloud secrets versions access latest --secret=deepseek_api_key --format='get(payload.data)' --project=$PROJECT_ID | base64 --decode)" >> ./$svc/.env
-
-              echo "🚀 Deploying $svc to Cloud Run"
               gcloud run deploy $svc \
                 --image us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA \
                 --region us-central1 \
@@ -132,13 +155,6 @@ steps:
                 --max-instances 1 \
                 --allow-unauthenticated
             else
-              echo "DB_HOST=/cloudsql/$PROJECT_ID:us-central1:$svc" > ./$svc/.env
-              echo "DB_USER=${_DB_USER}" >> ./$svc/.env
-              echo "DB_PORT=${_DB_PORT}" >> ./$svc/.env
-              echo "DB_NAME=$svc" >> ./$svc/.env
-              echo "DB_PASSWORD=${_DB_PASSWORD}" >> ./$svc/.env
-
-              echo "🚀 Deploying $svc to Cloud Run"
               gcloud run deploy $svc \
                 --image us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA \
                 --region us-central1 \
