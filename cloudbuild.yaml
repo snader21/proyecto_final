@@ -6,7 +6,7 @@ substitutions:
   _PORT: "3000"
 
 steps:
-  # Step 0: Detect service to deploy
+  # Step 0: Detect service to deploy.
   - name: "node"
     id: "detect-service"
     entrypoint: "bash"
