@@ -6,7 +6,7 @@ substitutions:
   _PORT: "3000"
 
 steps:
-  # Step 1: Build and push to Artifact Registry.
+  # Step 1: Build and push to Artifact Registry
   - name: "gcr.io/cloud-builders/docker"
     id: "build-and-push"
     entrypoint: "bash"
