@@ -76,31 +76,38 @@ steps:
           exit 1
         fi
 
-  # Step 3: Generate .env file
-  - name: "gcr.io/cloud-builders/gcloud"
-    id: "generate-env"
-    entrypoint: "bash"
-    args:
-      - "-c"
-      - |
-        svc=$(cat /workspace/service.txt)
+# Step 3: Generate .env files per service
+- name: "gcr.io/cloud-builders/gcloud"
+  id: "generate-env"
+  entrypoint: "bash"
+  args:
+    - "-c"
+    - |
+      SERVICES=("orquestador" "pedidos" "productos" "rutas" "fabricantes" "vendedores" "clientes" "usuarios")
+      
+      for svc in "${SERVICES[@]}"; do
+        if [ "$(cat /workspace/service.txt)" = "$svc" ] || [ "$(cat /workspace/service.txt)" = "todos" ]; then
+          echo "📝 Generating .env for $svc"
 
-        echo "📝 Generating .env for $svc"
+          mkdir -p ./$svc
 
-        if [ "$svc" = "orquestador" ]; then
-          echo "URL_PEDIDOS=${_URL_PEDIDOS}" > ./$svc/.env
-          echo "URL_PRODUCTOS=${_URL_PRODUCTOS}" >> ./$svc/.env
-          echo "URL_RUTAS=${_URL_RUTAS}" >> ./$svc/.env
-          echo "URL_DEEPSEEK=${_URL_DEEPSEEK}" >> ./$svc/.env
-          echo "DEEPSEEK_MODEL=${_DEEPSEEK_MODEL}" >> ./$svc/.env
-          echo "DEEPSEEK_API_KEY=$(gcloud secrets versions access latest --secret=deepseek_api_key --format='get(payload.data)' --project=$PROJECT_ID | base64 --decode)" >> ./$svc/.env
-        else
-          echo "DB_HOST=/cloudsql/$PROJECT_ID:us-central1:$svc" > ./$svc/.env
-          echo "DB_USER=${_DB_USER}" >> ./$svc/.env
-          echo "DB_PORT=${_DB_PORT}" >> ./$svc/.env
-          echo "DB_NAME=$svc" >> ./$svc/.env
-          echo "DB_PASSWORD=${_DB_PASSWORD}" >> ./$svc/.env
+          if [ "$svc" = "orquestador" ]; then
+            echo "URL_PEDIDOS=${_URL_PEDIDOS}" > ./$svc/.env
+            echo "URL_PRODUCTOS=${_URL_PRODUCTOS}" >> ./$svc/.env
+            echo "URL_RUTAS=${_URL_RUTAS}" >> ./$svc/.env
+            echo "URL_DEEPSEEK=${_URL_DEEPSEEK}" >> ./$svc/.env
+            echo "DEEPSEEK_MODEL=${_DEEPSEEK_MODEL}" >> ./$svc/.env
+            echo "DEEPSEEK_API_KEY=$(gcloud secrets versions access latest --secret=deepseek_api_key --format='get(payload.data)' --project=$PROJECT_ID | base64 --decode)" >> ./$svc/.env
+          else
+            echo "DB_HOST=/cloudsql/$PROJECT_ID:us-central1:$svc" > ./$svc/.env
+            echo "DB_USER=${_DB_USER}" >> ./$svc/.env
+            echo "DB_PORT=${_DB_PORT}" >> ./$svc/.env
+            echo "DB_NAME=$svc" >> ./$svc/.env
+            echo "DB_PASSWORD=${_DB_PASSWORD}" >> ./$svc/.env
+          fi
         fi
+      done
+
 
   # Step 4: Auth for Docker
   - name: "gcr.io/cloud-builders/gcloud"
