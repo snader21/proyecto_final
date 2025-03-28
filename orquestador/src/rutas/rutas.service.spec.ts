@@ -2,9 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RutasService } from './rutas.service';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
-import { ProveedorAiModule } from '../proveedor-ai/proveedor-ai.module';
 import { ProductosModule } from '../productos/productos.module';
 import { PedidosModule } from '../pedidos/pedidos.module';
+import { ProveedorAiService } from '../proveedor-ai/proveedor-ai.service';
 
 describe('RutasService', () => {
   let service: RutasService;
@@ -14,11 +14,18 @@ describe('RutasService', () => {
       imports: [
         HttpModule,
         ConfigModule.forRoot({ isGlobal: true }),
-        ProveedorAiModule,
         ProductosModule,
         PedidosModule,
       ],
-      providers: [RutasService],
+      providers: [
+        RutasService,
+        {
+          provide: ProveedorAiService,
+          useValue: {
+            enviarPrompt: jest.fn().mockResolvedValue({ content: '{}' }),
+          },
+        },
+      ],
     }).compile();
 
     service = module.get<RutasService>(RutasService);
