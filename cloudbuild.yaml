@@ -4,20 +4,19 @@ options:
 
 substitutions:
   _PORT: "3000"
-  _SERVICE: "none" # Add this line to define the _SERVICE substitution
 
 steps:
-  # Detect which service to build/deploy
-  - name: "gcr.io/cloud-builders/gcloud"
-    id: "detect-service"
+  # Build and push to Artifact Registry
+  - name: "gcr.io/cloud-builders/docker"
+    id: "build-and-push"
     entrypoint: "bash"
     args:
       - "-c"
       - |
-        echo "Commit message: ${_COMMIT_MESSAGE}"
+        gcloud auth configure-docker us-central1-docker.pkg.dev
 
+        # Detect service from commit message
         SERVICE=""
-
         if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
           SERVICE="orquestador"
         elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
@@ -30,24 +29,10 @@ steps:
           SERVICE="todos"
         else
           echo "No service specified in commit message"
-          exit 1  # Change to exit 1 to fail the build if no service is specified
+          exit 1
         fi
 
-        # Write the service to a file that can be used in subsequent steps
-        echo "$SERVICE" > _service_to_deploy.txt
-
-  # Build and push to Artifact Registry
-  - name: "gcr.io/cloud-builders/docker"
-    id: "build-and-push"
-    entrypoint: "bash"
-    args:
-      - "-c"
-      - |
-        gcloud auth configure-docker us-central1-docker.pkg.dev
-
-        # Read the service from the file
-        SERVICE=$(cat _service_to_deploy.txt)
-
+        # Build and push services
         SERVICES=("orquestador" "pedidos" "productos" "rutas")
 
         for svc in "${SERVICES[@]}"; do
@@ -65,8 +50,22 @@ steps:
     args:
       - "-c"
       - |
-        # Read the service from the file
-        SERVICE=$(cat _service_to_deploy.txt)
+        # Detect service from commit message again
+        SERVICE=""
+        if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
+          SERVICE="orquestador"
+        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
+          SERVICE="pedidos"
+        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar productos\]"; then
+          SERVICE="productos"
+        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar rutas\]"; then
+          SERVICE="rutas"
+        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar todos\]"; then
+          SERVICE="todos"
+        else
+          echo "No service specified in commit message"
+          exit 1
+        fi
 
         SERVICES=("orquestador" "pedidos" "productos" "rutas")
 
