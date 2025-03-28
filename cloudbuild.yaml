@@ -38,7 +38,7 @@ steps:
         SERVICES=("orquestador" "pedidos" "productos" "rutas")
 
         for svc in "${SERVICES[@]}"; do
-          if [ "$SERVICE" = "$svc" ] || [ "$SERVICE" = "todos" ]; then
+          if [ "$_SERVICE" = "$svc" ] || [ "$_SERVICE" = "todos" ]; then
             echo "📦 Building and pushing $svc"
             docker build -t gcr.io/$PROJECT_ID/$svc:$COMMIT_SHA ./$svc
             docker tag gcr.io/$PROJECT_ID/$svc:$COMMIT_SHA \
