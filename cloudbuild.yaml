@@ -80,7 +80,7 @@ steps:
             > ./$svc/.env.production
             
             # Fetch common secret
-            DEEPSEEK_API_KEY=$(gcloud secrets versions access latest --secret=deepseek-api-key --format='get(payload.data)' --project=$PROJECT_ID | base64 --decode)
+            DEEPSEEK_API_KEY=$(gcloud secrets versions access latest --secret=deepseek_api_key --format='get(payload.data)' --project=$PROJECT_ID | base64 --decode)
             
             if [ "$svc" = "orquestador" ]; then
               # Orquestador specific environment variables
