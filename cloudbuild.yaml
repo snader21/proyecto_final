@@ -173,11 +173,11 @@ steps:
                 --allow-unauthenticated \
                 --add-cloudsql-instances $PROJECT_ID:us-central1:$svc
 
-                gcloud run services add-iam-policy-binding $svc \
-                  --region us-central1 \
-                  --platform managed \
-                  --member="allUsers" \
-                  --role="roles/run.invoker"
+              gcloud run services add-iam-policy-binding $svc \
+                --region us-central1 \
+                --platform managed \
+                --member="allUsers" \
+                --role="roles/run.invoker"
             fi
           fi
         done
