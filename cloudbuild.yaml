@@ -19,15 +19,15 @@ steps:
 
         # Detect service from commit message if _SERVICE is "none"
         if [ "${_SERVICE}" = "none" ]; then
-          if echo "${_COMMIT_MESSAGE}" | grep -q "desplegar orquestador"; then
+          if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
             export _SERVICE="orquestador"
-          elif echo "${_COMMIT_MESSAGE}" | grep -q "desplegar pedidos"; then
+          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
             export _SERVICE="pedidos"
-          elif echo "${_COMMIT_MESSAGE}" | grep -q "desplegar productos"; then
+          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar productos\]"; then
             export _SERVICE="productos"
-          elif echo "${_COMMIT_MESSAGE}" | grep -q "desplegar rutas"; then
+          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar rutas\]"; then
             export _SERVICE="rutas"
-          elif echo "${_COMMIT_MESSAGE}" | grep -q "desplegar todos"; then
+          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar todos\]"; then
             export _SERVICE="todos"
           else
             echo "No service specified in commit message"
