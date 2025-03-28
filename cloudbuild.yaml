@@ -16,24 +16,25 @@ steps:
       - |
         # Authenticate Docker
         gcloud auth configure-docker us-central1-docker.pkg.dev
+        echo "_COMMIT_MESSAGE is: '${_COMMIT_MESSAGE}'"
 
-        # Detect service from commit message if _SERVICE is "none"
-        if [ "${_SERVICE}" = "none" ]; then
-          if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
-            export _SERVICE="orquestador"
-          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
-            export _SERVICE="pedidos"
-          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar productos\]"; then
-            export _SERVICE="productos"
-          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar rutas\]"; then
-            export _SERVICE="rutas"
-          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar todos\]"; then
-            export _SERVICE="todos"
-          else
-            echo "No service specified in commit message"
-            exit 1
-          fi
+
+
+        if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
+          export _SERVICE="orquestador"
+        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
+          export _SERVICE="pedidos"
+        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar productos\]"; then
+          export _SERVICE="productos"
+        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar rutas\]"; then
+          export _SERVICE="rutas"
+        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar todos\]"; then
+          export _SERVICE="todos"
+        else
+          echo "No service specified in commit message"
+          exit 1
         fi
+
 
         # Build and push services
         SERVICES=("orquestador" "pedidos" "productos" "rutas")
@@ -53,23 +54,22 @@ steps:
     args:
       - "-c"
       - |
-        # Detect service from commit message if _SERVICE is "none"
-        if [ "${_SERVICE}" = "none" ]; then
-          if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
-            export _SERVICE="orquestador"
-          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
-            export _SERVICE="pedidos"
-          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar productos\]"; then
-            export _SERVICE="productos"
-          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar rutas\]"; then
-            export _SERVICE="rutas"
-          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar todos\]"; then
-            export _SERVICE="todos"
-          else
-            echo "No service specified in commit message"
-            exit 1
-          fi
+
+        if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
+          export _SERVICE="orquestador"
+        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
+          export _SERVICE="pedidos"
+        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar productos\]"; then
+          export _SERVICE="productos"
+        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar rutas\]"; then
+          export _SERVICE="rutas"
+        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar todos\]"; then
+          export _SERVICE="todos"
+        else
+          echo "No service specified in commit message"
+          exit 1
         fi
+
 
         SERVICES=("orquestador" "pedidos" "productos" "rutas")
 
@@ -100,7 +100,7 @@ steps:
                 --cpu 1 \
                 --min-instances 0 \
                 --max-instances 1 \
-                --allow-unauthenticated \
+                --allow-unauthenticated
             else
               # Database services environment variables
               echo "DB_HOST=/cloudsql/$PROJECT_ID:us-central1:$svc" >> ./$svc/.env.production
@@ -121,7 +121,7 @@ steps:
                 --cpu 1 \
                 --min-instances 0 \
                 --max-instances 1 \
-                --allow-unauthenticated \
+                --allow-unauthenticated
             fi
           fi
         done
