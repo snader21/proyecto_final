@@ -4,50 +4,47 @@ options:
 
 substitutions:
   _PORT: "3000"
-  _SERVICE: "none"
 
 steps:
-  # Detect and store service name
+  # Build and push to Artifact Registry
   - name: "gcr.io/cloud-builders/gcloud"
-    id: "detect-service"
-    entrypoint: "bash"
-    args:
-      - "-c"
-      - |
-        echo "_COMMIT_MESSAGE is: '${_COMMIT_MESSAGE}'"
-
-        if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
-          echo "orquestador" > _SERVICE.txt
-        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
-          echo "pedidos" > _SERVICE.txt
-        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar productos\]"; then
-          echo "productos" > _SERVICE.txt
-        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar rutas\]"; then
-          echo "rutas" > _SERVICE.txt
-        elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar todos\]"; then
-          echo "todos" > _SERVICE.txt
-        else
-          echo "No service specified in commit message"
-          exit 1
-        fi
-
-        echo "✅ Detected service: $(cat _SERVICE.txt)"
-
-  # Build and push Docker image
-  - name: "gcr.io/cloud-builders/docker"
     id: "build-and-push"
     entrypoint: "bash"
     args:
       - "-c"
       - |
-        SERVICE=$(cat _SERVICE.txt)
-        echo "✅ Detected service: $SERVICE"
+        detect_service() {
+          echo "_COMMIT_MESSAGE is: '${_COMMIT_MESSAGE}'"
+
+          if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
+            echo "Building and pushing orquestador"
+            _SERVICE="orquestador"
+            echo "Service: $_SERVICE"
+          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
+            _SERVICE="pedidos"
+          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar productos\]"; then
+            _SERVICE="productos"
+          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar rutas\]"; then
+            _SERVICE="rutas"
+          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar todos\]"; then
+            _SERVICE="todos"
+          else
+            echo "❌ No service specified in commit message"
+            exit 1
+          fi
+
+          echo "✅ Detected service: $_SERVICE"
+        }
+
+        detect_service
+
+        gcloud auth configure-docker us-central1-docker.pkg.dev
 
         SERVICES=("orquestador" "pedidos" "productos" "rutas")
 
         for svc in "${SERVICES[@]}"; do
-          if [ "$SERVICE" = "$svc" ] || [ "$SERVICE" = "todos" ]; then
-            echo "🚀 Building and pushing $svc"
+          if [ "${_SERVICE}" = "$svc" ] || [ "${_SERVICE}" = "todos" ]; then
+            echo "Building and pushing $svc"
             docker build -t gcr.io/$PROJECT_ID/$svc:$COMMIT_SHA ./$svc
             docker tag gcr.io/$PROJECT_ID/$svc:$COMMIT_SHA \
               us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA
@@ -55,21 +52,41 @@ steps:
           fi
         done
 
-  # Deploy to Cloud Run
+  # Deploy to Cloud Run with env file per service
   - name: "gcr.io/cloud-builders/gcloud"
     id: "deploy"
     entrypoint: "bash"
     args:
       - "-c"
       - |
-        SERVICE=$(cat _SERVICE.txt)
-        echo "✅ Detected service: $SERVICE"
+        detect_service() {
+          echo "_COMMIT_MESSAGE is: '${_COMMIT_MESSAGE}'"
+
+          if echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar orquestador\]"; then
+            _SERVICE="orquestador"
+          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar pedidos\]"; then
+            _SERVICE="pedidos"
+          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar productos\]"; then
+            _SERVICE="productos"
+          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar rutas\]"; then
+            _SERVICE="rutas"
+          elif echo "${_COMMIT_MESSAGE}" | grep -q "\[desplegar todos\]"; then
+            _SERVICE="todos"
+          else
+            echo "❌ No service specified in commit message"
+            exit 1
+          fi
+
+          echo "✅ Detected service: $_SERVICE"
+        }
+
+        detect_service
 
         SERVICES=("orquestador" "pedidos" "productos" "rutas")
 
         for svc in "${SERVICES[@]}"; do
-          if [ "$SERVICE" = "$svc" ] || [ "$SERVICE" = "todos" ]; then
-            echo "⚙️ Deploying $svc to Cloud Run"
+          if [ "${_SERVICE}" = "$svc" ] || [ "${_SERVICE}" = "todos" ]; then
+            echo "Creating .env.production for $svc"
 
             if [ "$svc" = "orquestador" ]; then
               echo "URL_PEDIDOS=${_URL_PEDIDOS}" > ./$svc/.env.production
@@ -86,6 +103,7 @@ steps:
               echo "DB_PASSWORD=${_DB_PASSWORD}" >> ./$svc/.env.production
             fi
 
+            echo "Deploying $svc to Cloud Run"
             gcloud run deploy $svc \
               --image us-central1-docker.pkg.dev/$PROJECT_ID/proyecto-final/$svc:$COMMIT_SHA \
               --region us-central1 \
