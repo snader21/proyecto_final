@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write  # 🔹 Da permiso para hacer push
+      contents: write # 🔹 Da permiso para hacer push
 
     steps:
       - name: Checkout repo
@@ -42,4 +42,4 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
-          folder: ccp-web/dist/ccp-web/browser  # 🔹 Ajustar ruta correcta
+          folder: ccp-web/dist/ccp-web/browser
