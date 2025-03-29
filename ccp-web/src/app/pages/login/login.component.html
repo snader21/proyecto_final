@@ -1,5 +1,3 @@
-
-
 <div class="flex h-screen">
   <div class="basis-[40vw]">
     <div class="flex flex-row flex-wrap items-center justify-between p-8" >
@@ -10,8 +8,40 @@
         </ng-template>
       </p-select>
     </div>
+    <div class="h-4/5">
+        <form (ngSubmit)="onSubmit()" class="flex flex-col justify-center h-full p-20">
+        <div class="flex flex-col p-16">
+          <h1 class="font-bold text-4xl text-slate-600 pb-0">Bienvenido</h1>
+          <p class="text-slate-600">Inicia sesión para continuar</p>
+        </div>
+        <div class="flex flex-col gap-6 p-16">
+          <div class="flex flex-col gap-2">
+            <label for="email">Correo electronico</label>
+            <p-iconfield>
+              <p-inputicon styleClass="pi pi-user" />
+              <input type="email" pInputText placeholder="Ejemplo: usuario@correo.com" id="email" class="w-full" 
+                     [(ngModel)]="loginForm.email" name="email" required />
+            </p-iconfield>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label for="password">Contraseña</label>
+            <p-iconfield>
+              <p-inputicon styleClass="pi pi-lock" />
+              <input type="password" pInputText placeholder="Introduce tu contraseña" id="password" class="w-full"
+                     [(ngModel)]="loginForm.password" name="password" required />
+            </p-iconfield>
+          </div>
+          <div *ngIf="errorMessage" class="text-red-500 text-sm mt-2">
+            {{ errorMessage }}
+          </div>
+        </div>
+        <div class="flex flex-col gap-4 p-16">
+          <p-button label="Ingresar" type="submit" styleClass="w-full bg-slate-700" [loading]="isLoading"></p-button>
+        </div>
+      </form>
+    </div>
   </div>
-  <div class="basis-[60vw] flex justify-end items-center pt-8 pb-8">
+  <div class="basis-[60vw] flex justify-end items-center pt-8 pb-8 pl-8">
     <img src="/login_image.png" alt="" class="h-full w-full object-cover rounded-s-[50px]">
   </div>
 </div>
