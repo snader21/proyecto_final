@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write # 🔹 Da permiso para hacer push
+      contents: write
 
     steps:
       - name: Checkout repo
@@ -35,11 +35,11 @@ jobs:
         working-directory: ccp-web
 
       - name: Copy index.html to 404.html
-        run: cp dist/ccp-web/browser/index.html dist/ccp-web/browser/404.html
+        run: cp dist/ccp-web/index.html dist/ccp-web/404.html
         working-directory: ccp-web
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
-          folder: ccp-web/dist/ccp-web/browser
+          folder: ccp-web/dist/ccp-web
