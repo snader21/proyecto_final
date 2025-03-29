@@ -18,8 +18,8 @@ export class ProductoEntity {
   @Column()
   sku: string;
 
-  @Column()
-  codigo_barras: string;
+  @Column({ nullable: true })
+  codigo_barras?: string;
 
   @ManyToOne(() => CategoriaEntity)
   @JoinColumn({ name: 'id_categoria' })
