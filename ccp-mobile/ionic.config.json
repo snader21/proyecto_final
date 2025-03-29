@@ -1,7 +1,0 @@
-{
-  "name": "ccp-mobile",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "angular"
-}
