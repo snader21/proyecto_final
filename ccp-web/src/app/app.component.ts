@@ -14,7 +14,7 @@ import {NgIf} from '@angular/common';
 export class AppComponent {
   isLoggedIn = false;
 
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   ngOnInit() {
     this.authService.isAuthenticated().subscribe((authStatus) => {
