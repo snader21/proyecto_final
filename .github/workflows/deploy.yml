@@ -1,4 +1,4 @@
-name: Build and Deploy Angular App to GitHub Pages.
+name: Build and Deploy Angular App to GitHub Pages
 
 on:
   push:
@@ -36,6 +36,10 @@ jobs:
 
       - name: Copy index.html to 404.html
         run: cp dist/ccp-web/index.html dist/ccp-web/404.html
+        working-directory: ccp-web
+
+      - name: Create .nojekyll
+        run: touch dist/ccp-web/.nojekyll
         working-directory: ccp-web
 
       - name: Deploy to GitHub Pages
