@@ -36,7 +36,7 @@ jobs:
         working-directory: ccp-web
 
       - name: Copy index.html to 404.html
-        run: cp dist/ccp-web/index.html dist/ccp-web/404.html
+        run: cp dist/ccp-web/browser/index.html dist/ccp-web/browser/404.html
         working-directory: ccp-web
 
       - name: Deploy to GitHub Pages
