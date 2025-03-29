@@ -1,8 +1,20 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { Usuario } from './entities/usuario.entity';
+import { Rol } from './entities/rol.entity';
+import { Permiso } from './entities/permiso.entity';
+import { UsuarioController } from './controllers/usuario.controller';
+import { UsuarioService } from './services/usuario.service';
+import { InitService } from './services/init.service';
+import { AuthController } from './controllers/auth.controller';
+import { AuthService } from './services/auth.service';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -11,17 +23,26 @@ import { ConfigModule } from '@nestjs/config';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5435'),
-      username: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'postgres',
-      database: process.env.DB_NAME || 'usuarios',
-      entities: [],
-      dropSchema: true,
+      host: process.env.DB_HOST ?? 'localhost',
+      port: parseInt(process.env.DB_PORT ?? '5435'),
+      username: process.env.DB_USER ?? 'postgres',
+      password: process.env.DB_PASSWORD ?? 'postgres',
+      database: process.env.DB_NAME ?? 'usuarios',
+      entities: [Usuario, Rol, Permiso],
       synchronize: true,
+      logging: true,
+      autoLoadEntities: true,
+      dropSchema: false,
+    }),
+    TypeOrmModule.forFeature([Usuario, Rol]),
+    JwtModule.registerAsync({
+      useFactory: () => ({
+        secret: process.env.JWT_SECRET ?? 'tu-secreto-seguro',
+        signOptions: { expiresIn: '24h' },
+      }),
     }),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, UsuarioController, AuthController],
+  providers: [AppService, UsuarioService, InitService, AuthService],
 })
 export class AppModule {}
