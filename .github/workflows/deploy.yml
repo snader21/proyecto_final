@@ -1,0 +1,45 @@
+name: Build and Deploy Angular App to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-deploy:
+    if: contains(github.event.head_commit.message, '[desplegar web]')
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write  # 🔹 Da permiso para hacer push
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ccp-web
+
+      - name: Run tests
+        run: npm test -- --watch=false --browsers=ChromeHeadless
+        working-directory: ccp-web
+
+      - name: Build app
+        run: npm run build -- --configuration production --base-href /proyecto-final/
+        working-directory: ccp-web
+
+      - name: Copy index.html to 404.html
+        run: cp dist/ccp-web/browser/index.html dist/ccp-web/browser/404.html
+        working-directory: ccp-web
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: ccp-web/dist/ccp-web/browser  # 🔹 Ajustar ruta correcta
