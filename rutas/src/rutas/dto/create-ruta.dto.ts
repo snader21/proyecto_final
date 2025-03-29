@@ -1,4 +1,4 @@
-import { CreateNodoRutaDto } from 'src/nodos-rutas/dto/create-nodo-ruta.dto';
+import { CreateNodoRutaDto } from '../../nodos-rutas/dto/create-nodo-ruta.dto';
 
 export class CreateRutaDto {
   fecha: string;

@@ -3,8 +3,8 @@ import { CreateNodoRutaDto } from './dto/create-nodo-ruta.dto';
 import { NodoRutaEntity } from './entities/nodo-ruta.entity';
 import { Repository, EntityManager } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { RutaEntity } from 'src/rutas/entities/ruta.entity';
-import { NodosProductosService } from 'src/nodos-productos/nodos-productos.service';
+import { RutaEntity } from '../rutas/entities/ruta.entity';
+import { NodosProductosService } from '../nodos-productos/nodos-productos.service';
 import { UpdateNodoRutaDto } from './dto/update-nodo-ruta.dto';
 
 @Injectable()

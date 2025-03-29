@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { CategoriaEntity } from './categoria.entity';
 import { MarcaEntity } from './marca.entity';
 import { UnidadMedidaEntity } from './unidad-medida.entity';

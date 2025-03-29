@@ -3,7 +3,7 @@ import { Repository, EntityManager } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NodoProductoEntity } from './entities/nodo-producto.entity';
 import { CreateNodoProductoDto } from './dto/create-nodo-producto.dto'; // Ensure this DTO is defined
-import { NodoRutaEntity } from 'src/nodos-rutas/entities/nodo-ruta.entity';
+import { NodoRutaEntity } from '../nodos-rutas/entities/nodo-ruta.entity';
 import { UpdateNodoProductoDto } from './dto/update-nodo-producto.dto';
 
 @Injectable()

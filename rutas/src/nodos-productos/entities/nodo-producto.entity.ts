@@ -1,4 +1,4 @@
-import { NodoRutaEntity } from 'src/nodos-rutas/entities/nodo-ruta.entity';
+import { NodoRutaEntity } from '../../nodos-rutas/entities/nodo-ruta.entity';
 import {
   Column,
   Entity,

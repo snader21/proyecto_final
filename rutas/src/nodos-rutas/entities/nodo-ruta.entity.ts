@@ -1,5 +1,5 @@
-import { NodoProductoEntity } from 'src/nodos-productos/entities/nodo-producto.entity';
-import { RutaEntity } from 'src/rutas/entities/ruta.entity';
+import { NodoProductoEntity } from '../../nodos-productos/entities/nodo-producto.entity';
+import { RutaEntity } from '../../rutas/entities/ruta.entity';
 import {
   Column,
   Entity,
