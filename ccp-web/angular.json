@@ -31,7 +31,7 @@
             ],
             "styles": ["src/styles.scss"],
             "scripts": [],
-            "baseHref": "/proyecto-final/"
+            "baseHref": "/proyecto_final/"
           },
           "configurations": {
             "production": {
