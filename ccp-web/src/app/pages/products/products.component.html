@@ -23,12 +23,17 @@
         </ng-template>
         <ng-template pTemplate="body" let-product>
             <tr>
-                <td>{{ product.code }}</td>
-                <td>{{ product.name }}</td>
-                <td>{{ product.category }}</td>
-                <td>{{ product.measurement }}</td>
-                <td>{{ product.price }}</td>
-                <td><p-button label="Success" variant="text" [raised]="true" severity="success" /></td>
+                <td>{{ product.sku }}</td>
+                <td>{{ product.nombre }}</td>
+                <td>{{ product.categoria?.nombre }}</td>
+                <td>{{ product.unidad_medida?.nombre }}</td>
+                <td>{{ product.precio}}</td>
+                <td>
+                    <p-button [label]="product.activo ? 'Activo' : 'Inactivo'"
+                             variant="text"
+                             [raised]="true"
+                             [severity]="product.activo ? 'success' : 'danger'" />
+                </td>
                 <td>
                     <p-button label="Normal" icon="pi pi-check" />
                 </td>

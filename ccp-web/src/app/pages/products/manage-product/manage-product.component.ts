@@ -4,7 +4,10 @@ import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { ModalService } from '../../../services/products/modal.service';
+import { ModalService } from '../../../services/modal/modal.service';
+import { ProductsService } from '../../../services/products/products.service';
+import { EventsService } from '../../../services/events/events.service';
+import { Category, Brand, Unit, Product, Maker, Status } from '../../../interfaces/product.interfaces';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ToastModule } from 'primeng/toast';
 import { ProgressBarModule } from 'primeng/progressbar';
@@ -14,42 +17,7 @@ import { MessageService} from 'primeng/api';
 import { PrimeNG } from 'primeng/config';
 import { HttpClientModule } from '@angular/common/http';
 
-interface Category {
-  code: string;
-  name: string;
-}
 
-interface Brand {
-  code: string;
-  name: string;
-}
-
-interface Maker {
-  code: string;
-  name: string;
-}
-
-interface Unit {
-  code: string;
-  name: string;
-}
-
-interface Status {
-  code: string;
-  name: string;
-}
-
-interface Product {
-  sku: string;
-  name: string;
-  description: string;
-  category: Category | null;
-  brand: Brand | null;
-  maker: Maker | null;
-  unit: Unit | null;
-  measurement: string;
-  status: Status | null;
-}
 
 @Component({
   selector: 'app-manage-product',
@@ -73,22 +41,14 @@ interface Product {
 })
 export class ManageProductComponent implements OnInit {
   visible = false;
-  categories: Category[] = [
-    { code: 'ELEC', name: 'Electrónicos' },
-    { code: 'FOOD', name: 'Alimentos' },
-    { code: 'CLTH', name: 'Ropa' },
-    { code: 'HOME', name: 'Hogar' },
-    { code: 'SPRT', name: 'Deportes' }
-  ];
+  categories: Category[] = [];
   selectedCategory: Category | null = null;
 
-  brands: Brand[] = [
-    { code: 'ELEC', name: 'Samsung' },
-    { code: 'FOOD', name: 'Apple' },
-    { code: 'CLTH', name: 'Adidas' },
-    { code: 'HOME', name: 'Puma' }
-  ];
+  brands: Brand[] = [];
   selectedBrand: Brand | null = null;
+
+  units: Unit[] = [];
+  selectedUnit: Unit | null = null;
 
   makers: Maker[] = [
     { code: 'ELEC', name: 'Samsung' },
@@ -98,18 +58,9 @@ export class ManageProductComponent implements OnInit {
   ];
   selectedMaker: Maker | null = null;
 
-  units: Unit[] = [
-    { code: 'ELEC', name: 'Electrónicos' },
-    { code: 'FOOD', name: 'Alimentos' },
-    { code: 'CLTH', name: 'Ropa' },
-    { code: 'HOME', name: 'Hogar' },
-    { code: 'SPRT', name: 'Deportes' }
-  ];
-  selectedUnit: Unit | null = null;
-
   statuses: Status[] = [
-    { code: 'ELEC', name: 'Activo' },
-    { code: 'FOOD', name: 'Inactivo' }
+    { code: 'ACTIVO', name: 'Activo' },
+    { code: 'INACTIVO', name: 'Inactivo' }
   ];
   selectedStatus: Status | null = null;
 
@@ -124,7 +75,9 @@ export class ManageProductComponent implements OnInit {
     private modalService: ModalService,
     private messageService: MessageService,
     private config: PrimeNG,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private productsService: ProductsService,
+    private eventsService: EventsService
   ) {
     this.modalService.modalState$.subscribe(state => {
       console.log('state', state);
@@ -134,6 +87,49 @@ export class ManageProductComponent implements OnInit {
 
   ngOnInit() {
     this.initForm();
+    this.loadCategories();
+    this.loadBrands();
+    this.loadUnits();
+
+    this.productForm.get('category')?.valueChanges.subscribe(value => {
+      this.selectedCategory = value;
+    });
+    this.productForm.get('brand')?.valueChanges.subscribe(value => {
+      this.selectedBrand = value;
+    });
+    this.productForm.get('unit')?.valueChanges.subscribe(value => {
+      this.selectedUnit = value;
+    });
+  }
+
+  private loadCategories() {
+    this.productsService.getCategories().subscribe(categories => {
+      this.categories = categories.map(c => ({
+        ...c,
+        code: c.id_categoria,
+        name: c.nombre
+      }));
+    });
+  }
+
+  private loadBrands() {
+    this.productsService.getBrands().subscribe(brands => {
+      this.brands = brands.map(b => ({
+        ...b,
+        code: b.id_marca,
+        name: b.nombre
+      }));
+    });
+  }
+
+  private loadUnits() {
+    this.productsService.getUnits().subscribe(units => {
+      this.units = units.map(u => ({
+        ...u,
+        code: u.id_unidad_medida,
+        name: u.nombre
+      }));
+    });
   }
 
   private initForm() {
@@ -165,15 +161,48 @@ export class ManageProductComponent implements OnInit {
 
   onSubmit() {
     if (this.productForm.valid) {
-      console.log('Form submitted:', this.productForm.value);
-      // Aquí iría la lógica para guardar el producto
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Éxito',
-        detail: 'Producto guardado correctamente',
-        life: 3000
-      });
-      this.closeModal();
+      const product = this.productForm.value;
+      console.log('category:', this.selectedCategory);
+      const productToSave = {
+        nombre: product.name,
+        sku: product.sku,
+        descripcion: product.description,
+        categoria: { id_categoria: this.selectedCategory?.id_categoria || '' },
+        marca: { id_marca: this.selectedBrand?.id_marca || '' },
+        unidad_medida: { id_unidad_medida: this.selectedUnit?.id_unidad_medida || '' },
+        pais: { id_pais: "550e8400-e29b-41d4-a716-446655440000" },
+        id_fabricante: 'DELL-001',
+        activo: product.status === 'activo',
+        precio: 0,
+        alto: 0,
+        ancho: 0,
+        largo: 0,
+        peso: 0,
+        fecha_creacion: new Date(),
+        fecha_actualizacion: new Date()
+      };
+      console.log('Product to save:', productToSave);
+      this.productsService.saveProduct(productToSave).subscribe(
+        savedProduct => {
+          this.messageService.add({
+            key: 'success',
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'El producto se ha guardado correctamente',
+            life: 3000
+          });
+          this.eventsService.refreshProducts();
+          this.closeModal();
+        },
+        (error: any) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al guardar el producto',
+            life: 3000
+          });
+        }
+      );
     } else {
       Object.keys(this.productForm.controls).forEach(key => {
         const control = this.productForm.get(key);
