@@ -3,4 +3,9 @@
 
 body {
   font-family: var(--font-family, 'Inter', sans-serif), serif;
+  background-color: #F1F5F9;
+}
+
+:root {
+  --p-datatable-header-background: #F8FAFC !important;
 }

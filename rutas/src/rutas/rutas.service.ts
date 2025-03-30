@@ -4,12 +4,12 @@ import { UpdateRutaDto } from './dto/update-ruta.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RutaEntity } from './entities/ruta.entity';
 import { DataSource, Repository } from 'typeorm';
-import { NodosRutasService } from 'src/nodos-rutas/nodos-rutas.service';
-import { TiposRutasService } from 'src/tipos-rutas/tipos-rutas.service';
-import { EstadosRutasService } from 'src/estados-rutas/estados-rutas.service';
-import { CamionesService } from 'src/camiones/camiones.service';
-import { TipoRutaEntity } from 'src/tipos-rutas/entities/tipo-ruta.entity';
-import { EstadoRutaEntity } from 'src/estados-rutas/entities/estado-ruta.entity';
+import { NodosRutasService } from '../nodos-rutas/nodos-rutas.service';
+import { TiposRutasService } from '../tipos-rutas/tipos-rutas.service';
+import { EstadosRutasService } from '../estados-rutas/estados-rutas.service';
+import { CamionesService } from '../camiones/camiones.service';
+import { TipoRutaEntity } from '../tipos-rutas/entities/tipo-ruta.entity';
+import { EstadoRutaEntity } from '../estados-rutas/entities/estado-ruta.entity';
 
 @Injectable()
 export class RutasService {
