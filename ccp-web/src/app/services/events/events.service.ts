@@ -6,9 +6,12 @@ import { Subject } from 'rxjs';
 })
 export class EventsService {
   private refreshProductsSubject = new Subject<void>();
-  refreshProducts$ = this.refreshProductsSubject.asObservable();
+  private refreshUsersSubject = new Subject<void>();
 
-  refreshProducts() {
-    this.refreshProductsSubject.next();
-  }
+  refreshProducts$ = this.refreshProductsSubject.asObservable();
+  refreshUsers$ = this.refreshUsersSubject.asObservable();
+
+  refreshProducts = () => this.refreshProductsSubject.next();
+  refreshUsers = () => this.refreshUsersSubject.next();
+
 }

@@ -1,1 +1,50 @@
-<p>manage-users works!</p>
+<p-toast key="success" position="top-right"></p-toast>
+<p-dialog
+    header="Agregar Usuario"
+    [modal]="true"
+    [(visible)]="visible"
+    [style]="{ width: '40rem', height: '90rem' }">
+    <form [formGroup]="userForm" class="flex flex-col gap-4">
+        <div class="flex flex-col gap-2">
+            <label for="name" class="font-light w-24">Nombre</label>
+            <input placeholder="Nombre" pInputText id="name" formControlName="name" class="w-full" autocomplete="off" />
+            <small class="text-red-500" *ngIf="userForm.get('name')?.invalid && userForm.get('name')?.touched">Este campo es requerido</small>
+        </div>
+        <div class="flex flex-col gap-2">
+            <label for="mail" class="font-light w-24">Email</label>
+            <input placeholder="Email" pInputText id="mail" formControlName="mail" class="w-full" autocomplete="off" />
+            <small class="text-red-500" *ngIf="userForm.get('mail')?.invalid && userForm.get('mail')?.touched">Este campo es requerido</small>
+        </div>
+        <div class="flex flex-col gap-2">
+            <label for="password" class="font-light w-24">Password</label>
+            <input placeholder="Descripción del producto" pInputPass id="password" formControlName="password" class="w-full" autocomplete="off" />
+            <small class="text-red-500" *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched">Este campo es requerido</small>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="repassword" class="font-light w-24">rePassword</label>
+          <input placeholder="Descripción del producto" pInputPass id="repassword" formControlName="repassword" class="w-full" autocomplete="off" />
+          <small class="text-red-500" *ngIf="userForm.get('repassword')?.invalid && userForm.get('repassword')?.touched">Este campo es requerido</small>
+        </div>
+        <div class="flex flex-col gap-2">
+            <label for="measurement" class="font-light">Medidas</label>
+            <input placeholder="Medidas del producto" pInputText id="measurement" formControlName="measurement" class="w-full" autocomplete="off" />
+            <small class="text-red-500" *ngIf="userForm.get('measurement')?.invalid && userForm.get('measurement')?.touched">Este campo es requerido</small>
+        </div>
+        <div class="flex flex-col gap-2">
+            <label for="status" class="font-light">Estado</label>
+            <p-select
+                [options]="statuses"
+                formControlName="status"
+                optionLabel="name"
+                [filter]="false"
+                [showClear]="true"
+                placeholder="Seleccione"
+                class="w-full">
+            </p-select>
+        </div>
+    </form>
+    <div class="flex justify-end gap-2 mt-4">
+        <p-button label="Cancelar" severity="secondary" (click)="closeModal()" />
+        <p-button label="Guardar" [disabled]="userForm.invalid" severity="success" (click)="onSubmit()" />
+    </div>
+</p-dialog>
