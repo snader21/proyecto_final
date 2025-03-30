@@ -16,11 +16,11 @@ export interface CreateUser {
   status: { code: string };
 }
 
-export interface User extends Omit<CreateUser, 'role' | 'status'> {
+export interface User extends Omit<CreateUser, 'role' | 'status' | 'password'> {
   id_user: string;
   name: string;
   mail: string;
-  password: string;
+  password?: string;
   role: Role;
   status: Status;
 }

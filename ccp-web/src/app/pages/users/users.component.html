@@ -22,10 +22,16 @@
           <tr>
               <td>{{ user.name }}</td>
               <td>{{ user.mail }}</td>
-              <td>{{ user.role }}</td>
-              <td>{{ user.status }}</td>
+              <td><p-badge value="{{ user.role.name }}" severity="info"></p-badge></td>
               <td>
-                  <p-button label="Normal" icon="pi pi-check" />
+                <p-tag
+                  [severity]="user.status.name === 'Activo' ? 'success' : 'danger'"
+                  [icon]="user.status.name === 'Activo' ? 'pi pi-check' : 'pi pi-times'"
+                  [value]="user.status.name">
+                </p-tag>
+              </td>
+              <td>
+                <p-button label="Editar" icon="pi pi-pencil" />
               </td>
           </tr>
       </ng-template>

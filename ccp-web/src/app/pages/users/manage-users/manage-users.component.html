@@ -26,11 +26,6 @@
           <small class="text-red-500" *ngIf="userForm.get('repassword')?.invalid && userForm.get('repassword')?.touched">Este campo es requerido</small>
         </div>
         <div class="flex flex-col gap-2">
-            <label for="measurement" class="font-light">Medidas</label>
-            <input placeholder="Medidas del producto" pInputText id="measurement" formControlName="measurement" class="w-full" autocomplete="off" />
-            <small class="text-red-500" *ngIf="userForm.get('measurement')?.invalid && userForm.get('measurement')?.touched">Este campo es requerido</small>
-        </div>
-        <div class="flex flex-col gap-2">
             <label for="status" class="font-light">Estado</label>
             <p-select
                 [options]="statuses"
