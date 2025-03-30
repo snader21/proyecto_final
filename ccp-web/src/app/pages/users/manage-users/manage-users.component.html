@@ -25,6 +25,7 @@
           <input placeholder="Descripción del producto" pInputPass id="repassword" formControlName="repassword" class="w-full" autocomplete="off" />
           <small class="text-red-500" *ngIf="userForm.get('repassword')?.invalid && userForm.get('repassword')?.touched">Este campo es requerido</small>
         </div>
+
         <div class="flex flex-col gap-2">
             <label for="status" class="font-light">Estado</label>
             <p-select

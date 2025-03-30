@@ -16,6 +16,7 @@ import { PrimeNG } from 'primeng/config';
 import { EventsService } from '../../../services/events/events.service';
 import { UsersService } from '../../../services/users/users.service';
 import { Role, Status } from '../../../interfaces/user.interfaces';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 @Component({
   selector: 'app-manage-users',
@@ -66,6 +67,8 @@ export class ManageUsersComponent implements OnInit {
     });
   }
 
+
+
   ngOnInit() {
     this.initForm();
     this.userForm.get('role')?.valueChanges.subscribe(value => {
@@ -77,15 +80,19 @@ export class ManageUsersComponent implements OnInit {
   }
 
   private initForm() {
-    this.userForm = this.fb.group({
-      name: ['', Validators.required],
-      mail: ['', Validators.required],
-      password: [null, Validators.required],
-      repassword: [null, Validators.required],
-      role: [null, Validators.required],
-      status: ['', Validators.required]
-    });
+    this.userForm = this.fb.group(
+      {
+        name: ['', Validators.required],
+        mail: ['', Validators.required],
+        password: [null, Validators.required],
+        repassword: [null, Validators.required],
+        role: [null, Validators.required],
+        status: ['', Validators.required]
+      },
+      { validators: this.validatorPassword }
+    );
   }
+
 
   closeModal = () => {
     this.modalService.closeModal();
@@ -139,4 +146,10 @@ export class ManageUsersComponent implements OnInit {
       }
     );
   }
+
+  private validatorPassword: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+    const password = control.get('password')?.value;
+    const repassword = control.get('repassword')?.value;
+    return password === repassword ? null : { passwordMismatch: true };
+  };
 }
