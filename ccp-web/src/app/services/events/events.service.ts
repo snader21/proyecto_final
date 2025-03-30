@@ -13,5 +13,4 @@ export class EventsService {
 
   refreshProducts = () => this.refreshProductsSubject.next();
   refreshUsers = () => this.refreshUsersSubject.next();
-
 }
