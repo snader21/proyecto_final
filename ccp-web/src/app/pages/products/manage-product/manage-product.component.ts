@@ -4,7 +4,7 @@ import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { ModalService } from '../../../services/modal/modal.service';
+import { ModalService } from '../../../services/products/modal.service';
 import { ProductsService } from '../../../services/products/products.service';
 import { EventsService } from '../../../services/events/events.service';
 import { Category, Brand, Unit, Product, Maker, Status } from '../../../interfaces/product.interfaces';
