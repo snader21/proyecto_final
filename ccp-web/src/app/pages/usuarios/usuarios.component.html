@@ -1,6 +1,6 @@
 <p-card class="m-4">
-  <p-table [value]="users" [tableStyle]="{ 'min-width': '50rem' }">
-      <ng-template #caption>
+  <p-table [value]="usuarios" [tableStyle]="{ 'min-width': '50rem' }" [loading]="loading">
+      <ng-template pTemplate="caption">
           <div class="flex items-center justify-between">
               <span class="text-xl font-bold">Usuarios</span>
               <div class="flex gap-2">
@@ -18,16 +18,19 @@
               <th>Acciones</th>
           </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-user>
+      <ng-template pTemplate="body" let-usuario>
           <tr>
-              <td>{{ user.name }}</td>
-              <td>{{ user.mail }}</td>
-              <td><p-badge value="{{ user.role.name }}" severity="info"></p-badge></td>
+              <td>{{ usuario?.nombre }}</td>
+              <td>{{ usuario?.correo }}</td>
               <td>
-                <p-tag
-                  [severity]="user.status.name === 'Activo' ? 'success' : 'danger'"
-                  [icon]="user.status.name === 'Activo' ? 'pi pi-check' : 'pi pi-times'"
-                  [value]="user.status.name">
+                <p-badge *ngIf="usuario?.roles?.length" [value]="usuario.roles[0].nombre" severity="info"></p-badge>
+                <p-badge *ngIf="!usuario?.roles?.length" value="Sin rol" severity="warn"></p-badge>
+              </td>
+              <td>
+                <p-tag *ngIf="usuario?.estado !== undefined"
+                  [severity]="usuario.estado ? 'success' : 'danger'"
+                  [icon]="usuario.estado ? 'pi pi-check' : 'pi pi-times'"
+                  [value]="usuario.estado ? 'Activo' : 'Inactivo'">
                 </p-tag>
               </td>
               <td>
@@ -37,4 +40,4 @@
       </ng-template>
   </p-table>
 </p-card>
-<app-manage-users />
+<app-gestionar-usuarios />

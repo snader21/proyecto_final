@@ -7,6 +7,7 @@ import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { FileUploadModule } from 'primeng/fileupload';
+import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { SelectModule } from 'primeng/select';
@@ -14,12 +15,13 @@ import { ToastModule } from 'primeng/toast';
 import { ModalService } from '../../../services/modal/modal.service';
 import { PrimeNG } from 'primeng/config';
 import { EventsService } from '../../../services/events/events.service';
-import { UsersService } from '../../../services/users/users.service';
-import { Role, Status } from '../../../interfaces/user.interfaces';
+import { UsuariosService } from '../../../services/usuarios/usuarios.service';
+import { RolesService } from '../../../services/roles/roles.service';
+import { Rol } from '../../../interfaces/user.interfaces';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 @Component({
-  selector: 'app-manage-users',
+  selector: 'app-gestionar-usuarios',
   standalone: true,
   imports: [
     CommonModule,
@@ -32,35 +34,29 @@ import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
     ToastModule,
     ProgressBarModule,
     BadgeModule,
-    HttpClientModule],
+    HttpClientModule,
+    InputSwitchModule],
   providers: [MessageService],
-  templateUrl: './manage-users.component.html',
-  styleUrl: './manage-users.component.scss'
+  templateUrl: './gestionar-usuarios.component.html',
+  styleUrl: './gestionar-usuarios.component.scss'
 })
 
-export class ManageUsersComponent implements OnInit {
+export class GestionarUsuariosComponent implements OnInit {
   visible = false;
   userForm!: FormGroup;
-  selectedRole: Role | null = null;
-  selectedStatus: Status | null = null;
+  selectedRole: Rol | null = null;
+  selectedStatus: boolean | null = null;
 
-  roles: Role[] = [
-    { id_role: 'ADMIN', name: 'Administrador'},
-    { id_role: 'SELLER', name: 'Vendedor'}
-  ];
-
-  statuses: Status[] = [
-    { code: 'ACTIVO', name: 'Activo' },
-    { code: 'INACTIVO', name: 'Inactivo' }
-  ];
+  roles: Rol[] = [];
 
   constructor(
     private modalService: ModalService,
     private messageService: MessageService,
     private config: PrimeNG,
     private fb: FormBuilder,
-    private usersService: UsersService,
-    private eventsService: EventsService
+    private usuariosService: UsuariosService,
+    private eventsService: EventsService,
+    private rolesService: RolesService
   ) {
     this.modalService.modalState$.subscribe(state => {
       console.log('state', state);
@@ -69,24 +65,34 @@ export class ManageUsersComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.cargarRoles();
     this.initForm();
-    this.userForm.get('role')?.valueChanges.subscribe(value => {
+
+    // Suscribirse a los cambios de rol y estado
+    this.userForm.get('rol')?.valueChanges.subscribe(value => {
       this.selectedRole = value;
     });
-    this.userForm.get('status')?.valueChanges.subscribe(value => {
+
+    this.userForm.get('estado')?.valueChanges.subscribe(value => {
       this.selectedStatus = value;
+    });
+  }
+
+  private cargarRoles() {
+    this.rolesService.obtenerRoles().subscribe(roles => {
+      this.roles = roles;
     });
   }
 
   private initForm() {
     this.userForm = this.fb.group(
       {
-        name: ['', Validators.required],
-        mail: ['', Validators.required],
-        password: [null, [Validators.required, Validators.minLength(6)]],
+        nombre: ['', Validators.required],
+        correo: ['', Validators.required],
+        contrasena: [null, [Validators.required, Validators.minLength(6)]],
         repassword: [null, Validators.required],
-        role: ['', Validators.required],
-        status: ['', Validators.required]
+        rol: ['', Validators.required],
+        estado: [true, Validators.required]
       },
       { validators: this.passwordsMatchValidator }
     );
@@ -113,16 +119,16 @@ export class ManageUsersComponent implements OnInit {
   }
 
   private saveUser = () => {
-    const user = this.userForm.value;
-    const userToSave = {
-      name: user.name,
-      mail: user.mail,
-      password: user.password,
-      role: { id_role: this.selectedRole?.id_role || '' },
-      status: { code: this.selectedStatus?.code || '' }
+    const formData = this.userForm.value;
+    const usuario = {
+      nombre: formData.nombre,
+      correo: formData.correo,
+      contrasena: formData.contrasena,
+      rol: { id: this.selectedRole?.id || '' },
+      estado: this.selectedStatus ?? true
     };
-    console.log('user to save:', userToSave);
-    this.usersService.saveUser(userToSave).subscribe(
+    console.log('usuario a guardar:', usuario);
+    this.usuariosService.crearUsuario(usuario).subscribe(
       savedUser => {
         this.messageService.add({
           key: 'success',
@@ -146,9 +152,9 @@ export class ManageUsersComponent implements OnInit {
   }
 
   passwordsMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
-    const password = control.get('password')?.value;
+    const contrasena = control.get('contrasena')?.value;
     const confirmPassword = control.get('repassword')?.value;
-    if (password !== confirmPassword) {
+    if (contrasena !== confirmPassword) {
       return { passwordsMismatch: true };
     }
     return null;

@@ -1,26 +1,26 @@
-export interface Role {
-  id_role: string;
-  name: string;
+export interface Rol {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  estado: boolean;
+  fecha_creacion: string;
+  fecha_ultima_modificacion: string;
 }
 
-export interface Status {
-  code: string;
-  name: string;
+export interface CreateUsuario {
+  nombre: string;
+  correo: string;
+  contrasena: string;
+  rol: { id: string };
+  estado: boolean;
 }
 
-export interface CreateUser {
-  name: string;
-  mail: string;
-  password: string;
-  role: { id_role : string };
-  status: { code: string };
-}
-
-export interface User extends Omit<CreateUser, 'role' | 'status' | 'password'> {
-  id_user: string;
-  name: string;
-  mail: string;
-  password?: string;
-  role: Role;
-  status: Status;
+export interface Usuario {
+  id: string;
+  nombre: string;
+  correo: string;
+  roles: Rol[];
+  estado: boolean;
+  fecha_creacion: string;
+  fecha_ultima_modificacion: string;
 }
