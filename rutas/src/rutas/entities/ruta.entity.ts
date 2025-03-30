@@ -1,7 +1,7 @@
-import { CamionEntity } from 'src/camiones/entities/camion.entity';
-import { EstadoRutaEntity } from 'src/estados-rutas/entities/estado-ruta.entity';
-import { NodoRutaEntity } from 'src/nodos-rutas/entities/nodo-ruta.entity';
-import { TipoRutaEntity } from 'src/tipos-rutas/entities/tipo-ruta.entity';
+import { CamionEntity } from '../../camiones/entities/camion.entity';
+import { EstadoRutaEntity } from '../../estados-rutas/entities/estado-ruta.entity';
+import { NodoRutaEntity } from '../../nodos-rutas/entities/nodo-ruta.entity';
+import { TipoRutaEntity } from '../../tipos-rutas/entities/tipo-ruta.entity';
 import {
   Column,
   Entity,

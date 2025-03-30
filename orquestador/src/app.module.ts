@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ProveedorAiModule } from './proveedor-ai/proveedor-ai.module';
 import { ProductosModule } from './productos/productos.module';
 import { PedidosModule } from './pedidos/pedidos.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { PedidosModule } from './pedidos/pedidos.module';
     ProveedorAiModule,
     ProductosModule,
     PedidosModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

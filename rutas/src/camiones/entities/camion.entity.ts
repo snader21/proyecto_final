@@ -1,4 +1,4 @@
-import { RutaEntity } from 'src/rutas/entities/ruta.entity';
+import { RutaEntity } from '../../rutas/entities/ruta.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('camion')
