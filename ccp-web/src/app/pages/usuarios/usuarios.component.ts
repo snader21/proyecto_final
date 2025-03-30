@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
 import { TableModule } from 'primeng/table';
@@ -16,7 +17,7 @@ import { ModalService } from '../../services/modal/modal.service';
 @Component({
   selector: 'app-usuarios',
   standalone: true,
-  imports: [CommonModule, CardModule, DividerModule, TableModule, ButtonModule, BadgeModule, TagModule, GestionarUsuariosComponent ],
+  imports: [CommonModule, CardModule, DividerModule, TableModule, ButtonModule, BadgeModule, TagModule, GestionarUsuariosComponent, TooltipModule],
   templateUrl: './usuarios.component.html',
   styleUrl: './usuarios.component.scss'
 })

@@ -44,7 +44,7 @@ import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 export class GestionarUsuariosComponent implements OnInit {
   visible = false;
   userForm!: FormGroup;
-  selectedRole: Rol | null = null;
+  selectedRoleId: string | null = null;
   selectedStatus: boolean | null = null;
 
   roles: Rol[] = [];
@@ -70,7 +70,7 @@ export class GestionarUsuariosComponent implements OnInit {
 
     // Suscribirse a los cambios de rol y estado
     this.userForm.get('rol')?.valueChanges.subscribe(value => {
-      this.selectedRole = value;
+      this.selectedRoleId = value;
     });
 
     this.userForm.get('estado')?.valueChanges.subscribe(value => {
@@ -124,8 +124,8 @@ export class GestionarUsuariosComponent implements OnInit {
       nombre: formData.nombre,
       correo: formData.correo,
       contrasena: formData.contrasena,
-      rol: { id: this.selectedRole?.id || '' },
-      estado: this.selectedStatus ?? true
+      roles: this.selectedRoleId ? [this.selectedRoleId] : [],
+      estado: formData.estado
     };
     console.log('usuario a guardar:', usuario);
     this.usuariosService.crearUsuario(usuario).subscribe(
@@ -141,10 +141,11 @@ export class GestionarUsuariosComponent implements OnInit {
         this.closeModal();
       },
       (error: any) => {
+        console.error('Error del backend:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Error al guardar el usuario',
+          detail: error.error?.message || 'Error al guardar el usuario',
           life: 3000
         });
       }

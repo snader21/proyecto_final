@@ -11,7 +11,7 @@ export interface CreateUsuario {
   nombre: string;
   correo: string;
   contrasena: string;
-  rol: { id: string };
+  roles: string[];
   estado: boolean;
 }
 

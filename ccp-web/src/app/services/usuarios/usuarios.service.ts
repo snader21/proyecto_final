@@ -13,6 +13,7 @@ export class UsuariosService {
   constructor(private http: HttpClient) { }
 
   crearUsuario(usuario: CreateUsuario): Observable<Usuario> {
+    console.log('Enviando usuario al backend:', usuario);
     return this.http.post<Usuario>(`${this.apiUrl}/usuarios`, usuario);
   }
 
