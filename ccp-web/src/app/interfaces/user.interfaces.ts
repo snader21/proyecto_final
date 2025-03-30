@@ -12,7 +12,7 @@ export interface CreateUsuario {
   correo: string;
   contrasena: string;
   roles: string[];
-  estado: boolean;
+  estado: 'active' | 'inactive';
 }
 
 export interface Usuario {

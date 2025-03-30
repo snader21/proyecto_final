@@ -32,8 +32,15 @@
 
         <div class="flex flex-col gap-2">
             <label for="estado" class="font-light">Estado</label>
-            <p-inputSwitch formControlName="estado"></p-inputSwitch>
-            <small class="text-gray-500">{{ userForm.get('estado')?.value ? 'Activo' : 'Inactivo' }}</small>
+            <p-select
+                [options]="estadosOptions"
+                formControlName="estado"
+                optionLabel="label"
+                optionValue="value"
+                [filter]="false"
+                placeholder="Seleccione un estado"
+                class="w-full">
+            </p-select>
         </div>
 
         <div class="flex flex-col gap-2">

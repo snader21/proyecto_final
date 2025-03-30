@@ -45,9 +45,14 @@ export class GestionarUsuariosComponent implements OnInit {
   visible = false;
   userForm!: FormGroup;
   selectedRoleId: string | null = null;
-  selectedStatus: boolean | null = null;
+  selectedStatus: string | null = null;
 
   roles: Rol[] = [];
+
+  estadosOptions = [
+    { label: 'Activo', value: 'active' },
+    { label: 'Inactivo', value: 'inactive' }
+  ];
 
   constructor(
     private modalService: ModalService,
@@ -92,7 +97,7 @@ export class GestionarUsuariosComponent implements OnInit {
         contrasena: [null, [Validators.required, Validators.minLength(6)]],
         repassword: [null, Validators.required],
         rol: ['', Validators.required],
-        estado: [true, Validators.required]
+        estado: ['active', Validators.required]
       },
       { validators: this.passwordsMatchValidator }
     );
@@ -142,12 +147,25 @@ export class GestionarUsuariosComponent implements OnInit {
       },
       (error: any) => {
         console.error('Error del backend:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: error.error?.message || 'Error al guardar el usuario',
-          life: 3000
-        });
+        if (Array.isArray(error.error)) {
+          // Si es un array de errores de validación, mostrar cada uno
+          error.error.forEach((message: string) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error de validación',
+              detail: message,
+              life: 5000
+            });
+          });
+        } else {
+          // Si es un error general
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.error?.message || 'Error al guardar el usuario',
+            life: 3000
+          });
+        }
       }
     );
   }
