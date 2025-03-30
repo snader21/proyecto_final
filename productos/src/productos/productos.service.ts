@@ -74,6 +74,14 @@ export class ProductosService implements OnModuleInit {
           id_categoria: '550e8400-e29b-41d4-a716-446655440002',
         },
       },
+      {
+        id_categoria: '550e8400-e29b-41d4-a716-446655440004',
+        nombre: 'Computadoras',
+        descripcion: 'Computadoras',
+        categoria_padre: {
+          id_categoria: '550e8400-e29b-41d4-a716-446655440002',
+        },
+      },
     ]);
 
     // Insert data into the Marca table
@@ -257,5 +265,59 @@ export class ProductosService implements OnModuleInit {
     );
 
     return productosDto;
+  }
+
+  async obtenerCategorias(): Promise<CategoriaEntity[]> {
+    return await this.categoriaRepository.find();
+  }
+
+  async obtenerMarcas(): Promise<MarcaEntity[]> {
+    return await this.marcaRepository.find();
+  }
+
+  async obtenerUnidadesMedida(): Promise<UnidadMedidaEntity[]> {
+    return await this.unidadMedidaRepository.find();
+  }
+
+  async GuardarProducto(producto: ProductoEntity): Promise<ProductoEntity> {
+    return await this.productoRepository.save(producto);
+  }
+
+  async obtenerProductos(): Promise<ProductoEntity[]> {
+    return await this.productoRepository.find({
+      relations: {
+        categoria: true,
+        unidad_medida: true,
+        marca: true
+      },
+      select: {
+        id_producto: true,
+        nombre: true,
+        descripcion: true,
+        sku: true,
+        codigo_barras: true,
+        precio: true,
+        activo: true,
+        alto: true,
+        ancho: true,
+        largo: true,
+        peso: true,
+        fecha_creacion: true,
+        fecha_actualizacion: true,
+        id_fabricante: true,
+        categoria: {
+          id_categoria: true,
+          nombre: true
+        },
+        unidad_medida: {
+          id_unidad_medida: true,
+          nombre: true
+        },
+        marca: {
+          id_marca: true,
+          nombre: true
+        }
+      }
+    });
   }
 }
