@@ -16,14 +16,17 @@
             <small class="text-red-500" *ngIf="userForm.get('mail')?.invalid && userForm.get('mail')?.touched">Este campo es requerido</small>
         </div>
         <div class="flex flex-col gap-2">
-            <label for="password" class="font-light w-24">Password</label>
-            <input placeholder="Descripción del producto" pInputPass id="password" formControlName="password" class="w-full" autocomplete="off" />
+            <label for="password" class="font-light w-24">Contraseña</label>
+            <input placeholder="Password" pInputText id="password" type="password" formControlName="password" class="w-full" autocomplete="off" />
             <small class="text-red-500" *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched">Este campo es requerido</small>
         </div>
         <div class="flex flex-col gap-2">
-          <label for="repassword" class="font-light w-24">rePassword</label>
-          <input placeholder="Descripción del producto" pInputPass id="repassword" formControlName="repassword" class="w-full" autocomplete="off" />
+          <label for="repassword" class="font-light w-24">ConfirmarContraseña</label>
+          <input placeholder="Password" pInputText id="repassword" type="password" formControlName="repassword" class="w-full" autocomplete="off" />
           <small class="text-red-500" *ngIf="userForm.get('repassword')?.invalid && userForm.get('repassword')?.touched">Este campo es requerido</small>
+          <small class="text-red-500" *ngIf="userForm.hasError('passwordsMismatch') && userForm.get('repassword')?.touched">
+            Las contraseñas no coinciden
+          </small>
         </div>
 
         <div class="flex flex-col gap-2">
@@ -38,6 +41,25 @@
                 class="w-full">
             </p-select>
         </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="role" class="font-light">Role</label>
+          <p-select
+              [options]="roles"
+              formControlName="role"
+              optionLabel="name"
+              [filter]="false"
+              [showClear]="true"
+              placeholder="Seleccione"
+              class="w-full">
+          </p-select>
+      </div>
+
+      <div class="form-status">
+        <h3>Estado del formulario:</h3>
+        <pre>{{ userForm.value | json }}</pre>
+      </div>
+
     </form>
     <div class="flex justify-end gap-2 mt-4">
         <p-button label="Cancelar" severity="secondary" (click)="closeModal()" />

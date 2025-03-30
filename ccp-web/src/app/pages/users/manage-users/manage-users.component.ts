@@ -20,6 +20,7 @@ import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 @Component({
   selector: 'app-manage-users',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -43,7 +44,7 @@ export class ManageUsersComponent implements OnInit {
   selectedRole: Role | null = null;
   selectedStatus: Status | null = null;
 
-  role: Role[] = [
+  roles: Role[] = [
     { id_role: 'ADMIN', name: 'Administrador'},
     { id_role: 'SELLER', name: 'Vendedor'}
   ];
@@ -67,8 +68,6 @@ export class ManageUsersComponent implements OnInit {
     });
   }
 
-
-
   ngOnInit() {
     this.initForm();
     this.userForm.get('role')?.valueChanges.subscribe(value => {
@@ -84,15 +83,14 @@ export class ManageUsersComponent implements OnInit {
       {
         name: ['', Validators.required],
         mail: ['', Validators.required],
-        password: [null, Validators.required],
+        password: [null, [Validators.required, Validators.minLength(6)]],
         repassword: [null, Validators.required],
-        role: [null, Validators.required],
+        role: ['', Validators.required],
         status: ['', Validators.required]
       },
-      { validators: this.validatorPassword }
+      { validators: this.passwordsMatchValidator }
     );
   }
-
 
   closeModal = () => {
     this.modalService.closeModal();
@@ -147,9 +145,12 @@ export class ManageUsersComponent implements OnInit {
     );
   }
 
-  private validatorPassword: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+  passwordsMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
     const password = control.get('password')?.value;
-    const repassword = control.get('repassword')?.value;
-    return password === repassword ? null : { passwordMismatch: true };
+    const confirmPassword = control.get('repassword')?.value;
+    if (password !== confirmPassword) {
+      return { passwordsMismatch: true };
+    }
+    return null;
   };
 }

@@ -3,7 +3,6 @@ import { LoginComponent } from './pages/login/login.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { AuthGuard } from './guards/auth.guard';
 import { UsersComponent } from './pages/users/users.component';
-import { ManageUsersComponent } from './pages/users/manage-users/manage-users.component';
 import { FabricantesComponent } from './pages/fabricantes/fabricantes.component';
 import { ProductsComponent } from './pages/products/products.component';
 

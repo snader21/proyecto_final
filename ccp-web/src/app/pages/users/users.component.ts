@@ -1,20 +1,21 @@
 import { Component, OnInit } from '@angular/core';
-import { ManageUsersComponent } from './manage-users/manage-users.component';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
 import { TableModule } from 'primeng/table';
 import { UsersService } from '../../services/users/users.service';
-import { ModalService } from '../../services/modal/modal.service';
 import { EventsService } from '../../services/events/events.service';
 import { User } from '../../interfaces/user.interfaces';
 import { catchError, of } from 'rxjs';
 import { BadgeModule } from 'primeng/badge';
 import { TagModule } from 'primeng/tag';
+import { ManageUsersComponent } from './manage-users/manage-users.component';
+import { ModalService } from '../../services/modal/modal.service';
 
 @Component({
   selector: 'app-users',
-  imports: [CardModule, DividerModule, TableModule, ButtonModule, ManageUsersComponent, BadgeModule, TagModule],
+  standalone: true,
+  imports: [CardModule, DividerModule, TableModule, ButtonModule, BadgeModule, TagModule, ManageUsersComponent ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss'
 })
@@ -25,8 +26,8 @@ export class UsersComponent implements OnInit {
 
   constructor(
     private usersService: UsersService,
-    private modalService: ModalService,
-    private eventsService: EventsService
+    private eventsService: EventsService,
+    private modalService: ModalService
   ) {
     this.eventsService.refreshUsers$.subscribe(() => {
       this.loadUsers();
