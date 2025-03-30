@@ -1,6 +1,5 @@
-<nav *ngIf="isLoggedIn">
-  <ul>
-    <li><a routerLink="/dashboard">Dashboard</a></li>
-    <li><a (click)="logout()">Cerrar sesión</a></li>
-  </ul>
-</nav>
+<p-menubar [model]="items">
+  <ng-template #end>
+    <img src="/CCP_logo.svg" alt="CCP logo" class="w-[100px]">
+  </ng-template>
+</p-menubar>
