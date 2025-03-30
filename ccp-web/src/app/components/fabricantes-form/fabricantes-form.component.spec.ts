@@ -3,21 +3,21 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
-import { FabricantesComponent } from './fabricantes.component';
+import { FabricantesFormComponent } from './fabricantes-form.component';
 
-describe('FabricantesComponent', () => {
-  let component: FabricantesComponent;
-  let fixture: ComponentFixture<FabricantesComponent>;
+describe('FabricantesFormComponent', () => {
+  let component: FabricantesFormComponent;
+  let fixture: ComponentFixture<FabricantesFormComponent>;
 
-  beforeEach(() => {
+  beforeEach((() => {
     TestBed.configureTestingModule({
-      declarations: [ FabricantesComponent ]
+      declarations: [ FabricantesFormComponent ]
     })
     .compileComponents();
-  });
+  }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(FabricantesComponent);
+    fixture = TestBed.createComponent(FabricantesFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

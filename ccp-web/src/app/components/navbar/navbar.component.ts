@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
-import { NgIf, NgClass } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { MenubarModule } from 'primeng/menubar';
 import { AvatarModule } from 'primeng/avatar';
 import { InputTextModule } from 'primeng/inputtext';
@@ -16,9 +14,6 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./navbar.component.scss'],
   standalone: true,
   imports: [
-    NgIf,
-    NgClass,
-    RouterLink,
     MenubarModule,
     AvatarModule,
     InputTextModule,
