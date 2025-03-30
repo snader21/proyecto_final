@@ -3,7 +3,7 @@ import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { ModalService } from '../../services/modal/modal.service';
+import { ModalService } from '../../services/products/modal.service';
 import { ProductsService } from '../../services/products/products.service';
 import { EventsService } from '../../services/events/events.service';
 import { Product } from '../../interfaces/product.interfaces';
