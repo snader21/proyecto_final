@@ -136,7 +136,6 @@ export class GestionarUsuariosComponent implements OnInit {
     this.usuariosService.crearUsuario(usuario).subscribe(
       savedUser => {
         this.messageService.add({
-          key: 'success',
           severity: 'success',
           summary: 'Éxito',
           detail: 'El usuario se ha guardado correctamente',
@@ -147,22 +146,33 @@ export class GestionarUsuariosComponent implements OnInit {
       },
       (error: any) => {
         console.error('Error del backend:', error);
-        if (Array.isArray(error.error)) {
-          // Si es un array de errores de validación, mostrar cada uno
-          error.error.forEach((message: string) => {
+        // Si el error viene como un objeto con message
+        if (error.error?.message) {
+          if (Array.isArray(error.error.message)) {
+            // Si es un array de errores de validación
+            error.error.message.forEach((message: string) => {
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error de validación',
+                detail: message,
+                life: 5000
+              });
+            });
+          } else {
+            // Si es un mensaje de error simple
             this.messageService.add({
               severity: 'error',
-              summary: 'Error de validación',
-              detail: message,
+              summary: error.error.error || 'Error',
+              detail: error.error.message,
               life: 5000
             });
-          });
+          }
         } else {
           // Si es un error general
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: error.error?.message || 'Error al guardar el usuario',
+            detail: 'Error al guardar el usuario',
             life: 3000
           });
         }
