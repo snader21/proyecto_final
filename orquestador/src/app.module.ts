@@ -8,6 +8,7 @@ import { ProveedorAiModule } from './proveedor-ai/proveedor-ai.module';
 import { ProductosModule } from './productos/productos.module';
 import { PedidosModule } from './pedidos/pedidos.module';
 import { AuthModule } from './auth/auth.module';
+import { VendedoresModule } from './vendedores/vendedores.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AuthModule } from './auth/auth.module';
     ProductosModule,
     PedidosModule,
     AuthModule,
+    VendedoresModule,
   ],
   controllers: [AppController],
   providers: [AppService],
