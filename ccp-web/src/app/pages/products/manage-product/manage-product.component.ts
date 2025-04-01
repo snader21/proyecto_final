@@ -182,7 +182,7 @@ export class ManageProductComponent implements OnInit {
         fecha_actualizacion: new Date()
       };
       console.log('Product to save:', productToSave);
-      this.productsService.saveProduct(productToSave).subscribe(
+      this.productsService.saveProduct(productToSave, this.files).subscribe(
         savedProduct => {
           this.messageService.add({
             key: 'success',

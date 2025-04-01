@@ -29,7 +29,16 @@ export class ProductsService {
     return this.http.get<Product[]>(`${this.apiProductos}/productos`);
   }
 
-  saveProduct(product: CreateProduct): Observable<Product> {
-    return this.http.post<Product>(`${this.apiProductos}/productos`, product);
+  saveProduct(product: CreateProduct, files?: File[]): Observable<Product> {
+    const formData = new FormData();
+    formData.append('product', JSON.stringify(product));
+
+    if (files && files.length > 0) {
+      files.forEach((file, index) => {
+        formData.append(`images`, file);
+      });
+    }
+
+    return this.http.post<Product>(`${this.apiProductos}/productos`, formData);
   }
 }

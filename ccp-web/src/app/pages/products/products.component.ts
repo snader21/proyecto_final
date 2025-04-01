@@ -8,17 +8,22 @@ import { ProductsService } from '../../services/products/products.service';
 import { EventsService } from '../../services/events/events.service';
 import { Product } from '../../interfaces/product.interfaces';
 import { ManageProductComponent } from './manage-product/manage-product.component';
+import { NavbarComponent } from '../../components/navbar/navbar.component';
+import { TagModule } from 'primeng/tag';
+import { GestionarInventarioComponent } from './gestionar-inventario/gestionar-inventario.component';
 
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [CardModule, DividerModule, TableModule, ButtonModule, ManageProductComponent],
+  imports: [CardModule, DividerModule, TableModule, ButtonModule, ManageProductComponent, NavbarComponent, TagModule, GestionarInventarioComponent],
   providers: [ProductsService],
   templateUrl: './products.component.html',
   styleUrl: './products.component.scss'
 })
 export class ProductsComponent implements OnInit {
   products: Product[] = [];
+  showInventoryDialog = false;
+  selectedProduct?: Product;
 
   constructor(
     private productsService: ProductsService,
@@ -41,7 +46,15 @@ export class ProductsComponent implements OnInit {
   }
 
   openModal() {
-    console.log('openModal');
     this.modalService.openModal();
+  }
+
+  openInventoryDialog(product: Product) {
+    this.selectedProduct = product;
+    this.showInventoryDialog = true;
+  }
+
+  closeInventoryDialog() {
+    this.showInventoryDialog = false;
   }
 }
