@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -14,6 +12,8 @@ import { UsuarioService } from './services/usuario.service';
 import { InitService } from './services/init.service';
 import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
+import { RolController } from './controllers/rol.controller';
+import { RolService } from './services/rol.service';
 
 @Module({
   imports: [
@@ -34,7 +34,7 @@ import { AuthService } from './services/auth.service';
       autoLoadEntities: true,
       dropSchema: false,
     }),
-    TypeOrmModule.forFeature([Usuario, Rol]),
+    TypeOrmModule.forFeature([Usuario, Rol, Permiso]),
     JwtModule.registerAsync({
       useFactory: () => ({
         secret: process.env.JWT_SECRET ?? 'tu-secreto-seguro',
@@ -42,7 +42,12 @@ import { AuthService } from './services/auth.service';
       }),
     }),
   ],
-  controllers: [AppController, UsuarioController, AuthController],
-  providers: [AppService, UsuarioService, InitService, AuthService],
+  controllers: [
+    AppController,
+    UsuarioController,
+    AuthController,
+    RolController,
+  ],
+  providers: [AppService, UsuarioService, InitService, AuthService, RolService],
 })
 export class AppModule {}
