@@ -3,7 +3,6 @@ import { CreateVendedorDto } from './dto/create-vendedor.dto';
 import { VendedorEntity } from './entities/vendedor.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EstadosVendedoresService } from '../estados-vendedores/estados-vendedores.service';
 import { ZonasService } from '../zonas/zonas.service';
 import { UpdateVendedorDto } from './dto/update-vendedore.dto';
 
@@ -12,74 +11,64 @@ export class VendedoresService {
   constructor(
     @InjectRepository(VendedorEntity)
     private readonly repository: Repository<VendedorEntity>,
-    private readonly estadosVendedoresService: EstadosVendedoresService,
     private readonly zonasService: ZonasService,
   ) {}
-  async create(createVendedoreDto: CreateVendedorDto) {
-    const estado = await this.estadosVendedoresService.findOne(
-      createVendedoreDto.estadoId,
-    );
-    if (!estado) {
-      throw new NotFoundException('Estado no encontrado');
-    }
-    const zona = await this.zonasService.findOne(createVendedoreDto.zonaId);
+  async create(createVendedorDto: CreateVendedorDto) {
+    const zona = await this.zonasService.findOne(createVendedorDto.zonaId);
     if (!zona) {
       throw new NotFoundException('Zona no encontrada');
     }
     return this.repository.save({
-      nombre: createVendedoreDto.nombre,
-      correo: createVendedoreDto.correo,
-      telefono: createVendedoreDto.telefono,
-      usuario_id: createVendedoreDto.usuarioId,
+      nombre: createVendedorDto.nombre,
+      correo: createVendedorDto.correo,
+      telefono: createVendedorDto.telefono,
+      usuario_id: createVendedorDto.usuarioId,
       zona,
-      estado,
     });
   }
 
-  findAll() {
+  async findAll() {
     return this.repository.find({
-      relations: ['zona', 'estado'],
+      relations: ['zona'],
     });
   }
 
-  findOne(id: number) {
-    return this.repository.findOne({
+  async findOne(id: string) {
+    const vendedor = await this.repository.findOne({
       where: { id },
-      relations: ['zona', 'estado'],
+      relations: ['zona'],
     });
+    if (!vendedor) {
+      throw new NotFoundException('Vendedor no encontrado');
+    }
+    return vendedor;
   }
 
-  async update(id: number, updateVendedoreDto: UpdateVendedorDto) {
+  async update(id: string, updateVendedorDto: UpdateVendedorDto) {
     const vendedor = await this.findOne(id);
     if (!vendedor) {
       throw new NotFoundException('Vendedor no encontrado');
     }
-    const zona = updateVendedoreDto.zonaId
-      ? await this.zonasService.findOne(updateVendedoreDto.zonaId)
+    const zona = updateVendedorDto.zonaId
+      ? await this.zonasService.findOne(updateVendedorDto.zonaId)
       : vendedor.zona;
     if (!zona) {
       throw new NotFoundException('Zona no encontrada');
     }
-    const estado = updateVendedoreDto.estadoId
-      ? await this.estadosVendedoresService.findOne(updateVendedoreDto.estadoId)
-      : vendedor.estado;
-    if (!estado) {
-      throw new NotFoundException('Estado no encontrado');
-    }
     return this.repository.update(id, {
-      usuario_id: updateVendedoreDto.usuarioId || vendedor.usuario_id,
-      nombre: updateVendedoreDto.nombre || vendedor.nombre,
-      correo: updateVendedoreDto.correo || vendedor.correo,
-      telefono: updateVendedoreDto.telefono || vendedor.telefono,
+      usuario_id: updateVendedorDto.usuarioId || vendedor.usuario_id,
+      nombre: updateVendedorDto.nombre || vendedor.nombre,
+      correo: updateVendedorDto.correo || vendedor.correo,
+      telefono: updateVendedorDto.telefono || vendedor.telefono,
       zona,
-      estado,
     });
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     const vendedor = await this.findOne(id);
     if (!vendedor) {
       throw new NotFoundException('Vendedor no encontrado');
     }
+    await this.repository.delete(id);
   }
 }

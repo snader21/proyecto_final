@@ -10,6 +10,7 @@ import {
 import { VendedoresService } from './vendedores.service';
 import { CreateVendedorDto } from './dto/create-vendedor.dto';
 import { UpdateVendedorDto } from './dto/update-vendedore.dto';
+import { UUIDParamDto } from '../shared/dto/id-param.dto';
 
 @Controller('vendedores')
 export class VendedoresController {
@@ -26,20 +27,20 @@ export class VendedoresController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.vendedoresService.findOne(+id);
+  findOne(@Param() params: UUIDParamDto) {
+    return this.vendedoresService.findOne(params.id);
   }
 
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param() params: UUIDParamDto,
     @Body() updateVendedoreDto: UpdateVendedorDto,
   ) {
-    return this.vendedoresService.update(+id, updateVendedoreDto);
+    return this.vendedoresService.update(params.id, updateVendedoreDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.vendedoresService.remove(+id);
+  remove(@Param() params: UUIDParamDto) {
+    return this.vendedoresService.remove(params.id);
   }
 }

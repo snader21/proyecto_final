@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, IsNumber } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
 export class CreateVendedorDto {
   @IsString({
@@ -28,36 +28,19 @@ export class CreateVendedorDto {
   })
   telefono: string;
 
-  @IsNumber(
-    {},
-    {
-      message: 'La zona debe ser un número',
-    },
-  )
+  @IsUUID(4, {
+    message: 'La zona debe ser un uuid v4',
+  })
   @IsNotEmpty({
     message: 'La zona es requerida',
   })
-  zonaId: number;
+  zonaId: string;
 
-  @IsNumber(
-    {},
-    {
-      message: 'El estado debe ser un número',
-    },
-  )
-  @IsNotEmpty({
-    message: 'El estado es requerido',
+  @IsUUID(4, {
+    message: 'El usuario debe ser un uuid v4',
   })
-  estadoId: number;
-
-  @IsNumber(
-    {},
-    {
-      message: 'El usuario debe ser un número',
-    },
-  )
   @IsNotEmpty({
     message: 'El usuario es requerido',
   })
-  usuarioId: number;
+  usuarioId: string;
 }

@@ -2,6 +2,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ZonaEntity } from './entities/zona.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class ZonasService implements OnModuleInit {
@@ -11,9 +12,10 @@ export class ZonasService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
+    const uuidv4 = 'dbbc9d28-da65-4d92-8969-76c376c31521';
     for (let i = 1; i <= 5; i++) {
       await this.repository.save({
-        id: i,
+        id: uuidv4.slice(0, -1) + i,
         nombre: `Zona ${i}`,
         descripcion: `Zona ${i}`,
       });
@@ -24,7 +26,7 @@ export class ZonasService implements OnModuleInit {
     return this.repository.find();
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return this.repository.findOne({ where: { id } });
   }
 }

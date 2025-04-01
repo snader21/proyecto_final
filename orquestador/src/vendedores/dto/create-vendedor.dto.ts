@@ -3,6 +3,6 @@ export class CreateVendedorDto {
   contrasena: string;
   correo: string;
   telefono: string;
-  zonaId: number;
-  estadoId: number;
+  zonaId: string;
+  estado: 'active' | 'inactive';
 }

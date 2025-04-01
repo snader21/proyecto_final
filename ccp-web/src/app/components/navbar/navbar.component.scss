@@ -1,0 +1,13 @@
+::ng-deep .p-menubar {
+    direction: rtl;
+}
+
+::ng-deep p-menubarsub {
+    direction: ltr !important;
+}
+
+::ng-deep .p-menubar-end {
+    margin-right: auto;
+    margin-left: 0 !important;
+    align-self: center;
+}

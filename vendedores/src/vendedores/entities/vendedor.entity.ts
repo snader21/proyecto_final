@@ -1,4 +1,3 @@
-import { EstadoVendedorEntity } from '../../estados-vendedores/entities/estado-vendedor.entity';
 import { ZonaEntity } from '../../zonas/entities/zona.entity';
 import {
   Column,
@@ -10,11 +9,11 @@ import {
 
 @Entity('vendedor')
 export class VendedorEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({ nullable: false })
-  usuario_id: number;
+  usuario_id: string;
 
   @Column({ nullable: false })
   nombre: string;
@@ -27,10 +26,6 @@ export class VendedorEntity {
 
   @Column({ nullable: false })
   telefono: string;
-
-  @ManyToOne(() => EstadoVendedorEntity, (estado) => estado.vendedores)
-  @JoinColumn({ name: 'estado_id' })
-  estado: EstadoVendedorEntity;
 
   @ManyToOne(() => ZonaEntity, (zona) => zona.vendedores)
   @JoinColumn({ name: 'zona_id' })
