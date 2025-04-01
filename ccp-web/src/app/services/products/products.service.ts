@@ -9,6 +9,7 @@ import { Category, Brand, Unit, Product, CreateProduct } from '../../interfaces/
   providedIn: 'root'
 })
 export class ProductsService {
+
   private apiProductos = environment.apiProductos;
 
   constructor(private http: HttpClient) { }
