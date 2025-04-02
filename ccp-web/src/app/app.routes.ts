@@ -7,10 +7,27 @@ import { FabricantesComponent } from './pages/fabricantes/fabricantes.component'
 import { ProductsComponent } from './pages/products/products.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent },
-  { path: 'usuarios', component: UsuariosComponent },
-  { path: 'productos', component: ProductsComponent },
-  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-  { path: 'fabricantes', component: FabricantesComponent, canActivate: [AuthGuard] }
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent, canActivate: [AuthGuard] },
+  { 
+    path: 'dashboard', 
+    component: DashboardComponent, 
+    canActivate: [AuthGuard] 
+  },
+  { 
+    path: 'usuarios', 
+    component: UsuariosComponent, 
+    canActivate: [AuthGuard] 
+  },
+  { 
+    path: 'productos', 
+    component: ProductsComponent, 
+    canActivate: [AuthGuard] 
+  },
+  { 
+    path: 'fabricantes', 
+    component: FabricantesComponent, 
+    canActivate: [AuthGuard] 
+  },
+  { path: '**', redirectTo: 'dashboard' }
 ];
