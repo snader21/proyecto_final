@@ -3,12 +3,14 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  OneToMany,
   JoinColumn,
 } from 'typeorm';
 import { CategoriaEntity } from './categoria.entity';
 import { MarcaEntity } from './marca.entity';
 import { UnidadMedidaEntity } from './unidad-medida.entity';
 import { PaisEntity } from './pais.entity';
+import { ImagenProductoEntity } from './imagen-producto.entity';
 
 @Entity('producto')
 export class ProductoEntity {
@@ -69,4 +71,7 @@ export class ProductoEntity {
   @ManyToOne(() => PaisEntity)
   @JoinColumn({ name: 'id_pais' })
   pais: PaisEntity;
+
+  @OneToMany(() => ImagenProductoEntity, (imagen) => imagen.producto)
+  imagenes: ImagenProductoEntity[];
 }
