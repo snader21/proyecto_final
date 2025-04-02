@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Usuario } from '../entities/usuario.entity';
 import { LoginDto } from '../dto/login.dto';
+import { TipoRecurso } from '../entities/permiso.entity';
 import * as bcrypt from 'bcrypt';
 
 interface JwtPayload {
@@ -58,8 +59,11 @@ export class AuthService {
 
     // Obtener todos los permisos únicos del usuario a través de sus roles
     const permisosUnicos = new Map();
+    const permisosFrontend = new Map();
+
     usuario.roles.forEach((rol) => {
       rol.permisos.forEach((permiso) => {
+        // Guardar todos los permisos para el token
         if (!permisosUnicos.has(permiso.id)) {
           permisosUnicos.set(permiso.id, {
             id: permiso.id,
@@ -67,10 +71,23 @@ export class AuthService {
             modulo: permiso.modulo,
           });
         }
+
+        // Guardar solo los permisos de FRONTEND para el objeto usuario
+        if (
+          permiso.tipoRecurso === TipoRecurso.FRONTEND &&
+          !permisosFrontend.has(permiso.id)
+        ) {
+          permisosFrontend.set(permiso.id, {
+            id: permiso.id,
+            nombre: permiso.nombre,
+            modulo: permiso.modulo,
+            ruta: permiso.ruta,
+          });
+        }
       });
     });
 
-    // Generar token JWT con permisos críticos
+    // Generar token JWT con todos los permisos
     const payload: JwtPayload = {
       sub: usuario.id,
       correo: usuario.correo,
@@ -91,7 +108,7 @@ export class AuthService {
           nombre: rol.nombre,
           descripcion: rol.descripcion,
         })),
-        permisos: Array.from(permisosUnicos.values()),
+        permisos: Array.from(permisosFrontend.values()),
       },
     };
   }

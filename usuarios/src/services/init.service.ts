@@ -88,6 +88,28 @@ export class InitService implements OnModuleInit {
         descripcion:
           'Permite acceder a todas las funcionalidades del módulo de fabricantes',
       },
+      // Permisos de FRONTEND
+      {
+        nombre: 'Acceso a Página de Usuarios',
+        tipoRecurso: TipoRecurso.FRONTEND,
+        modulo: 'usuarios',
+        ruta: '/usuarios',
+        descripcion: 'Permite acceder a la página de gestión de usuarios',
+      },
+      {
+        nombre: 'Acceso a Página de Productos',
+        tipoRecurso: TipoRecurso.FRONTEND,
+        modulo: 'productos',
+        ruta: '/products',
+        descripcion: 'Permite acceder a la página de gestión de productos',
+      },
+      {
+        nombre: 'Acceso a Página de Fabricantes',
+        tipoRecurso: TipoRecurso.FRONTEND,
+        modulo: 'fabricantes',
+        ruta: '/fabricantes',
+        descripcion: 'Permite acceder a la página de gestión de fabricantes',
+      },
     ];
 
     const permisosCreados = await Promise.all(
@@ -99,7 +121,10 @@ export class InitService implements OnModuleInit {
         if (!existingPermiso) {
           return await this.permisoRepository.save(permiso);
         }
-        return existingPermiso;
+
+        // Actualizar el permiso existente con los nuevos campos
+        Object.assign(existingPermiso, permiso);
+        return await this.permisoRepository.save(existingPermiso);
       }),
     );
 
@@ -118,17 +143,26 @@ export class InitService implements OnModuleInit {
           break;
         case 'Director de ventas':
           rolActualizado.permisos = permisosCreados.filter(
-            (p) => p.modulo === 'pedidos' || p.modulo === 'productos',
+            (p) =>
+              (p.modulo === 'pedidos' || p.modulo === 'productos') &&
+              (p.tipoRecurso === TipoRecurso.BACKEND ||
+                p.tipoRecurso === TipoRecurso.FRONTEND),
           );
           break;
         case 'Director de compras':
           rolActualizado.permisos = permisosCreados.filter(
-            (p) => p.modulo === 'productos' || p.modulo === 'fabricantes',
+            (p) =>
+              (p.modulo === 'productos' || p.modulo === 'fabricantes') &&
+              (p.tipoRecurso === TipoRecurso.BACKEND ||
+                p.tipoRecurso === TipoRecurso.FRONTEND),
           );
           break;
         case 'Director de logistica':
           rolActualizado.permisos = permisosCreados.filter(
-            (p) => p.modulo === 'rutas' || p.modulo === 'pedidos',
+            (p) =>
+              (p.modulo === 'rutas' || p.modulo === 'pedidos') &&
+              (p.tipoRecurso === TipoRecurso.BACKEND ||
+                p.tipoRecurso === TipoRecurso.FRONTEND),
           );
           break;
         case 'Cliente':

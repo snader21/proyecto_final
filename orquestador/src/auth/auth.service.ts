@@ -90,7 +90,6 @@ export class AuthService {
       if (error.response?.status === 401) {
         throw new UnauthorizedException('Invalid credentials');
       }
-      console.error('Error during signIn:', error);
       throw new BadRequestException('Authentication failed');
     }
   }
