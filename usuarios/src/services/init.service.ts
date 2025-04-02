@@ -110,6 +110,34 @@ export class InitService implements OnModuleInit {
         ruta: '/fabricantes',
         descripcion: 'Permite acceder a la página de gestión de fabricantes',
       },
+      {
+        nombre: 'Acceso a Página de Vendedores',
+        tipoRecurso: TipoRecurso.FRONTEND,
+        modulo: 'vendedores',
+        ruta: '/vendedores',
+        descripcion: 'Permite acceder a la página de gestión de vendedores',
+      },
+      {
+        nombre: 'Acceso a Página de Reportes',
+        tipoRecurso: TipoRecurso.FRONTEND,
+        modulo: 'reportes',
+        ruta: '/reportes',
+        descripcion: 'Permite acceder a la página de gestión de reportes',
+      },
+      {
+        nombre: 'Acceso a Página de pedidos',
+        tipoRecurso: TipoRecurso.FRONTEND,
+        modulo: 'pedidos',
+        ruta: '/pedidos',
+        descripcion: 'Permite acceder a la página de gestión de pedidos',
+      },
+      {
+        nombre: 'Acceso a Página de rutas',
+        tipoRecurso: TipoRecurso.FRONTEND,
+        modulo: 'rutas',
+        ruta: '/rutas',
+        descripcion: 'Permite acceder a la página de gestión de rutas',
+      },
     ];
 
     const permisosCreados = await Promise.all(
