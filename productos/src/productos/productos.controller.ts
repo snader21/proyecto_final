@@ -1,4 +1,6 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { UploadedFile } from './interfaces/uploaded-file.interface';
 import { ProductosService } from './productos.service';
 import { ProductoPorPedidoDto } from './dto/producto-por-pedido.dto';
 import { CategoriaEntity } from './entities/categoria.entity';
@@ -25,6 +27,11 @@ export class ProductosController {
     return this.productosService.obtenerUnidadesMedida();
   }
 
+  @Get('archivos-csv')
+  async obtenerArchivosCSV() {
+    return this.productosService.obtenerArchivosCSV();
+  }
+
   @Get(':idPedido')
   async obtenerProductosPorPedido(@Param('idPedido') idPedido: string): Promise<ProductoPorPedidoDto[]> {
     return this.productosService.obtenerProductosPorPedido(idPedido);
@@ -36,7 +43,18 @@ export class ProductosController {
   }
 
   @Post()
-  async guardarProducto(@Body() producto: ProductoEntity): Promise<ProductoEntity> {
-    return this.productosService.GuardarProducto(producto);
+  @UseInterceptors(FilesInterceptor('images'))
+  async guardarProducto(
+    @Body('product') productoStr: string,
+    @UploadedFiles() files: UploadedFile[],
+  ): Promise<ProductoEntity> {
+    const producto = JSON.parse(productoStr);
+    return this.productosService.GuardarProducto(producto, files);
+  }
+
+  @Post('upload-csv')
+  @UseInterceptors(FilesInterceptor('file'))
+  async uploadCSV(@UploadedFiles() files: UploadedFile[]): Promise<{ url: string }> {
+    return this.productosService.guardarArchivoCSV(files[0]);
   }
 }
