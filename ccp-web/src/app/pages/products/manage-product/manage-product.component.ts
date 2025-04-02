@@ -100,6 +100,9 @@ export class ManageProductComponent implements OnInit {
     this.productForm.get('unit')?.valueChanges.subscribe(value => {
       this.selectedUnit = value;
     });
+    this.productForm.get('status')?.valueChanges.subscribe(value => {
+      this.selectedStatus = value;
+    });
   }
 
   private loadCategories() {
@@ -172,7 +175,7 @@ export class ManageProductComponent implements OnInit {
         unidad_medida: { id_unidad_medida: this.selectedUnit?.id_unidad_medida || '' },
         pais: { id_pais: "550e8400-e29b-41d4-a716-446655440000" },
         id_fabricante: 'DELL-001',
-        activo: product.status === 'activo',
+        activo: this.selectedStatus?.code === 'ACTIVO',
         precio: 0,
         alto: 0,
         ancho: 0,
@@ -182,7 +185,7 @@ export class ManageProductComponent implements OnInit {
         fecha_actualizacion: new Date()
       };
       console.log('Product to save:', productToSave);
-      this.productsService.saveProduct(productToSave).subscribe(
+      this.productsService.saveProduct(productToSave, this.files).subscribe(
         savedProduct => {
           this.messageService.add({
             key: 'success',

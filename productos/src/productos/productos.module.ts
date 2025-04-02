@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { FileGCP } from './utils/file-gcp.service';
 import { ProductosService } from './productos.service';
 import { ProductosController } from './productos.controller';
 import { HttpModule } from '@nestjs/axios';
@@ -13,6 +14,7 @@ import { PaisEntity } from './entities/pais.entity';
 import { ProductoEntity } from './entities/producto.entity';
 import { UbicacionEntity } from './entities/ubicacion.entity';
 import { UnidadMedidaEntity } from './entities/unidad-medida.entity';
+import { ArchivoProductoEntity } from './entities/archivo-producto.entity';
 
 @Module({
   imports: [
@@ -26,12 +28,13 @@ import { UnidadMedidaEntity } from './entities/unidad-medida.entity';
       PaisEntity,
       ProductoEntity,
       UbicacionEntity,
-      UnidadMedidaEntity
+      UnidadMedidaEntity,
+      ArchivoProductoEntity
     ]),
     HttpModule
   ],
   controllers: [ProductosController],
-  providers: [ProductosService],
+  providers: [ProductosService, FileGCP],
   exports: [ProductosService],
 })
 export class ProductosModule {}
