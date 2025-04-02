@@ -2,8 +2,9 @@ import { inject } from '@angular/core';
 import { Router, type CanActivateFn } from '@angular/router';
 import { Usuario } from '../interfaces/permiso.interface';
 
-export const AuthGuard: CanActivateFn = (route, state) => {
-  const router = inject(Router);
+type AuthGuardFn = (route: any, state: any, router?: Router) => boolean;
+
+export const AuthGuard: AuthGuardFn = (route, state, router = inject(Router)) => {
   const token = localStorage.getItem('token');
   const isLoginRoute = state.url === '/login';
   const isDashboardRoute = state.url === '/dashboard';
