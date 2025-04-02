@@ -100,7 +100,7 @@ export class InitService implements OnModuleInit {
         nombre: 'Acceso a Página de Productos',
         tipoRecurso: TipoRecurso.FRONTEND,
         modulo: 'productos',
-        ruta: '/products',
+        ruta: '/productos',
         descripcion: 'Permite acceder a la página de gestión de productos',
       },
       {
