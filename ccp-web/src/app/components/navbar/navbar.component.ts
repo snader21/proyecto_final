@@ -51,6 +51,7 @@ export class NavbarComponent implements OnInit {
         items: [
           {
             label: 'Fabricantes',
+            routerLink: '/fabricantes'
           },
           {
             label: 'Productos',
