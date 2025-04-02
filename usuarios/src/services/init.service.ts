@@ -54,6 +54,13 @@ export class InitService implements OnModuleInit {
     // Crear permisos
     const permisos = [
       {
+        nombre: 'Acceso a Módulo de usuarios',
+        tipoRecurso: TipoRecurso.BACKEND,
+        modulo: 'usuarios',
+        descripcion:
+          'Permite acceder a todas las funcionalidades del módulo de usuarios',
+      },
+      {
         nombre: 'Acceso a Módulo de Pedidos',
         tipoRecurso: TipoRecurso.BACKEND,
         modulo: 'pedidos',
