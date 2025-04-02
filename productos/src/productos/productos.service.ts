@@ -1,6 +1,9 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
+import { FileGCP } from './utils/file-gcp.service';
+import { UploadedFile } from './interfaces/uploaded-file.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductoEntity } from './entities/producto.entity';
+import { ArchivoProductoEntity } from './entities/archivo-producto.entity';
 import { Repository } from 'typeorm';
 import { MovimientoInventarioEntity } from './entities/movimiento-inventario.entity';
 import { ProductoPorPedidoDto } from './dto/producto-por-pedido.dto';
@@ -10,6 +13,7 @@ import { MarcaEntity } from './entities/marca.entity';
 import { UnidadMedidaEntity } from './entities/unidad-medida.entity';
 import { BodegaEntity } from './entities/bodega.entity';
 import { UbicacionEntity } from './entities/ubicacion.entity';
+import { ImagenProductoEntity } from './entities/imagen-producto.entity';
 
 @Injectable()
 export class ProductosService implements OnModuleInit {
@@ -37,6 +41,14 @@ export class ProductosService implements OnModuleInit {
 
     @InjectRepository(UbicacionEntity)
     private readonly ubicacionRepository: Repository<UbicacionEntity>,
+
+    @InjectRepository(ImagenProductoEntity)
+    private readonly imagenProductoRepository: Repository<ImagenProductoEntity>,
+
+    @InjectRepository(ArchivoProductoEntity)
+    private readonly archivoProductoRepository: Repository<ArchivoProductoEntity>,
+
+    private readonly fileGCP: FileGCP,
   ) {}
 
   async onModuleInit() {
@@ -279,8 +291,48 @@ export class ProductosService implements OnModuleInit {
     return await this.unidadMedidaRepository.find();
   }
 
-  async GuardarProducto(producto: ProductoEntity): Promise<ProductoEntity> {
-    return await this.productoRepository.save(producto);
+  async GuardarProducto(producto: ProductoEntity, files: UploadedFile[]): Promise<ProductoEntity> {
+    // Save the product first
+    const savedProduct = await this.productoRepository.save(producto);
+
+    // Upload images to GCP Storage and save image records
+    if (files && files.length > 0) {
+      for (const file of files) {
+        const fileName = `imagenes/${savedProduct.id_producto}/${file.originalname}`;
+        const url = await this.fileGCP.save(file, fileName);
+
+        // Save image record
+        await this.imagenProductoRepository.save({
+          key_object_storage: fileName,
+          url,
+          producto: savedProduct,
+        });
+      }
+    }
+
+    return savedProduct;
+  }
+
+  async guardarArchivoCSV(file: UploadedFile): Promise<{ url: string }> {
+    const fileName = `csvs/${new Date().toISOString()}_${file.originalname}`;
+    const url = await this.fileGCP.save(file, fileName);
+
+    // Save file record
+    await this.archivoProductoRepository.save({
+      nombre_archivo: file.originalname,
+      url,
+      estado: 'pendiente',
+    });
+
+    return { url };
+  }
+
+  async obtenerArchivosCSV() {
+    return this.archivoProductoRepository.find({
+      order: {
+        fecha_carga: 'DESC'
+      }
+    });
   }
 
   async obtenerProductos(): Promise<ProductoEntity[]> {
@@ -288,7 +340,8 @@ export class ProductosService implements OnModuleInit {
       relations: {
         categoria: true,
         unidad_medida: true,
-        marca: true
+        marca: true,
+        imagenes: true
       },
       select: {
         id_producto: true,
@@ -316,6 +369,10 @@ export class ProductosService implements OnModuleInit {
         marca: {
           id_marca: true,
           nombre: true
+        },
+        imagenes: {
+          id_imagen: true,
+          url: true
         }
       }
     });

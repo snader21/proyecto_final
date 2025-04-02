@@ -11,11 +11,22 @@ import { ManageProductComponent } from './manage-product/manage-product.componen
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { TagModule } from 'primeng/tag';
 import { GestionarInventarioComponent } from './gestionar-inventario/gestionar-inventario.component';
+import { CommonModule } from '@angular/common';
+import { ManageProductBulkComponent } from './manage-product-bulk/manage-product-bulk.component';
 
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [CardModule, DividerModule, TableModule, ButtonModule, ManageProductComponent, NavbarComponent, TagModule, GestionarInventarioComponent],
+  imports: [CardModule,
+    DividerModule,
+    TableModule,
+    ButtonModule,
+    ManageProductComponent,
+    NavbarComponent,
+    TagModule,
+    GestionarInventarioComponent,
+    ManageProductBulkComponent,
+    CommonModule],
   providers: [ProductsService],
   templateUrl: './products.component.html',
   styleUrl: './products.component.scss'
@@ -47,6 +58,10 @@ export class ProductsComponent implements OnInit {
 
   openModal() {
     this.modalService.openModal();
+  }
+
+  openBulkModal() {
+    this.modalService.openBulkModal();
   }
 
   openInventoryDialog(product: Product) {

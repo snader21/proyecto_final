@@ -15,6 +15,7 @@ import { PaisEntity } from './productos/entities/pais.entity';
 import { ProductoEntity } from './productos/entities/producto.entity';
 import { UbicacionEntity } from './productos/entities/ubicacion.entity';
 import { UnidadMedidaEntity } from './productos/entities/unidad-medida.entity';
+import { ArchivoProductoEntity } from './productos/entities/archivo-producto.entity';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { UnidadMedidaEntity } from './productos/entities/unidad-medida.entity';
         ProductoEntity,
         UbicacionEntity,
         UnidadMedidaEntity,
+        ArchivoProductoEntity,
       ],
       dropSchema: true,
       synchronize: true,

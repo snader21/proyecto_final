@@ -42,4 +42,12 @@ export class ProductsService {
 
     return this.http.post<Product>(`${this.apiProductos}/productos`, formData);
   }
+
+  uploadCSV(formData: FormData): Observable<{ url: string }> {
+    return this.http.post<{ url: string }>(`${this.apiProductos}/productos/upload-csv`, formData);
+  }
+
+  getCSVFiles(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiProductos}/productos/archivos-csv`);
+  }
 }
