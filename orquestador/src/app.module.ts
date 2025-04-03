@@ -9,7 +9,7 @@ import { ProductosModule } from './productos/productos.module';
 import { PedidosModule } from './pedidos/pedidos.module';
 import { AuthModule } from './auth/auth.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
-
+import { FabricantesModule } from './fabricantes/fabricantes.module';
 @Module({
   imports: [
     RutasModule,
@@ -23,6 +23,7 @@ import { UsuariosModule } from './usuarios/usuarios.module';
     PedidosModule,
     AuthModule,
     UsuariosModule,
+    FabricantesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
