@@ -1,0 +1,209 @@
+<p-toast key="success" position="top-right"></p-toast>
+<p-dialog
+    header="Agregar Producto"
+    [modal]="true"
+    [(visible)]="visible"
+    [style]="{ width: '40rem', height: '90rem' }">
+    <form [formGroup]="productForm" class="flex flex-col gap-4">
+        <div class="flex flex-col gap-2">
+            <label for="sku" class="font-light w-24">SKU</label>
+            <input placeholder="Identificador del producto" pInputText id="sku" formControlName="sku" class="w-full" autocomplete="off" />
+            <small class="text-red-500" *ngIf="productForm.get('sku')?.invalid && productForm.get('sku')?.touched">Este campo es requerido</small>
+        </div>
+        <div class="flex flex-col gap-2">
+            <label for="name" class="font-light w-24">Nombre</label>
+            <input placeholder="Nombre del producto" pInputText id="name" formControlName="name" class="w-full" autocomplete="off" />
+            <small class="text-red-500" *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched">Este campo es requerido</small>
+        </div>
+        <div class="flex flex-col gap-2">
+            <label for="description" class="font-light w-24">Descripción</label>
+            <input placeholder="Descripción del producto" pInputText id="description" formControlName="description" class="w-full" autocomplete="off" />
+            <small class="text-red-500" *ngIf="productForm.get('description')?.invalid && productForm.get('description')?.touched">Este campo es requerido</small>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-2">
+                <label for="category" class="font-light">Categoría</label>
+                <p-select
+                    [options]="categories"
+                    formControlName="category"
+                    optionLabel="name"
+                    [filter]="true"
+                    filterBy="name"
+                    [showClear]="true"
+                    placeholder="Seleccione"
+                    class="w-full">
+                </p-select>
+                <small class="text-red-500" *ngIf="productForm.get('category')?.invalid && productForm.get('category')?.touched">Este campo es requerido</small>
+            </div>
+            <div class="flex flex-col gap-2">
+                <label for="brand" class="font-light">Marca</label>
+                <p-select
+                    [options]="brands"
+                    formControlName="brand"
+                    optionLabel="name"
+                    [filter]="true"
+                    filterBy="name"
+                    [showClear]="true"
+                    placeholder="Seleccione"
+                    class="w-full">
+                </p-select>
+                <small class="text-red-500" *ngIf="productForm.get('brand')?.invalid && productForm.get('brand')?.touched">Este campo es requerido</small>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-2">
+                <label for="maker" class="font-light">Fabricante</label>
+                <p-select
+                    [options]="makers"
+                    formControlName="maker"
+                    optionLabel="name"
+                    [filter]="true"
+                    filterBy="name"
+                    [showClear]="true"
+                    placeholder="Seleccione"
+                    class="w-full">
+                </p-select>
+                <small class="text-red-500" *ngIf="productForm.get('maker')?.invalid && productForm.get('maker')?.touched">Este campo es requerido</small>
+            </div>
+            <div class="flex flex-col gap-2">
+                <label for="unit" class="font-light">Unidad de medida</label>
+                <p-select
+                    [options]="units"
+                    formControlName="unit"
+                    optionLabel="name"
+                    [filter]="true"
+                    filterBy="name"
+                    [showClear]="true"
+                    placeholder="Seleccione"
+                    class="w-full">
+                </p-select>
+                <small class="text-red-500" *ngIf="productForm.get('unit')?.invalid && productForm.get('unit')?.touched">Este campo es requerido</small>
+            </div>
+        </div>
+        <div class="flex flex-col gap-2">
+            <label for="measurement" class="font-light">Medidas</label>
+            <input placeholder="Medidas del producto" pInputText id="measurement" formControlName="measurement" class="w-full" autocomplete="off" />
+            <small class="text-red-500" *ngIf="productForm.get('measurement')?.invalid && productForm.get('measurement')?.touched">Este campo es requerido</small>
+        </div>
+        <div class="flex flex-col gap-2">
+            <label for="name" class="font-light">Imagen</label>
+            <p-toast />
+            <p-fileupload
+                class="w-full"
+                name="myfile[]"
+                url="https://www.primefaces.org/cdn/api/upload.php"
+                [multiple]="true"
+                accept="image/*"
+                maxFileSize="1000000"
+                (onUpload)="onTemplatedUpload()"
+                (onSelect)="onSelectedFiles($event)">
+                <ng-template #header let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback" let-uploadCallback="uploadCallback">
+                    <div class="flex flex-wrap justify-between items-center flex-1 gap-4">
+                        <div class="flex gap-2">
+                            <p-button
+                                (onClick)="choose($event, chooseCallback)"
+                                icon="pi pi-images"
+                                [rounded]="true"
+                                [outlined]="true" />
+                            <p-button
+                                (onClick)="clearCallback()"
+                                icon="pi pi-times"
+                                [rounded]="true"
+                                [outlined]="true"
+                                severity="danger"
+                                [disabled]="!files || files.length === 0" />
+                        </div>
+                        <p-progressbar
+                            [value]="totalSizePercent"
+                            [showValue]="false"
+                            class="w-full"
+                            styleClass="h-1 w-full">
+                            <span class="whitespace-nowrap">{{ totalSize }}B / 1Mb</span>
+                        </p-progressbar>
+                    </div>
+                </ng-template>
+                <ng-template #content let-files let-uploadedFiles="uploadedFiles" let-removeFileCallback="removeFileCallback" let-removeUploadedFileCallback="removeUploadedFileCallback">
+                    <div class="flex flex-col gap-8 pt-4">
+                        <div *ngIf="files?.length > 0">
+                            <h5>Pendientes</h5>
+                            <div class="flex flex-wrap gap-4">
+                                <div *ngFor="let file of files; let i = index"
+                                    class="p-4 rounded-lg flex flex-col border border-surface items-center gap-4 w-48">
+                                    <div>
+                                        <img
+                                            role="presentation"
+                                            [alt]="file.name"
+                                            [src]="file.objectURL"
+                                            width="100"
+                                            height="50" />
+                                    </div>
+                                    <span class="font-light text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">
+                                        {{ file.name }}
+                                    </span>
+                                    <div>{{ formatSize(file.size) }}</div>
+                                    <p-badge value="Pendiente" severity="warn" />
+                                    <p-button
+                                        icon="pi pi-times"
+                                        (click)="onRemoveTemplatingFile($event, file, removeFileCallback, i)"
+                                        [outlined]="true"
+                                        [rounded]="true"
+                                        severity="danger" />
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="uploadedFiles?.length > 0">
+                            <h5>Completados</h5>
+                            <div class="flex flex-wrap gap-4">
+                                <div *ngFor="let file of uploadedFiles; let i = index"
+                                    class="p-4 rounded-lg flex flex-col border border-surface items-center gap-4 w-48">
+                                    <div>
+                                        <img
+                                            role="presentation"
+                                            [alt]="file.name"
+                                            [src]="file.objectURL"
+                                            width="100"
+                                            height="50" />
+                                    </div>
+                                    <span class="font-light text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">
+                                        {{ file.name }}
+                                    </span>
+                                    <div>{{ formatSize(file.size) }}</div>
+                                    <p-badge value="Completado" class="mt-4" severity="success" />
+                                    <p-button
+                                        icon="pi pi-times"
+                                        (onClick)="removeUploadedFileCallback(i)"
+                                        [outlined]="true"
+                                        [rounded]="true"
+                                        severity="danger" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template #file></ng-template>
+                <ng-template #empty>
+                    <div class="flex items-center justify-center flex-col">
+                        <i class="pi pi-cloud-upload !border-2 !rounded-full !p-8 !text-4xl !text-muted-color"></i>
+                        <p class="mt-6 mb-0">Arrastra y suelta archivos aquí para cargarlos.</p>
+                    </div>
+                </ng-template>
+            </p-fileupload>
+        </div>
+        <div class="flex flex-col gap-2">
+            <label for="status" class="font-light">Estado</label>
+            <p-select
+                [options]="statuses"
+                formControlName="status"
+                optionLabel="name"
+                [filter]="false"
+                [showClear]="true"
+                placeholder="Seleccione"
+                class="w-full">
+            </p-select>
+        </div>
+    </form>
+    <div class="flex justify-end gap-2 mt-4">
+        <p-button label="Cancelar" severity="secondary" (click)="closeModal()" />
+        <p-button label="Guardar" [disabled]="productForm.invalid" severity="success" (click)="onSubmit()" />
+    </div>
+</p-dialog>

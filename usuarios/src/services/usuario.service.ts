@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Usuario } from '../entities/usuario.entity';
-import { CreateUsuarioDto } from '../dto/create-usuario.dto';
+import { CreateUsuarioDto, EstadoUsuario } from '../dto/create-usuario.dto';
 import { Rol } from '../entities/rol.entity';
 import * as bcrypt from 'bcrypt';
 
@@ -19,6 +19,36 @@ export class UsuarioService {
     private readonly rolRepository: Repository<Rol>,
   ) {}
 
+  async findAll(): Promise<Usuario[]> {
+    return this.usuarioRepository.find({
+      relations: ['roles'],
+    });
+  }
+
+  async findOne(id: string): Promise<Usuario> {
+    const usuario = await this.usuarioRepository.findOne({
+      where: { id },
+      relations: ['roles'],
+    });
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+    return usuario;
+  }
+
+  async remove(id: string): Promise<void> {
+    const usuario = await this.usuarioRepository.findOne({
+      where: { id },
+      relations: ['roles'],
+    });
+
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    await this.usuarioRepository.remove(usuario);
+  }
+
   async create(createUsuarioDto: CreateUsuarioDto): Promise<Usuario> {
     const existingUser = await this.usuarioRepository.findOne({
       where: { correo: createUsuarioDto.correo },
@@ -30,10 +60,11 @@ export class UsuarioService {
 
     const hashedPassword = await bcrypt.hash(createUsuarioDto.contrasena, 10);
 
-    const { contrasena, roles, ...userData } = createUsuarioDto;
+    const { contrasena, roles, estado, ...userData } = createUsuarioDto;
     const usuario = this.usuarioRepository.create({
       ...userData,
       contrasena_hash: hashedPassword,
+      estado: estado === EstadoUsuario.ACTIVE,
     });
 
     if (roles && roles.length > 0) {

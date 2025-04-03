@@ -4,7 +4,13 @@ import {
   MinLength,
   IsOptional,
   IsArray,
+  IsEnum,
 } from 'class-validator';
+
+export enum EstadoUsuario {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+}
 
 export class CreateUsuarioDto {
   @IsString()
@@ -21,4 +27,8 @@ export class CreateUsuarioDto {
   @IsArray()
   @IsString({ each: true })
   roles?: string[];
+
+  @IsOptional()
+  @IsEnum(EstadoUsuario)
+  estado?: EstadoUsuario;
 }

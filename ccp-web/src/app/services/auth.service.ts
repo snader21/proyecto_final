@@ -8,10 +8,12 @@ import { Router } from '@angular/router';
 
 interface LoginResponse {
   token: string;
-  user: {
+  usuario: {
     id: string;
-    email: string;
-    name: string;
+    nombre: string;
+    correo: string;
+    roles: [];
+    permisos: [];
   };
 }
 
@@ -32,14 +34,14 @@ export class AuthService {
     this.isAuthenticatedSubject.next(!!token);
   }
 
-  async login(email: string, password: string): Promise<LoginResponse> {
+  async login(correo: string, contrasena: string): Promise<LoginResponse> {
     const response = await firstValueFrom(
-      this.http.post<LoginResponse>(`${this.API_URL}/login`, { email, password })
+      this.http.post<LoginResponse>(`${this.API_URL}/login`, { correo, contrasena })
         .pipe(
           tap(response => {
             if (response && response.token) {
               localStorage.setItem('token', response.token);
-              localStorage.setItem('user', JSON.stringify(response.user));
+              localStorage.setItem('usuario', JSON.stringify(response.usuario));
               this.isAuthenticatedSubject.next(true);
             }
           }),
@@ -51,7 +53,7 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem('token'); // Elimina el token
-    localStorage.removeItem('user'); // Elimina el usuario
+    localStorage.removeItem('usuario'); // Elimina el usuario
     this.isAuthenticatedSubject.next(false);
     this.router.navigate(['/login']);
   }

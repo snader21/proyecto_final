@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { Usuario } from './usuario.entity';
 import { Permiso } from './permiso.entity';
@@ -33,5 +34,16 @@ export class Rol {
   usuarios: Usuario[];
 
   @ManyToMany(() => Permiso, (permiso) => permiso.roles)
+  @JoinTable({
+    name: 'rol_permisos',
+    joinColumn: {
+      name: 'rol_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'permiso_id',
+      referencedColumnName: 'id',
+    },
+  })
   permisos: Permiso[];
 }

@@ -1,3 +1,68 @@
-<p>
-  fabricantes works!
-</p>
+<div class="flex flex-col m-10 p-10 bg-white rounded-sm">
+  <div class="flex flex-row justify-between mb-3">
+    <h1 class="text-4xl font-bold">Fabricantes</h1>
+    <p-button
+      label="Agregar Fabricante"
+      styleClass="bg-orange-400 text-slate-900 border-orange-500"
+      icon="pi pi-plus"
+      size="large"
+      (click)="createFabricante()"
+    />
+  </div>
+  <div class="flex flex-col">
+    <p-table [value]="fabricantes" [tableStyle]="{ 'min-width': '50rem' }">
+      <ng-template #caption>
+        <div class="flex items-center justify-between">
+          <span class="text-xl font-bold">Listado de fabricantes</span>
+          <p-iconfield iconPosition="left" class="ml-auto">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input pInputText type="text" placeholder="Buscar fabricante" />
+          </p-iconfield>
+        </div>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th scope="col">Nombre</th>
+          <th scope="col">Correo</th>
+          <th scope="col">Dirección</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Telefono</th>
+          <th scope="col"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-fabricante>
+        <tr>
+          <td>{{ fabricante.name }}</td>
+          <td>{{ fabricante.email }}</td>
+          <td>{{ fabricante.address }}</td>
+          <td>
+            <p-tag
+              [value]="fabricante.status"
+              [icon]="
+                fabricante.status === 'Activo' ? 'pi pi-check' : 'pi pi-times'
+              "
+              [severity]="fabricante.status === 'Activo' ? 'success' : 'danger'"
+              styleClass="w-24 text-center"
+            ></p-tag>
+          </td>
+          <td>{{ fabricante.phone }}</td>
+          <td class="text-center">
+            <p-button
+              styleClass="bg-slate-700 text-white"
+              icon="pi pi-pencil"
+              severity="secondary"
+              label="Editar"
+              (click)="editFabricante(fabricante)"
+            />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  <app-fabricantes-form
+    [fabricante]="selectedFabricante"
+    [(visible)]="dialogVisible"
+  ></app-fabricantes-form>
+</div>
