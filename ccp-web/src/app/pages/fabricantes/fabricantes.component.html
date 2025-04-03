@@ -7,6 +7,7 @@
       icon="pi pi-plus"
       size="large"
       (click)="createFabricante()"
+      (keyup)="createFabricante()"
     />
   </div>
   <div class="flex flex-col">
@@ -18,7 +19,13 @@
             <p-inputicon>
               <i class="pi pi-search"></i>
             </p-inputicon>
-            <input pInputText type="text" placeholder="Buscar fabricante" />
+            <input
+              pInputText
+              [(ngModel)]="filtro"
+              type="text"
+              placeholder="Buscar fabricante"
+              (input)="filtrarFabricantes()"
+            />
           </p-iconfield>
         </div>
       </ng-template>
@@ -34,20 +41,20 @@
       </ng-template>
       <ng-template #body let-fabricante>
         <tr>
-          <td>{{ fabricante.name }}</td>
-          <td>{{ fabricante.email }}</td>
-          <td>{{ fabricante.address }}</td>
+          <td>{{ fabricante.nombre }}</td>
+          <td>{{ fabricante.correo }}</td>
+          <td>{{ fabricante.direccion }}</td>
           <td>
             <p-tag
-              [value]="fabricante.status"
+              [value]="fabricante.estado"
               [icon]="
-                fabricante.status === 'Activo' ? 'pi pi-check' : 'pi pi-times'
+                fabricante.estado === 'activo' ? 'pi pi-check' : 'pi pi-times'
               "
-              [severity]="fabricante.status === 'Activo' ? 'success' : 'danger'"
+              [severity]="fabricante.estado === 'activo' ? 'success' : 'danger'"
               styleClass="w-24 text-center"
             ></p-tag>
           </td>
-          <td>{{ fabricante.phone }}</td>
+          <td>{{ fabricante.telefono }}</td>
           <td class="text-center">
             <p-button
               styleClass="bg-slate-700 text-white"
@@ -55,8 +62,14 @@
               severity="secondary"
               label="Editar"
               (click)="editFabricante(fabricante)"
+              (keyup)="editFabricante(fabricante)"
             />
           </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6">No se encontraron fabricantes.</td>
         </tr>
       </ng-template>
     </p-table>
@@ -64,5 +77,6 @@
   <app-fabricantes-form
     [fabricante]="selectedFabricante"
     [(visible)]="dialogVisible"
+    (success)="onSuccess($event)"
   ></app-fabricantes-form>
 </div>

@@ -30,7 +30,6 @@ import { RolService } from './services/rol.service';
       database: process.env.DB_NAME ?? 'usuarios',
       entities: [Usuario, Rol, Permiso],
       synchronize: true,
-      logging: true,
       autoLoadEntities: true,
       dropSchema: false,
     }),

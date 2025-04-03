@@ -10,7 +10,7 @@ import { PedidosModule } from './pedidos/pedidos.module';
 import { AuthModule } from './auth/auth.module';
 import { VendedoresModule } from './vendedores/vendedores.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
-
+import { FabricantesModule } from './fabricantes/fabricantes.module';
 @Module({
   imports: [
     RutasModule,
@@ -25,6 +25,7 @@ import { UsuariosModule } from './usuarios/usuarios.module';
     AuthModule,
     VendedoresModule,
     UsuariosModule,
+    FabricantesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

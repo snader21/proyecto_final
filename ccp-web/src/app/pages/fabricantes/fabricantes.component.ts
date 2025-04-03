@@ -7,8 +7,9 @@ import { TableModule } from 'primeng/table';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { TagModule } from 'primeng/tag';
-import { FabricantesFormComponent } from '../../components/fabricantes-form/fabricantes-form.component';
-
+import { FabricantesFormComponent } from './fabricantes-form/fabricantes-form.component';
+import { FabricantesService } from '../../services/fabricantes/fabricantes.service';
+import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-fabricantes',
   templateUrl: './fabricantes.component.html',
@@ -19,6 +20,7 @@ import { FabricantesFormComponent } from '../../components/fabricantes-form/fabr
     CardModule,
     ButtonModule,
     InputTextModule,
+    FormsModule,
     TableModule,
     IconField,
     InputIcon,
@@ -26,37 +28,37 @@ import { FabricantesFormComponent } from '../../components/fabricantes-form/fabr
     FabricantesFormComponent
   ]
 })
-export class FabricantesComponent implements OnInit {
+  export class FabricantesComponent implements OnInit {
+  public fabricantesRaw: any[] = [];
   public fabricantes: any[] = [];
   public selectedFabricante: any = null;
   public dialogVisible: boolean = false;
+  public loading: boolean = false;
+  public filtro: string = '';
 
-  constructor() { }
+  constructor(private readonly fabricantesService: FabricantesService) { }
 
   ngOnInit() {
-    this.fabricantes = [
-      { 
-        name: 'Fabricante 1', 
-        email: 'fabricante1@example.com', 
-        address: 'Calle Principal 123', 
-        status: 'Activo', 
-        phone: '300-123-4567' 
-      },
-      { 
-        name: 'Fabricante 2', 
-        email: 'fabricante2@example.com', 
-        address: 'Avenida Central 456', 
-        status: 'Inactivo', 
-        phone: '300-987-6543' 
-      },
-      { 
-        name: 'Fabricante 3', 
-        email: 'fabricante3@example.com', 
-        address: 'Carrera 789', 
-        status: 'Activo', 
-        phone: '300-456-7890' 
-      }
-    ];
+    this.listarFabricantes();
+  }
+
+  public async listarFabricantes() {
+    this.loading = true;
+    try {
+      this.fabricantesRaw = await this.fabricantesService.getFabricantes();
+      this.fabricantes = this.fabricantesRaw;
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  public async filtrarFabricantes() {
+    this.fabricantes = this.fabricantesRaw.filter(fabricante =>
+      fabricante.nombre.toLowerCase().includes(this.filtro.toLowerCase()) ||
+      fabricante.correo.toLowerCase().includes(this.filtro.toLowerCase()) ||
+      fabricante.direccion.toLowerCase().includes(this.filtro.toLowerCase()) ||
+      fabricante.telefono.toLowerCase().includes(this.filtro.toLowerCase())
+    );
   }
 
   public editFabricante(fabricante: any) {
@@ -73,7 +75,9 @@ export class FabricantesComponent implements OnInit {
     this.dialogVisible = visible;
   }
 
-  public selectProduct(product: any) {
-    console.log(product);
+  public onSuccess(success: boolean) {
+    if (success) {
+      this.listarFabricantes();
+    }
   }
 }
