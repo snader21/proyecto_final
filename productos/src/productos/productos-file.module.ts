@@ -6,6 +6,9 @@ import { ProductoFileProcessorService } from './services/producto-file-processor
 import { PubSubService } from '../common/services/pubsub.service';
 import { MarcaValidator } from './validations/validators/marca.validator';
 
+interface FileProcessingMessage {
+  archivoProductoId: string;
+}
 
 @Module({
   imports: [
@@ -29,11 +32,8 @@ export class ProductosFileModule implements OnModuleInit {
 
   async onModuleInit() {
     // Suscribirse al tópico cuando el módulo inicia
-    await this.pubSubService.subscribe(
-      'productos-file-processing',
-      async (message) => {
-        await this.fileProcessor.processFile(message.archivoProductoId);
-      }
-    );
+    await this.pubSubService.subscribe<FileProcessingMessage>(async (message) => {
+      await this.fileProcessor.processFile(message.archivoProductoId);
+    });
   }
 }

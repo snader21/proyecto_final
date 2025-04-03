@@ -136,10 +136,13 @@ export class ProductoFileProcessorService {
     return new Promise((resolve, reject) => {
       parse(content, {
         columns: true,
-        skip_empty_lines: true
-      }, (err: any, data: any[]) => {
-        if (err) reject(err);
-        else resolve(data);
+        skip_empty_lines: true,
+      }, (err: unknown, data: any[]) => {
+        if (err) {
+          reject(err instanceof Error ? err : new Error(String(err)));
+        } else {
+          resolve(data);
+        }
       });
     });
   }
