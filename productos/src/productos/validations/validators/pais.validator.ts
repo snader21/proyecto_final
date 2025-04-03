@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { PaisEntity } from '../../entities/pais.entity';
 import { ProductoValidator, ProductoValidationResult } from '../producto-validator.interface';
 
@@ -13,13 +13,13 @@ export class PaisValidator implements ProductoValidator {
 
   async validate(row: any): Promise<ProductoValidationResult> {
     const pais = await this.paisRepository.findOne({
-      where: { nombre: row.pais }
+      where: { nombre: ILike(row.pais?.trim() ?? '') }
     });
 
     if (!pais) {
       return {
         isValid: false,
-        message: `El país "${row.pais}" no existe en el sistema`
+        message: `El país ${row.pais ? `"${row.pais}"` : ''} no existe en el sistema`
       };
     }
 
