@@ -5,6 +5,13 @@ import { ArchivoProductoEntity } from './entities/archivo-producto.entity';
 import { ProductoFileProcessorService } from './services/producto-file-processor.service';
 import { PubSubService } from '../common/services/pubsub.service';
 import { MarcaValidator } from './validations/validators/marca.validator';
+import { CategoriaValidator } from './validations/validators/categoria.validator';
+import { UnidadMedidaValidator } from './validations/validators/unidad-medida.validator';
+import { PaisValidator } from './validations/validators/pais.validator';
+import { CategoriaEntity } from './entities/categoria.entity';
+import { MarcaEntity } from './entities/marca.entity';
+import { UnidadMedidaEntity } from './entities/unidad-medida.entity';
+import { PaisEntity } from './entities/pais.entity';
 
 interface FileProcessingMessage {
   archivoProductoId: string;
@@ -14,13 +21,20 @@ interface FileProcessingMessage {
   imports: [
     TypeOrmModule.forFeature([
       ProductoEntity,
-      ArchivoProductoEntity
+      ArchivoProductoEntity,
+      CategoriaEntity,
+      MarcaEntity,
+      UnidadMedidaEntity,
+      PaisEntity
     ]),
   ],
   providers: [
     ProductoFileProcessorService,
     PubSubService,
-    MarcaValidator
+    MarcaValidator,
+    CategoriaValidator,
+    UnidadMedidaValidator,
+    PaisValidator
   ],
   exports: [ProductoFileProcessorService],
 })

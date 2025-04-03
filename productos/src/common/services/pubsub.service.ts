@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PubSub } from '@google-cloud/pubsub';
 import { ConfigService } from '@nestjs/config';
 
@@ -6,7 +6,7 @@ const TOPIC_NAME = 'projects/intense-guru-453022-j0/topics/proyecto-final-topic'
 const SUBSCRIPTION_NAME = 'projects/intense-guru-453022-j0/subscriptions/proyecto-final-topic-sub';
 
 @Injectable()
-export class PubSubService implements OnModuleInit {
+export class PubSubService {
   private pubSubClient: PubSub | null = null;
   private readonly projectId: string;
   private readonly keyFilename: string;
@@ -28,14 +28,6 @@ export class PubSubService implements OnModuleInit {
       console.error('Error initializing PubSub client:', error);
       throw new Error('Failed to initialize PubSub client');
     }
-  }
-
-  async onModuleInit() {
-    if (!this.pubSubClient) {
-      throw new Error('PubSub client not initialized');
-    }
-    // Inicializar suscripciones cuando el módulo arranca
-    await this.initializeSubscriptions();
   }
 
   async publishMessage<T>(data: T): Promise<string> {
@@ -78,10 +70,5 @@ export class PubSubService implements OnModuleInit {
     });
 
     console.log(`Suscripción exitosa a ${SUBSCRIPTION_NAME}`);
-  }
-
-  private async initializeSubscriptions() {
-    // Aquí puedes agregar la lógica para inicializar las suscripciones necesarias
-    // Por ejemplo, suscribirse a eventos específicos al iniciar la aplicación
   }
 }
