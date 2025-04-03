@@ -1,13 +1,14 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { Product } from '../../../interfaces/product.interfaces';
 
 @Component({
   selector: 'app-gestionar-inventario',
   standalone: true,
-  imports: [DialogModule],
+  imports: [CommonModule, DialogModule],
   templateUrl: './gestionar-inventario.component.html',
-  styleUrl: './gestionar-inventario.component.scss'
+  styleUrls: ['./gestionar-inventario.component.scss']
 })
 export class GestionarInventarioComponent {
   @Input() product?: Product;

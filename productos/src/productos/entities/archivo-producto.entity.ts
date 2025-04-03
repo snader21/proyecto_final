@@ -16,4 +16,13 @@ export class ArchivoProductoEntity {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   fecha_carga: Date;
+
+  @Column({ type: 'integer', default: 0 })
+  total_registros: number;
+
+  @Column({ type: 'integer', default: 0 })
+  registros_cargados: number;
+
+  @Column({ type: 'jsonb', nullable: true })
+  errores_procesamiento: Array<{row: any, error: string}>;
 }
