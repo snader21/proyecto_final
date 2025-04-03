@@ -7,3 +7,7 @@ export const generarVendedorDto = (zonaId: string) => ({
   usuarioId: faker.string.uuid(),
   zonaId,
 });
+
+export const camelCaseToSnakeCase = (str: string) => {
+  return str.replace(/([A-Z])/g, '_$1').toLowerCase();
+};

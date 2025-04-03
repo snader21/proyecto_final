@@ -7,11 +7,10 @@ import { VendedorEntity } from './entities/vendedor.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ZonasService } from '../zonas/zonas.service';
 import { ZonaEntity } from '../zonas/entities/zona.entity';
-import { generarVendedorDto } from '../shared/testing-utils/test-utils';
-
-const camelCaseToSnakeCase = (str: string) => {
-  return str.replace(/([A-Z])/g, '_$1').toLowerCase();
-};
+import {
+  generarVendedorDto,
+  camelCaseToSnakeCase,
+} from '../shared/testing-utils/test-utils';
 
 describe('VendedoresService', () => {
   let service: VendedoresService;
