@@ -1,23 +1,87 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ProductosController } from './productos.controller';
 import { ProductosService } from './productos.service';
-import { HttpModule } from '@nestjs/axios';
-import { ConfigModule } from '@nestjs/config';
+import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
+import { of, throwError } from 'rxjs';
+import { AxiosResponse, AxiosError } from 'axios';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { faker } from '@faker-js/faker';
+import { CreateMovimientoInventarioDto } from './dto/create-movimiento-inventario.dto';
 
-describe('ProductosController', () => {
-  let controller: ProductosController;
+describe('ProductosService - crearMovimientoInventario', () => {
+  let service: ProductosService;
+  let httpService: HttpService;
+
+  const mockUrl = faker.internet.url();
+  const mockDto: CreateMovimientoInventarioDto = {
+    idProducto: faker.string.uuid(),
+    idUbicacion: faker.string.uuid(),
+    cantidad: faker.number.int({ min: 1, max: 100 }),
+    tipoMovimiento: 'Entrada',
+    idUsuario: faker.string.uuid(),
+    fechaRegistro: new Date().toISOString(),
+    idPedido: undefined,
+  };
+
+  const mockHttpService = {
+    post: jest.fn(),
+  };
+
+  const mockConfigService = {
+    get: jest.fn().mockReturnValue(mockUrl),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [HttpModule, ConfigModule],
-      controllers: [ProductosController],
-      providers: [ProductosService],
+      providers: [
+        ProductosService,
+        { provide: HttpService, useValue: mockHttpService },
+        { provide: ConfigService, useValue: mockConfigService },
+      ],
     }).compile();
 
-    controller = module.get<ProductosController>(ProductosController);
+    service = module.get<ProductosService>(ProductosService);
+    httpService = module.get<HttpService>(HttpService);
+    jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  it('debería crear un movimiento de inventario correctamente', async () => {
+    mockHttpService.post.mockReturnValueOnce(
+      of({ data: mockDto } as AxiosResponse),
+    );
+
+    const result = await service.crearMovimientoInventario(mockDto);
+    expect(result).toEqual(mockDto);
+    expect(mockHttpService.post).toHaveBeenCalled();
+  });
+
+  it('debería lanzar NotFoundException si la API responde 404', async () => {
+    const axiosError = {
+      response: {
+        status: 404,
+        data: { message: 'No encontrado' },
+      },
+    } as AxiosError;
+
+    mockHttpService.post.mockReturnValueOnce(throwError(() => axiosError));
+
+    await expect(service.crearMovimientoInventario(mockDto)).rejects.toThrow(
+      NotFoundException,
+    );
+  });
+
+  it('debería lanzar BadRequestException para otros errores', async () => {
+    const axiosError = {
+      response: {
+        status: 500,
+        data: { message: 'Error interno' },
+      },
+    } as AxiosError;
+
+    mockHttpService.post.mockReturnValueOnce(throwError(() => axiosError));
+
+    await expect(service.crearMovimientoInventario(mockDto)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 });
