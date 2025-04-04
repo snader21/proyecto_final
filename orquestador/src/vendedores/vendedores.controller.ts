@@ -16,6 +16,11 @@ export class VendedoresController {
     return this.vendedoresService.findAll();
   }
 
+  @Get('zonas')
+  getZonas() {
+    return this.vendedoresService.getZonas();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.vendedoresService.findOne(id);
