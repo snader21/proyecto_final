@@ -31,12 +31,14 @@ export class VendedoresService {
         correo: createVendedorDto?.correo,
         contrasena: createVendedorDto?.contrasena,
         estado: createVendedorDto?.estado,
+        roles: createVendedorDto?.roles,
       })) as UsuarioDto;
 
       const { data: vendedor } = await firstValueFrom(
         this.httpService.post<VendedorDto>(apiEndPoint, {
           usuarioId: usuario.id,
           ...createVendedorDto,
+          roles: usuario?.roles?.map((rol) => rol.nombre),
         }),
       );
 

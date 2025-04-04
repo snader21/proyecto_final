@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateVendedorDto } from './dto/create-vendedor.dto';
 import { VendedorEntity } from './entities/vendedor.entity';
 import { Repository } from 'typeorm';
@@ -14,6 +18,11 @@ export class VendedoresService {
     private readonly zonasService: ZonasService,
   ) {}
   async create(createVendedorDto: CreateVendedorDto) {
+    if (!createVendedorDto.roles.includes('Vendedor')) {
+      throw new BadRequestException(
+        'El usuario debe tener al menos el rol de vendedor',
+      );
+    }
     const zona = await this.zonasService.findOne(createVendedorDto.zonaId);
     if (!zona) {
       throw new NotFoundException('Zona no encontrada');
