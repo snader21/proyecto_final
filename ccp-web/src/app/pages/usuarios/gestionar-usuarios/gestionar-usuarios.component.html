@@ -4,6 +4,7 @@
     [modal]="true"
     [(visible)]="visible"
     [style]="{ width: '40rem', height: '90rem' }">
+    
     <form [formGroup]="userForm" class="flex flex-col gap-4">
         <div class="flex flex-col gap-2">
             <label for="nombre" class="font-light">Nombre</label>
@@ -47,6 +48,7 @@
           <label for="rol" class="font-light">Rol</label>
           <p-select
               [options]="roles"
+              appendTo="body"
               formControlName="rol"
               optionLabel="nombre"
               optionValue="id"
