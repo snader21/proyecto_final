@@ -94,6 +94,7 @@ steps:
             if [ "$svc" = "orquestador" ]; then
               echo "URL_PEDIDOS=${_URL_PEDIDOS}" > ./$svc/.env
               echo "URL_PRODUCTOS=${_URL_PRODUCTOS}" >> ./$svc/.env
+              echo "URL_FABRICANTES=${_URL_FABRICANTES}" >> ./$svc/.env
               echo "URL_RUTAS=${_URL_RUTAS}" >> ./$svc/.env
               echo "URL_DEEPSEEK=${_URL_DEEPSEEK}" >> ./$svc/.env
               echo "URL_VENDEDORES=${_URL_VENDEDORES}" >> ./$svc/.env
