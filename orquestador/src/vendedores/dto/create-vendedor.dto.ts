@@ -5,4 +5,5 @@ export class CreateVendedorDto {
   telefono: string;
   zonaId: string;
   estado: 'active' | 'inactive';
+  roles: string[];
 }

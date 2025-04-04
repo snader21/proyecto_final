@@ -1,4 +1,12 @@
-import { IsEmail, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  IsUUID,
+  MinLength,
+} from 'class-validator';
 
 export class CreateVendedorDto {
   @IsString({
@@ -43,4 +51,19 @@ export class CreateVendedorDto {
     message: 'El usuario es requerido',
   })
   usuarioId: string;
+
+  @IsArray({
+    message: 'Los roles deben ser un array',
+  })
+  @IsNotEmpty({
+    message: 'Los roles son requeridos',
+  })
+  @ArrayNotEmpty({
+    message: 'Los roles deben tener al menos un rol',
+  })
+  @IsString({
+    each: true,
+    message: 'Los roles deben ser un array de strings',
+  })
+  roles: string[];
 }

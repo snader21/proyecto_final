@@ -62,6 +62,7 @@ export class AuthService {
   async signIn(loginDto: LoginDto): Promise<AuthResponse> {
     try {
       const usersServiceUrl = this.configService.get<string>('URL_USUARIOS');
+
       const response = await firstValueFrom(
         this.httpService.post<AuthResponse>(
           `${usersServiceUrl}/auth/login`,

@@ -198,6 +198,49 @@ describe('VendedoresController', () => {
             ),
           );
       });
+
+      it('deberia retornar 400 si los roles no son un array', async () => {
+        const dto = generarVendedorDto(faker.string.uuid()) as any;
+        dto.roles = 'not an array';
+
+        return request(app.getHttpServer())
+          .post('/vendedores')
+          .send(dto)
+          .expect(400)
+          .expect((res) =>
+            expect(res.body.message).toContain('Los roles deben ser un array'),
+          );
+      });
+
+      it('deberia retornar 400 si los roles no son un array de strings', async () => {
+        const dto = generarVendedorDto(faker.string.uuid()) as any;
+        dto.roles = [1, 2, 3];
+
+        return request(app.getHttpServer())
+          .post('/vendedores')
+          .send(dto)
+          .expect(400)
+          .expect((res) =>
+            expect(res.body.message).toContain(
+              'Los roles deben ser un array de strings',
+            ),
+          );
+      });
+
+      it('deberia retornar 400 si los roles son un array vacio', async () => {
+        const dto = generarVendedorDto(faker.string.uuid()) as any;
+        dto.roles = [];
+
+        return request(app.getHttpServer())
+          .post('/vendedores')
+          .send(dto)
+          .expect(400)
+          .expect((res) =>
+            expect(res.body.message).toContain(
+              'Los roles deben tener al menos un rol',
+            ),
+          );
+      });
     });
   });
 });
