@@ -1,9 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Rol } from '../entities/rol.entity';
 import { Permiso, TipoRecurso } from '../entities/permiso.entity';
-
+import { Usuario } from '../entities/usuario.entity';
+import { UsuarioService } from './usuario.service';
+import { EstadoUsuario } from 'src/dto/create-usuario.dto';
 @Injectable()
 export class InitService implements OnModuleInit {
   constructor(
@@ -11,6 +16,9 @@ export class InitService implements OnModuleInit {
     private readonly rolRepository: Repository<Rol>,
     @InjectRepository(Permiso)
     private readonly permisoRepository: Repository<Permiso>,
+    @InjectRepository(Usuario)
+    private readonly usuarioRepository: Repository<Usuario>,
+    private readonly usuarioService: UsuarioService,
   ) {}
 
   async onModuleInit() {
@@ -22,6 +30,10 @@ export class InitService implements OnModuleInit {
       },
       {
         nombre: 'Director de ventas',
+        descripcion: 'Usuario con acceso a gestión de ventas',
+      },
+      {
+        nombre: 'Vendedor',
         descripcion: 'Usuario con acceso a gestión de ventas',
       },
       {
@@ -66,6 +78,13 @@ export class InitService implements OnModuleInit {
         modulo: 'pedidos',
         descripcion:
           'Permite acceder a todas las funcionalidades del módulo de pedidos',
+      },
+      {
+        nombre: 'Acceso a Módulo de Vendedores',
+        tipoRecurso: TipoRecurso.BACKEND,
+        modulo: 'vendedores',
+        descripcion:
+          'Permite acceder a todas las funcionalidades del módulo de vendedores',
       },
       {
         nombre: 'Acceso a Módulo de Productos',
@@ -169,10 +188,17 @@ export class InitService implements OnModuleInit {
         case 'Administrador':
           rolActualizado.permisos = permisosCreados;
           break;
+        case 'Vendedor':
+          rolActualizado.permisos = permisosCreados.filter(
+            (p) => p.modulo === 'pedidos' || p.modulo === 'productos',
+          );
+          break;
         case 'Director de ventas':
           rolActualizado.permisos = permisosCreados.filter(
             (p) =>
-              (p.modulo === 'pedidos' || p.modulo === 'productos') &&
+              (p.modulo === 'pedidos' ||
+                p.modulo === 'productos' ||
+                p.modulo === 'vendedores') &&
               (p.tipoRecurso === TipoRecurso.BACKEND ||
                 p.tipoRecurso === TipoRecurso.FRONTEND),
           );
@@ -198,6 +224,22 @@ export class InitService implements OnModuleInit {
           break;
       }
       await this.rolRepository.save(rolActualizado);
+    }
+
+    const rolesAdministrador = rolesCreados.find(
+      (r) => r.nombre === 'Administrador',
+    );
+
+    try {
+      await this.usuarioService.create({
+        nombre: 'Administrador',
+        correo: 'admin@example.com',
+        contrasena: 'admin123',
+        estado: EstadoUsuario.ACTIVE,
+        roles: [rolesAdministrador?.id || ''],
+      });
+    } catch (error) {
+      console.error('Error al crear el usuario administrador', error);
     }
   }
 }

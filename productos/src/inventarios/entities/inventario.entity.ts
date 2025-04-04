@@ -1,6 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { ProductoEntity } from './producto.entity';
-import { UbicacionEntity } from './ubicacion.entity';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { ProductoEntity } from '../../productos/entities/producto.entity';
+import { UbicacionEntity } from '../../ubicaciones/entities/ubicacion.entity';
 
 @Entity('inventario')
 export class InventarioEntity {
@@ -24,6 +30,6 @@ export class InventarioEntity {
   @Column('int')
   cantidad_maxima: number;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'date' })
   fecha_actualizacion: Date;
 }

@@ -8,6 +8,7 @@ import { ProveedorAiModule } from './proveedor-ai/proveedor-ai.module';
 import { ProductosModule } from './productos/productos.module';
 import { PedidosModule } from './pedidos/pedidos.module';
 import { AuthModule } from './auth/auth.module';
+import { VendedoresModule } from './vendedores/vendedores.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { FabricantesModule } from './fabricantes/fabricantes.module';
 @Module({
@@ -22,6 +23,7 @@ import { FabricantesModule } from './fabricantes/fabricantes.module';
     ProductosModule,
     PedidosModule,
     AuthModule,
+    VendedoresModule,
     UsuariosModule,
     FabricantesModule,
   ],

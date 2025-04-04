@@ -80,6 +80,12 @@ export class UsuarioService {
       usuario.roles = rolesEntities;
     }
 
-    return this.usuarioRepository.save(usuario);
+    const usuarioGuardado = await this.usuarioRepository.save(usuario);
+
+    const usuarioConRoles = (await this.usuarioRepository.findOne({
+      where: { id: usuarioGuardado.id },
+      relations: ['roles'],
+    })) as Usuario;
+    return usuarioConRoles;
   }
 }
