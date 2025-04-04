@@ -7,9 +7,11 @@ import { PaisEntity } from './entities/pais.entity';
 import { CategoriaEntity } from './entities/categoria.entity';
 import { MarcaEntity } from './entities/marca.entity';
 import { UnidadMedidaEntity } from './entities/unidad-medida.entity';
-import { BodegaEntity } from './entities/bodega.entity';
-import { UbicacionEntity } from './entities/ubicacion.entity';
-import { MovimientoInventarioEntity } from './entities/movimiento-inventario.entity';
+import { BodegaEntity } from '../bodegas/entities/bodega.entity';
+import { UbicacionEntity } from '../ubicaciones/entities/ubicacion.entity';
+import { MovimientoInventarioEntity } from '../movimientos-inventario/entities/movimiento-inventario.entity';
+
+const mockProductosService = {};
 
 describe('ProductosController', () => {
   let controller: ProductosController;
@@ -18,7 +20,7 @@ describe('ProductosController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ProductosController],
       providers: [
-        ProductosService,
+        { provide: ProductosService, useValue: mockProductosService },
         {
           provide: getRepositoryToken(ProductoEntity),
           useValue: {},

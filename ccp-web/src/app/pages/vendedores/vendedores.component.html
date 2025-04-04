@@ -1,0 +1,93 @@
+<div class="flex flex-col m-10 p-10 bg-white rounded-sm">
+  <div class="flex flex-row justify-between mb-3">
+    <h1 class="text-4xl font-bold">Vendedores</h1>
+    <p-button
+      label="Agregar Vendedor"
+      styleClass="bg-orange-400 text-slate-900 border-orange-500"
+      icon="pi pi-plus"
+      size="large"
+      (click)="createVendedor()"
+      (keyup)="createVendedor()"
+    />
+  </div>
+  <div class="flex flex-col">
+    <p-table [value]="vendedores" [tableStyle]="{ 'min-width': '50rem' }">
+      <ng-template #caption>
+        <div class="flex items-center justify-between">
+          <span class="text-xl font-bold">Listado de vendedores</span>
+          <p-iconfield iconPosition="left" class="ml-auto">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input
+              pInputText
+              [(ngModel)]="filtro"
+              type="text"
+              placeholder="Buscar vendedor"
+              (input)="filtrarVendedores()"
+            />
+          </p-iconfield>
+        </div>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th scope="col">Nombre</th>
+          <th scope="col">Correo</th>
+          <th scope="col">Teléfono</th>
+          <th scope="col">Zona</th>
+          <th scope="col">Estado</th>
+          <th scope="col"></th>
+          <th scope="col"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-vendedor>
+        <tr>
+          <td>{{ vendedor.nombre }}</td>
+          <td>{{ vendedor.correo }}</td>
+          <td>{{ vendedor.telefono }}</td>
+          <td>{{ vendedor.zona.nombre }}</td>
+          <td>
+            <p-tag
+              [value]="vendedor.estado"
+              [icon]="
+                vendedor.estado === 'Activo' ? 'pi pi-check' : 'pi pi-times'
+              "
+              [severity]="vendedor.estado === 'Activo' ? 'success' : 'danger'"
+              styleClass="w-24 text-center"
+            ></p-tag>
+          </td>
+          <td class="text-center">
+            <p-button
+              styleClass="bg-slate-700 text-white"
+              icon="pi pi-pencil"
+              severity="secondary"
+              label="Editar"
+              (click)="editVendedor(vendedor)"
+              (keyup)="editVendedor(vendedor)"
+            />
+          </td>
+          <td class="text-center" style="min-width: 190px">
+            <p-button
+              styleClass="bg-slate-700 text-white"
+              icon="pi pi-briefcase"
+              severity="secondary"
+              label="Plan de ventas"
+              (click)="planDeVenta(vendedor)"
+              (keyup)="planDeVenta(vendedor)"
+            />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6">No se encontraron vendedores.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  <app-vendedores-form
+    [vendedor]="selectedVendedor"
+    [(visible)]="dialogVisible"
+    (success)="onSuccess($event)"
+  ></app-vendedores-form>
+</div>

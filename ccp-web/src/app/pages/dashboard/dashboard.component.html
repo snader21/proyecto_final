@@ -1,1 +1,95 @@
-<p>dashboard works!</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-10 h-full">
+  <!-- Tarjeta grande: Fabricantes y Productos -->
+  <div
+    class="bg-gray-700 text-white p-6 rounded-xl shadow-lg flex flex-col justify-end h-[40vh] gap-4"
+    [ngClass]="{'div-oscuro': divApagado(['/fabricantes', '/productos'])}"
+  >
+    <h3 class="text-lg font-semibold">Gestión de fabricantes y productos</h3>
+    <div class="flex space-x-2">
+      <p-button
+        styleClass="px-10 py-2 bg-gray-900 text-white rounded-[100px]"
+        label="Fabricantes"
+        (click)="navigateTo('/fabricantes')"
+        [disabled]="!tieneAcceso('/fabricantes')"
+      />
+      <p-button
+        styleClass="px-10 py-2 bg-gray-300 text-black rounded-[100px]"
+        label="Productos"
+        (click)="navigateTo('/productos')"
+        [disabled]="!tieneAcceso('/productos')"
+      />
+    </div>
+  </div>
+
+  <!-- Tarjeta grande: Vendedores y Reportes -->
+  <div
+    class="bg-black text-white p-6 rounded-xl shadow-lg flex flex-col justify-end h-[40vh] gap-4"
+    [ngClass]="{'div-oscuro': divApagado(['/vendedores', '/reportes'])}"
+  >
+    <h3 class="text-lg font-semibold">Gestión de vendedores y reportes</h3>
+    <div class="flex space-x-2">
+      <p-button
+        styleClass="px-10 py-2 bg-slate-700 text-white rounded-[100px]"
+        label="Vendedores"
+        (click)="navigateTo('/vendedores')"
+        [disabled]="!tieneAcceso('/vendedores')"
+      />
+      <p-button
+        styleClass="px-10 py-2 bg-gray-300 text-black rounded-[100px]"
+        label="Reportes"
+        (click)="navigateTo('/reportes')"
+        [disabled]="!tieneAcceso('/reportes')"
+      />
+    </div>
+  </div>
+</div>
+<!-- Tarjetas pequeñas -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full px-10">
+  <!-- Usuarios -->
+  <div
+    class="bg-black text-white p-6 rounded-xl shadow-lg flex flex-col justify-end h-[40vh] gap-4"
+    [ngClass]="{'div-oscuro': divApagado(['/usuarios'])}"
+  >
+    <h3 class="text-lg font-semibold">Gestión de usuarios</h3>
+    <div class="flex space-x-2">
+      <p-button
+        styleClass="px-10 py-2 bg-slate-700 text-white rounded-[100px]"
+        label="Usuarios"
+        (click)="navigateTo('/usuarios')"
+        [disabled]="!tieneAcceso('/usuarios')"
+      />
+    </div>
+  </div>
+
+  <!-- Pedidos -->
+  <div
+    class="bg-gray-700 text-white p-6 rounded-xl shadow-lg flex flex-col justify-end h-[40vh] gap-4"
+    [ngClass]="{'div-oscuro': divApagado(['/pedidos'])}"
+  >
+    <h3 class="text-lg font-semibold">Gestión de pedidos</h3>
+    <div class="flex space-x-2">
+      <p-button
+        styleClass="px-10 py-2 bg-slate-900 text-white rounded-[100px]"
+        label="Pedidos"
+        (click)="navigateTo('/pedidos')"
+        [disabled]="!tieneAcceso('/pedidos')"
+      />
+    </div>
+  </div>
+
+  <!-- Logística -->
+  <div
+    class="bg-gray-900 text-white p-6 rounded-xl shadow-lg flex flex-col justify-end h-[40vh] gap-4"
+    [ngClass]="{'div-oscuro': divApagado(['/rutas'])}"
+  >
+    <h3 class="text-lg font-semibold">Gestión de logística</h3>
+    <div class="flex space-x-2">
+      <p-button
+        styleClass="px-10 py-2 bg-slate-700 text-white rounded-[100px]"
+        label="Logística"
+        (click)="navigateTo('/rutas')"
+        [disabled]="!tieneAcceso('/rutas')"
+      />
+    </div>
+  </div>
+</div>

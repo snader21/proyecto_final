@@ -148,7 +148,6 @@ export class RutasService {
       truckCapacity,
     });
     const respuesta = await this.aiProviderService.enviarPrompt(prompt);
-    console.log('🚀 ~ RutasService ~ respuesta:', respuesta);
 
     if (respuesta?.content) {
       try {

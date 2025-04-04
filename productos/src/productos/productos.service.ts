@@ -1,15 +1,19 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { FileGCP } from './utils/file-gcp.service';
+import { UploadedFile } from './interfaces/uploaded-file.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductoEntity } from './entities/producto.entity';
+import { ArchivoProductoEntity } from './entities/archivo-producto.entity';
 import { Repository } from 'typeorm';
-import { MovimientoInventarioEntity } from './entities/movimiento-inventario.entity';
 import { ProductoPorPedidoDto } from './dto/producto-por-pedido.dto';
 import { PaisEntity } from './entities/pais.entity';
 import { CategoriaEntity } from './entities/categoria.entity';
 import { MarcaEntity } from './entities/marca.entity';
 import { UnidadMedidaEntity } from './entities/unidad-medida.entity';
-import { BodegaEntity } from './entities/bodega.entity';
-import { UbicacionEntity } from './entities/ubicacion.entity';
+import { BodegaEntity } from '../bodegas/entities/bodega.entity';
+import { UbicacionEntity } from '../ubicaciones/entities/ubicacion.entity';
+import { ImagenProductoEntity } from './entities/imagen-producto.entity';
+import { MovimientoInventarioEntity } from '../movimientos-inventario/entities/movimiento-inventario.entity';
 
 @Injectable()
 export class ProductosService implements OnModuleInit {
@@ -37,6 +41,14 @@ export class ProductosService implements OnModuleInit {
 
     @InjectRepository(UbicacionEntity)
     private readonly ubicacionRepository: Repository<UbicacionEntity>,
+
+    @InjectRepository(ImagenProductoEntity)
+    private readonly imagenProductoRepository: Repository<ImagenProductoEntity>,
+
+    @InjectRepository(ArchivoProductoEntity)
+    private readonly archivoProductoRepository: Repository<ArchivoProductoEntity>,
+
+    private readonly fileGCP: FileGCP,
   ) {}
 
   async onModuleInit() {
@@ -201,29 +213,29 @@ export class ProductosService implements OnModuleInit {
       },
     ]);
 
-    // Insert data into the MovimientoInventario table
-    await this.movimientoInventarioRepository.insert([
-      {
-        id_movimiento: '550e8400-e29b-41d4-a716-446655440015',
-        producto: { id_producto: '550e8400-e29b-41d4-a716-446655440008' },
-        ubicacion: { id_ubicacion: '550e8400-e29b-41d4-a716-446655440012' },
-        id_pedido: 'fde84552-ec7d-43e6-9d15-20a693dcf50f',
-        cantidad: 10,
-        tipo_movimiento: 'Entrada',
-        id_usuario: 'user1',
-        fecha_registro: new Date('2025-02-28'),
-      },
-      {
-        id_movimiento: '550e8400-e29b-41d4-a716-446655440016',
-        producto: { id_producto: '550e8400-e29b-41d4-a716-446655440009' },
-        ubicacion: { id_ubicacion: '550e8400-e29b-41d4-a716-446655440013' },
-        id_pedido: 'fde84552-ec7d-43e6-9d15-20a693dcf50f',
-        cantidad: 5,
-        tipo_movimiento: 'Entrada',
-        id_usuario: 'user2',
-        fecha_registro: new Date('2025-02-28'),
-      },
-    ]);
+    // // Insert data into the MovimientoInventario table
+    // await this.movimientoInventarioRepository.insert([
+    //   {
+    //     id_movimiento: '550e8400-e29b-41d4-a716-446655440015',
+    //     producto: { id_producto: '550e8400-e29b-41d4-a716-446655440008' },
+    //     ubicacion: { id_ubicacion: '550e8400-e29b-41d4-a716-446655440012' },
+    //     id_pedido: 'fde84552-ec7d-43e6-9d15-20a693dcf50f',
+    //     cantidad: 10,
+    //     tipo_movimiento: 'Entrada',
+    //     id_usuario: 'user1',
+    //     fecha_registro: new Date('2025-02-28'),
+    //   },
+    //   {
+    //     id_movimiento: '550e8400-e29b-41d4-a716-446655440016',
+    //     producto: { id_producto: '550e8400-e29b-41d4-a716-446655440009' },
+    //     ubicacion: { id_ubicacion: '550e8400-e29b-41d4-a716-446655440013' },
+    //     id_pedido: 'fde84552-ec7d-43e6-9d15-20a693dcf50f',
+    //     cantidad: 5,
+    //     tipo_movimiento: 'Entrada',
+    //     id_usuario: 'user2',
+    //     fecha_registro: new Date('2025-02-28'),
+    //   },
+    // ]);
   }
 
   async obtenerProductosPorPedido(
@@ -279,8 +291,61 @@ export class ProductosService implements OnModuleInit {
     return await this.unidadMedidaRepository.find();
   }
 
-  async GuardarProducto(producto: ProductoEntity): Promise<ProductoEntity> {
-    return await this.productoRepository.save(producto);
+  async GuardarProducto(
+    producto: ProductoEntity,
+    files: UploadedFile[],
+  ): Promise<ProductoEntity> {
+    // Save the product first
+    const savedProduct = await this.productoRepository.save(producto);
+
+    // Upload images to GCP Storage and save image records
+    if (files && files.length > 0) {
+      for (const file of files) {
+        const fileName = `imagenes/${savedProduct.id_producto}/${file.originalname}`;
+        const url = await this.fileGCP.save(file, fileName);
+
+        // Save image record
+        await this.imagenProductoRepository.save({
+          key_object_storage: fileName,
+          url,
+          producto: savedProduct,
+        });
+      }
+    }
+
+    return savedProduct;
+  }
+
+  async guardarArchivoCSV(file: UploadedFile): Promise<{ url: string }> {
+    const fileName = `csvs/${new Date().toISOString()}_${file.originalname}`;
+    const url = await this.fileGCP.save(file, fileName);
+
+    // Save file record
+    await this.archivoProductoRepository.save({
+      nombre_archivo: file.originalname,
+      url,
+      estado: 'pendiente',
+    });
+
+    return { url };
+  }
+
+  async obtenerArchivosCSV() {
+    return this.archivoProductoRepository.find({
+      order: {
+        fecha_carga: 'DESC',
+      },
+    });
+  }
+
+  async obtenerProducto(id: string): Promise<ProductoEntity> {
+    const producto = await this.productoRepository.findOne({
+      where: { id_producto: id },
+    });
+    if (!producto) {
+      throw new NotFoundException('Producto no encontrado');
+    }
+    return producto;
   }
 
   async obtenerProductos(): Promise<ProductoEntity[]> {
@@ -288,7 +353,8 @@ export class ProductosService implements OnModuleInit {
       relations: {
         categoria: true,
         unidad_medida: true,
-        marca: true
+        marca: true,
+        imagenes: true,
       },
       select: {
         id_producto: true,
@@ -307,17 +373,21 @@ export class ProductosService implements OnModuleInit {
         id_fabricante: true,
         categoria: {
           id_categoria: true,
-          nombre: true
+          nombre: true,
         },
         unidad_medida: {
           id_unidad_medida: true,
-          nombre: true
+          nombre: true,
         },
         marca: {
           id_marca: true,
-          nombre: true
-        }
-      }
+          nombre: true,
+        },
+        imagenes: {
+          id_imagen: true,
+          url: true,
+        },
+      },
     });
   }
 }

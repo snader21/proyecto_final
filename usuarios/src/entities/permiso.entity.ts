@@ -1,12 +1,10 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToMany,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
 import { Rol } from './rol.entity';
+
+export enum TipoRecurso {
+  FRONTEND = 'FRONTEND',
+  BACKEND = 'BACKEND',
+}
 
 @Entity('permisos')
 export class Permiso {
@@ -19,20 +17,18 @@ export class Permiso {
   @Column({ length: 200, nullable: true })
   descripcion: string;
 
+  @Column({
+    type: 'enum',
+    enum: TipoRecurso,
+    default: TipoRecurso.BACKEND,
+  })
+  tipoRecurso: TipoRecurso;
+
   @Column({ length: 100 })
-  recurso: string;
+  modulo: string;
 
-  @Column({ length: 50 })
-  accion: string;
-
-  @Column({ default: true })
-  estado: boolean;
-
-  @CreateDateColumn()
-  fecha_creacion: Date;
-
-  @UpdateDateColumn()
-  fecha_ultima_modificacion: Date;
+  @Column({ length: 200, nullable: true })
+  ruta: string;
 
   @ManyToMany(() => Rol, (rol) => rol.permisos)
   roles: Rol[];

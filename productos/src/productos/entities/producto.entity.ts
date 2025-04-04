@@ -3,13 +3,15 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  OneToMany,
   JoinColumn,
 } from 'typeorm';
 import { CategoriaEntity } from './categoria.entity';
 import { MarcaEntity } from './marca.entity';
 import { UnidadMedidaEntity } from './unidad-medida.entity';
 import { PaisEntity } from './pais.entity';
-
+import { ImagenProductoEntity } from './imagen-producto.entity';
+import { MovimientoInventarioEntity } from '../../movimientos-inventario/entities/movimiento-inventario.entity';
 @Entity('producto')
 export class ProductoEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -57,10 +59,10 @@ export class ProductoEntity {
   @Column('double precision')
   peso: number;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'date' })
   fecha_creacion: Date;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'date' })
   fecha_actualizacion: Date;
 
   @Column()
@@ -69,4 +71,13 @@ export class ProductoEntity {
   @ManyToOne(() => PaisEntity)
   @JoinColumn({ name: 'id_pais' })
   pais: PaisEntity;
+
+  @OneToMany(
+    () => MovimientoInventarioEntity,
+    (movimiento_inventario) => movimiento_inventario.producto,
+  )
+  movimientos_inventario: MovimientoInventarioEntity[];
+
+  @OneToMany(() => ImagenProductoEntity, (imagen) => imagen.producto)
+  imagenes: ImagenProductoEntity[];
 }
