@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
@@ -13,7 +15,7 @@ export class UsuariosService {
   async crearUsuario(usuario: any) {
     const api = this.configService.get<string>('URL_USUARIOS');
     const { data } = await firstValueFrom(
-      this.httpService.post(`${api}/usuarios`, usuario)
+      this.httpService.post(`${api}/usuarios`, usuario),
     );
     return data;
   }
@@ -21,7 +23,7 @@ export class UsuariosService {
   async obtenerUsuarios() {
     const api = this.configService.get<string>('URL_USUARIOS');
     const { data } = await firstValueFrom(
-      this.httpService.get(`${api}/usuarios`)
+      this.httpService.get(`${api}/usuarios`),
     );
     return data;
   }
@@ -29,7 +31,7 @@ export class UsuariosService {
   async obtenerUsuarioPorId(id: string) {
     const api = this.configService.get<string>('URL_USUARIOS');
     const { data } = await firstValueFrom(
-      this.httpService.get(`${api}/usuarios/${id}`)
+      this.httpService.get(`${api}/usuarios/${id}`),
     );
     return data;
   }
@@ -37,8 +39,14 @@ export class UsuariosService {
   async eliminarUsuario(id: string) {
     const api = this.configService.get<string>('URL_USUARIOS');
     const { data } = await firstValueFrom(
-      this.httpService.delete(`${api}/usuarios/${id}`)
+      this.httpService.delete(`${api}/usuarios/${id}`),
     );
+    return data;
+  }
+
+  async obtenerRoles() {
+    const api = this.configService.get<string>('URL_USUARIOS');
+    const { data } = await firstValueFrom(this.httpService.get(`${api}/roles`));
     return data;
   }
 }
