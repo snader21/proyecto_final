@@ -70,7 +70,7 @@ export class NavbarComponent implements OnInit {
         routerLink: '/fabricantes'
       });
     }
-    if (rutasPermitidas.includes('/products')) {
+    if (rutasPermitidas.includes('/productos')) {
       fabricantesProductosItems.push({
         label: 'Productos',
         routerLink: '/productos'

@@ -14,7 +14,7 @@ export class ArchivoProductoEntity {
   @Column()
   estado: string; // pendiente, procesado, error
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
   fecha_carga: Date;
 
   @Column({ type: 'integer', default: 0 })
