@@ -11,6 +11,7 @@ import { firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 import { VendedorDto } from './dto/vendedor.dto';
 import { UsuarioDto } from '../usuarios/dto/usuario.dto';
+import { ZonaDto } from './dto/zona.dto';
 @Injectable()
 export class VendedoresService {
   private readonly apiVendedores =
@@ -92,5 +93,13 @@ export class VendedoresService {
       const axiosError = error as AxiosError<{ message: string }>;
       throw new BadRequestException(axiosError?.response?.data?.message);
     }
+  }
+
+  async getZonas() {
+    const apiEndPoint = `${this.apiVendedores}/zonas`;
+    const { data: zonas } = await firstValueFrom(
+      this.httpService.get<ZonaDto[]>(apiEndPoint),
+    );
+    return zonas;
   }
 }
