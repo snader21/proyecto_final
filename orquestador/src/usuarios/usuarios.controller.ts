@@ -18,23 +18,28 @@ import { RequirePermission } from '../auth/decorators/roles.decorator';
 export class UsuariosController {
   constructor(private readonly usuariosService: UsuariosService) {}
 
+  @Get('/roles')
+  async obtenerRoles(): Promise<any> {
+    return this.usuariosService.obtenerRoles();
+  }
+
   @Post()
-  async crearUsuario(@Body() usuario: any) {
+  async crearUsuario(@Body() usuario: any): Promise<any> {
     return this.usuariosService.crearUsuario(usuario);
   }
 
   @Get()
-  async obtenerUsuarios() {
+  async obtenerUsuarios(): Promise<any> {
     return this.usuariosService.obtenerUsuarios();
   }
 
   @Get(':id')
-  async obtenerUsuarioPorId(@Param('id') id: string) {
+  async obtenerUsuarioPorId(@Param('id') id: string): Promise<any> {
     return this.usuariosService.obtenerUsuarioPorId(id);
   }
 
   @Delete(':id')
-  async eliminarUsuario(@Param('id') id: string) {
+  async eliminarUsuario(@Param('id') id: string): Promise<any> {
     return this.usuariosService.eliminarUsuario(id);
   }
 }
