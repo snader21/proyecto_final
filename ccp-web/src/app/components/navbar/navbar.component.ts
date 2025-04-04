@@ -8,7 +8,8 @@ import { MenuItem } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 import { Usuario } from '../../interfaces/permiso.interface';
-
+import { Location } from '@angular/common';
+import { Router, NavigationEnd } from '@angular/router';
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -32,7 +33,7 @@ export class NavbarComponent implements OnInit {
   ];
   selectedLanguage: any = { label: 'Español', value: 'es' };
 
-  constructor(private readonly authService: AuthService) {
+  constructor(private readonly authService: AuthService, private readonly location: Location, private readonly router: Router) {
   }
 
   ngOnInit() {
@@ -40,6 +41,13 @@ export class NavbarComponent implements OnInit {
       this.isLoggedIn = authStatus;
       if (authStatus) {
         this.initializeMenuItems();
+      }
+    });
+
+    // Suscribirse a los cambios de ruta
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        this.initializeMenuItems(); // Refrescar el menú cuando la ruta cambia
       }
     });
   }
@@ -53,75 +61,80 @@ export class NavbarComponent implements OnInit {
 
     const menuItems: MenuItem[] = [];
 
-    // Usuarios
-    if (rutasPermitidas.includes('/usuarios')) {
-      menuItems.push({
-        label: 'Usuarios',
-        icon: 'pi pi-users',
-        routerLink: '/usuarios'
-      });
-    }
+    // Verificar si la ruta actual es el dashboard
+    const isDashboard = this.location.path() === '/dashboard';
 
-    // Fabricantes y Productos
-    const fabricantesProductosItems: MenuItem[] = [];
-    if (rutasPermitidas.includes('/fabricantes')) {
-      fabricantesProductosItems.push({
-        label: 'Fabricantes',
-        routerLink: '/fabricantes'
-      });
-    }
-    if (rutasPermitidas.includes('/productos')) {
-      fabricantesProductosItems.push({
-        label: 'Productos',
-        routerLink: '/productos'
-      });
-    }
-    if (fabricantesProductosItems.length > 0) {
-      menuItems.push({
-        label: 'Fabricantes y Productos',
-        icon: 'pi pi-shopping-bag',
-        items: fabricantesProductosItems
-      });
-    }
+    if (!isDashboard) {
+      // Usuarios
+      if (rutasPermitidas.includes('/usuarios')) {
+        menuItems.push({
+          label: 'Usuarios',
+          icon: 'pi pi-users',
+          routerLink: '/usuarios'
+        });
+      }
 
-    // Vendedores
-    const vendedoresItems: MenuItem[] = [];
-    if (rutasPermitidas.includes('/vendedores')) {
-      vendedoresItems.push({
-        label: 'Vendedores',
-        routerLink: '/vendedores'
-      });
-    }
-    if (rutasPermitidas.includes('/reportes')) {
-      vendedoresItems.push({
-        label: 'Reportes',
-        routerLink: '/reportes'
-      });
-    }
-    if (vendedoresItems.length > 0) {
-      menuItems.push({
-        label: 'Vendedores',
-        icon: 'pi pi-id-card',
-        items: vendedoresItems
-      });
-    }
+      // Fabricantes y Productos
+      const fabricantesProductosItems: MenuItem[] = [];
+      if (rutasPermitidas.includes('/fabricantes')) {
+        fabricantesProductosItems.push({
+          label: 'Fabricantes',
+          routerLink: '/fabricantes'
+        });
+      }
+      if (rutasPermitidas.includes('/productos')) {
+        fabricantesProductosItems.push({
+          label: 'Productos',
+          routerLink: '/productos'
+        });
+      }
+      if (fabricantesProductosItems.length > 0) {
+        menuItems.push({
+          label: 'Fabricantes y Productos',
+          icon: 'pi pi-shopping-bag',
+          items: fabricantesProductosItems
+        });
+      }
 
-    // Pedidos
-    if (rutasPermitidas.includes('/pedidos')) {
-      menuItems.push({
-        label: 'Pedidos',
-        icon: 'pi pi-shopping-cart',
-        routerLink: '/pedidos'
-      });
-    }
+      // Vendedores
+      const vendedoresItems: MenuItem[] = [];
+      if (rutasPermitidas.includes('/vendedores')) {
+        vendedoresItems.push({
+          label: 'Vendedores',
+          routerLink: '/vendedores'
+        });
+      }
+      if (rutasPermitidas.includes('/reportes')) {
+        vendedoresItems.push({
+          label: 'Reportes',
+          routerLink: '/reportes'
+        });
+      }
+      if (vendedoresItems.length > 0) {
+        menuItems.push({
+          label: 'Vendedores',
+          icon: 'pi pi-id-card',
+          items: vendedoresItems
+        });
+      }
 
-    // Logística
-    if (rutasPermitidas.includes('/rutas')) {
-      menuItems.push({
-        label: 'Logística',
-        icon: 'pi pi-map-marker',
-        routerLink: '/rutas'
-      });
+      // Pedidos
+      if (rutasPermitidas.includes('/pedidos')) {
+        menuItems.push({
+          label: 'Pedidos',
+          icon: 'pi pi-shopping-cart',
+          routerLink: '/pedidos'
+        });
+      }
+
+      // Logística
+      if (rutasPermitidas.includes('/rutas')) {
+        menuItems.push({
+          label: 'Logística',
+          icon: 'pi pi-map-marker',
+          routerLink: '/rutas'
+        });
+      }
     }
 
     // Agregar controles de idioma y logout (siempre visibles)
@@ -161,5 +174,9 @@ export class NavbarComponent implements OnInit {
 
   logout() {
     this.authService.logout();
+  }
+
+  navigateTo(path: string) {
+    this.router.navigate([path]);
   }
 }
