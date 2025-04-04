@@ -1,11 +1,38 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { Usuario } from '../../interfaces/permiso.interface';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [],
+  imports: [ButtonModule, NgClass],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.scss'
+  styleUrl: './dashboard.component.scss',
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
+  rutasPermitidas: string[] = [];
 
+  constructor(private readonly router: Router) {}
+
+  ngOnInit() {
+    const usuarioStr = localStorage.getItem('usuario');
+    if (usuarioStr) {
+      const usuario: Usuario = JSON.parse(usuarioStr);
+      this.rutasPermitidas = usuario.permisos.map(permiso => permiso.ruta);
+    }
+  }
+
+  navigateTo(path: string) {
+    this.router.navigate([path]);
+  }
+
+  tieneAcceso(path: string): boolean {
+    return this.rutasPermitidas.includes(path);
+  }
+
+  // Método para verificar si el div debe estar "apagado"
+  divApagado(rutas: string[]): boolean {
+    return !rutas.some(ruta => this.tieneAcceso(ruta));
+  }
 }
