@@ -6,6 +6,7 @@ export const generarVendedorDto = (zonaId: string) => ({
   telefono: faker.phone.number(),
   usuarioId: faker.string.uuid(),
   zonaId,
+  roles: [faker.lorem.word(), 'Vendedor'],
 });
 
 export const camelCaseToSnakeCase = (str: string) => {

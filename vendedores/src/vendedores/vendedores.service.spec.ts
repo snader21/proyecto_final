@@ -104,4 +104,12 @@ describe('VendedoresService', () => {
       `SQLITE_CONSTRAINT: NOT NULL constraint failed: vendedor.${camelCaseToSnakeCase(campoFaltante)}`,
     );
   });
+
+  it('no deberia crear un vendedor si el usuario no tiene el rol de vendedor', async () => {
+    const vendedorDto = generarVendedorDto(zonaId);
+    vendedorDto.roles = [faker.lorem.word()];
+    await expect(service.create(vendedorDto)).rejects.toThrow(
+      'El usuario debe tener al menos el rol de vendedor',
+    );
+  });
 });
