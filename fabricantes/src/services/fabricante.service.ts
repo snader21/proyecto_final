@@ -58,7 +58,9 @@ export class FabricanteService {
     });
 
     if (existingFabricante) {
-      throw new ConflictException('El fabricante ya está registrado');
+      throw new ConflictException(
+        'El nombre del fabricante ya está registrado',
+      );
     }
 
     const existingLugar = await this.lugarRepository.findOne({
@@ -66,10 +68,15 @@ export class FabricanteService {
     });
 
     if (!existingLugar) {
-      throw new NotFoundException('Ciudad no encontrada');
+      throw new NotFoundException('La ciudad no está registrada');
     }
 
-    const fabricante = this.fabricanteRepository.create(createFabricanteDto);
+    const fabricanteData = {
+      ...createFabricanteDto,
+      lugar_id: createFabricanteDto.ciudad_id,
+    };
+
+    const fabricante = this.fabricanteRepository.create(fabricanteData);
     return this.fabricanteRepository.save(fabricante);
   }
 

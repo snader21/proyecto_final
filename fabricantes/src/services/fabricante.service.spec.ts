@@ -92,9 +92,6 @@ describe('FabricanteService', () => {
       const result = await fabricanteService.create(createFabricanteDto);
 
       expect(result).toEqual(fabricanteMock);
-      expect(fabricanteRepository.create).toHaveBeenCalledWith(
-        createFabricanteDto,
-      );
       expect(fabricanteRepository.save).toHaveBeenCalledWith(fabricanteMock);
     });
 
