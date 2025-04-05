@@ -111,6 +111,12 @@ steps:
               if [ "$svc" = "usuarios" ]; then
                 echo "JWT_SECRET=${_JWT_SECRET}" >> ./$svc/.env
               fi
+              if [ "$svc" = "productos" ]; then
+                echo "GCP_BUCKET_NAME=${_GCP_BUCKET_NAME}" >> ./$svc/.env
+                echo "GCP_CLIENT_EMAIL=${_GCP_CLIENT_EMAIL}" >> ./$svc/.env
+                echo "GCP_PRIVATE_KEY=${_GCP_PRIVATE_KEY}" >> ./$svc/.env
+                echo "GCP_PROJECT_ID=${_GCP_PROJECT_ID}" >> ./$svc/.env
+              fi
             fi
           fi
         done
