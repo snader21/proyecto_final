@@ -31,7 +31,7 @@ jobs:
       #   working-directory: ccp-web
 
       - name: Build app
-        run: npm run build --configuration=production --base-href /proyecto_final/
+        run: npm run build -- --configuration=production --base-href /proyecto_final/
         working-directory: ccp-web
 
       - name: Copy index.html to 404.html

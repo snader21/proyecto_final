@@ -197,6 +197,8 @@ export class VendedoresFormComponent implements OnInit {
       return `El campo debe tener al menos ${control.errors?.["minlength"].requiredLength} caracteres`;
     if (control.hasError("passwordsMismatch"))
       return "Las contraseñas no coinciden";
+    if (control.hasError("pattern"))
+      return "El campo debe contener máximo 10 números";
     return "";
   }
 
