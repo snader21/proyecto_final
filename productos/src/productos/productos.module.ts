@@ -15,6 +15,7 @@ import { UbicacionEntity } from '../ubicaciones/entities/ubicacion.entity';
 import { UnidadMedidaEntity } from './entities/unidad-medida.entity';
 import { ArchivoProductoEntity } from './entities/archivo-producto.entity';
 import { MovimientoInventarioEntity } from '../movimientos-inventario/entities/movimiento-inventario.entity';
+import { PubSubService } from '../common/services/pubsub.service';
 
 @Module({
   imports: [
@@ -34,7 +35,7 @@ import { MovimientoInventarioEntity } from '../movimientos-inventario/entities/m
     HttpModule,
   ],
   controllers: [ProductosController],
-  providers: [ProductosService, FileGCP],
+  providers: [ProductosService, FileGCP, PubSubService],
   exports: [ProductosService],
 })
 export class ProductosModule {}

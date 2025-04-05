@@ -14,6 +14,7 @@ import { BodegaEntity } from '../bodegas/entities/bodega.entity';
 import { UbicacionEntity } from '../ubicaciones/entities/ubicacion.entity';
 import { ImagenProductoEntity } from './entities/imagen-producto.entity';
 import { MovimientoInventarioEntity } from '../movimientos-inventario/entities/movimiento-inventario.entity';
+import { PubSubService } from '../common/services/pubsub.service';
 
 @Injectable()
 export class ProductosService implements OnModuleInit {
@@ -49,6 +50,7 @@ export class ProductosService implements OnModuleInit {
     private readonly archivoProductoRepository: Repository<ArchivoProductoEntity>,
 
     private readonly fileGCP: FileGCP,
+    private readonly pubSubService: PubSubService,
   ) {}
 
   async onModuleInit() {
@@ -321,10 +323,15 @@ export class ProductosService implements OnModuleInit {
     const url = await this.fileGCP.save(file, fileName);
 
     // Save file record
-    await this.archivoProductoRepository.save({
+    const archivoProducto = await this.archivoProductoRepository.save({
       nombre_archivo: file.originalname,
       url,
       estado: 'pendiente',
+    });
+
+    // Publicar mensaje al tópico para procesar el archivo
+    await this.pubSubService.publishMessage({
+      archivoProductoId: archivoProducto.id_archivo,
     });
 
     return { url };
