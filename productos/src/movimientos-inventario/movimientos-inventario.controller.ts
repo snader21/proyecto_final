@@ -12,6 +12,10 @@ export class MovimientosInventarioController {
   async agregarProductoAlInventario(
     @Body() movimientoInventario: CreateMovimientoInventarioDto,
   ) {
+    console.log(
+      '🚀 ~ MovimientosInventarioController ~ movimientoInventario:',
+      movimientoInventario,
+    );
     return this.movimientosInventarioService.crearMovimientoInventario(
       movimientoInventario,
     );

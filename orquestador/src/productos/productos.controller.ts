@@ -1,4 +1,11 @@
-import { Controller, Post, Body, Get, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ProductosService } from './productos.service';
 import { CreateMovimientoInventarioDto } from './dto/create-movimiento-inventario.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
@@ -25,6 +32,11 @@ export class ProductosController {
   @Get('unidades-medida')
   async getUnits() {
     return this.productosService.getUnits();
+  }
+
+  @Get('ubicaciones')
+  async getUbicaciones() {
+    return this.productosService.getUbicaciones();
   }
 
   @Get()

@@ -3,6 +3,7 @@
     header="Agregar Usuario"
     [modal]="true"
     [(visible)]="visible"
+    (onHide)="closeModal()"
     [style]="{ width: '40rem', height: '90rem' }">
     
     <form [formGroup]="userForm" class="flex flex-col gap-4">

@@ -2,6 +2,7 @@
     header="Agregar Productos en Lote"
     [modal]="true"
     [(visible)]="visible"
+    (onHide)="closeModal()"
     [style]="{ width: '60rem', height: '40rem' }">
 
     <p-tabs value="0">
