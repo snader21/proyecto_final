@@ -29,6 +29,7 @@ describe('FabricanteService', () => {
             save: jest.fn(),
             find: jest.fn(),
             remove: jest.fn(),
+            merge: jest.fn(),
           },
         },
         {
@@ -187,6 +188,123 @@ describe('FabricanteService', () => {
         },
       ]);
       expect(fabricanteRepository.find).toHaveBeenCalled();
+    });
+  });
+
+  describe('findOne', () => {
+    it('debería retornar un fabricante por ID', async () => {
+      const id = '1';
+      const fabricanteMock = {
+        id,
+        nombre: faker.company.name(),
+        correo: faker.internet.email(),
+        direccion: faker.location.streetAddress(),
+        estado: 'activo',
+        telefono: faker.phone.number(),
+        lugar_id: '1',
+      };
+
+      jest
+        .spyOn(fabricanteRepository, 'findOne')
+        .mockResolvedValue(fabricanteMock as Fabricante);
+
+      const result = await fabricanteService.findOne(id);
+
+      expect(result).toEqual(fabricanteMock);
+      expect(fabricanteRepository.findOne).toHaveBeenCalledWith({
+        where: { id },
+      });
+    });
+
+    it('debería lanzar NotFoundException si el fabricante no existe', async () => {
+      const id = '999';
+
+      jest.spyOn(fabricanteRepository, 'findOne').mockResolvedValue(null);
+
+      await expect(fabricanteService.findOne(id)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(fabricanteRepository.findOne).toHaveBeenCalledWith({
+        where: { id },
+      });
+    });
+  });
+
+  describe('update', () => {
+    it('debería actualizar un fabricante existente', async () => {
+      const id = '1';
+      const updateFabricanteDto = {
+        nombre: faker.company.name(),
+        correo: faker.internet.email(),
+        direccion: faker.location.streetAddress(),
+        estado: 'activo',
+        telefono: faker.phone.number(),
+        ciudad_id: '2',
+        pais_id: '1',
+      };
+
+      const existingFabricante = {
+        id,
+        nombre: 'Old Name',
+        correo: 'old@email.com',
+        direccion: 'Old Address',
+        estado: 'activo',
+        telefono: '123456789',
+        lugar_id: '1',
+      };
+
+      const updatedFabricante = {
+        ...existingFabricante,
+        ...updateFabricanteDto,
+        lugar_id: updateFabricanteDto.ciudad_id,
+      };
+
+      jest
+        .spyOn(fabricanteRepository, 'findOne')
+        .mockResolvedValue(existingFabricante as Fabricante);
+      jest
+        .spyOn(fabricanteRepository, 'merge')
+        .mockReturnValue(updatedFabricante as unknown as Fabricante);
+      jest
+        .spyOn(fabricanteRepository, 'save')
+        .mockResolvedValue(updatedFabricante as unknown as Fabricante);
+
+      const result = await fabricanteService.update(id, updateFabricanteDto);
+
+      expect(result).toEqual(updatedFabricante);
+      expect(fabricanteRepository.findOne).toHaveBeenCalledWith({
+        where: { id },
+      });
+      expect(fabricanteRepository.merge).toHaveBeenCalledWith(
+        existingFabricante,
+        {
+          ...updateFabricanteDto,
+          lugar_id: updateFabricanteDto.ciudad_id,
+        },
+      );
+      expect(fabricanteRepository.save).toHaveBeenCalledWith(updatedFabricante);
+    });
+
+    it('debería lanzar NotFoundException si el fabricante a actualizar no existe', async () => {
+      const id = '999';
+      const updateFabricanteDto = {
+        nombre: faker.company.name(),
+        correo: faker.internet.email(),
+        direccion: faker.location.streetAddress(),
+        estado: 'activo',
+        telefono: faker.phone.number(),
+        ciudad_id: '2',
+        pais_id: '1',
+      };
+
+      jest.spyOn(fabricanteRepository, 'findOne').mockResolvedValue(null);
+
+      await expect(
+        fabricanteService.update(id, updateFabricanteDto),
+      ).rejects.toThrow(NotFoundException);
+      expect(fabricanteRepository.findOne).toHaveBeenCalledWith({
+        where: { id },
+      });
     });
   });
 });

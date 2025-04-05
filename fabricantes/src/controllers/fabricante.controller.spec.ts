@@ -135,14 +135,6 @@ describe('FabricanteController', () => {
     });
   });
 
-  describe('remove', () => {
-    it('debería eliminar un fabricante por ID', async () => {
-      await fabricanteController.remove('1');
-
-      expect(fabricanteService.remove).toHaveBeenCalledWith('1');
-    });
-  });
-
   describe('update', () => {
     it('debería actualizar un fabricante', async () => {
       const updateFabricanteDto: UpdateFabricanteDto = {

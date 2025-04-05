@@ -52,18 +52,6 @@ export class FabricanteService {
     return fabricante;
   }
 
-  async remove(id: string): Promise<void> {
-    const fabricante = await this.fabricanteRepository.findOne({
-      where: { id },
-    });
-
-    if (!fabricante) {
-      throw new NotFoundException('Fabricante no encontrado');
-    }
-
-    await this.fabricanteRepository.remove(fabricante);
-  }
-
   async create(createFabricanteDto: CreateFabricanteDto): Promise<Fabricante> {
     const existingFabricante = await this.fabricanteRepository.findOne({
       where: { nombre: createFabricanteDto.nombre },
@@ -92,8 +80,6 @@ export class FabricanteService {
     const fabricante = await this.fabricanteRepository.findOne({
       where: { id },
     });
-
-    console.log(updateFabricanteDto);
 
     if (!fabricante) {
       throw new NotFoundException('Fabricante no encontrado');

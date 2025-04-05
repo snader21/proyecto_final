@@ -2,7 +2,6 @@ import {
   Controller,
   Post,
   Get,
-  Delete,
   Body,
   Param,
   HttpCode,
@@ -31,12 +30,6 @@ export class FabricanteController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.fabricanteService.findOne(id);
-  }
-
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id') id: string) {
-    await this.fabricanteService.remove(id);
   }
 
   @Put(':id')

@@ -4,6 +4,8 @@ import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { AlertService } from '../../services/alert.service';
+import { HttpClientTestingModule } from "@angular/common/http/testing";
+import { RouterTestingModule } from "@angular/router/testing";
 
 import { FabricantesComponent } from './fabricantes.component';
 
@@ -13,11 +15,8 @@ describe('FabricantesComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [ FabricantesComponent ],
-      providers: [
-        ConfirmationService,
-        AlertService
-      ]
+      imports: [ FabricantesComponent, HttpClientTestingModule, RouterTestingModule ],
+      providers: [ConfirmationService, AlertService],
     })
     .compileComponents();
   });
