@@ -6,6 +6,7 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { ModalService } from '../../../services/products/modal.service';
 import { ProductsService } from '../../../services/products/products.service';
 import { MessageService } from 'primeng/api';
@@ -22,7 +23,8 @@ import { startWith, switchMap } from 'rxjs/operators';
     FileUploadModule,
     TableModule,
     ButtonModule,
-    TagModule
+    TagModule,
+    TooltipModule
   ],
   templateUrl: './manage-product-bulk.component.html',
   styleUrls: ['./manage-product-bulk.component.scss']
@@ -31,9 +33,11 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
   @ViewChild('fileUpload') fileUpload: any;
 
   visible = false;
+  errorDialogVisible = false;
   file: File | null = null;
   uploadStatus: { success: boolean; message: string } | null = null;
   csvFiles: any[] = [];
+  currentFileErrors: any[] = [];
   loading = false;
   private updateSubscription?: Subscription;
 
@@ -93,7 +97,10 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
   uploadFile() {
     if (this.file) {
       this.loading = true;
-      this.productsService.uploadCSV(this.file).subscribe({
+      const formData = new FormData();
+      formData.append('file', this.file);
+
+      this.productsService.uploadCSV(formData).subscribe({
         next: () => {
           this.messageService.add({
             severity: 'success',
@@ -124,6 +131,28 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
       case 'error': return 'danger';
       default: return 'info';
     }
+  }
+
+  getErrorSummary(file: any): string {
+    if (file.estado !== 'error' || !file.errores_procesamiento?.length) {
+      return '';
+    }
+
+    const totalErrors = file.errores_procesamiento.length;
+    const firstError = file.errores_procesamiento[0].error;
+    
+    return `
+      <div class="text-sm">
+        <div><strong>Total errores:</strong> ${totalErrors}</div>
+        <div><strong>Primer error:</strong> ${firstError}</div>
+        ${totalErrors > 1 ? '<div class="text-xs">(Click en el ícono de error para ver todos)</div>' : ''}
+      </div>
+    `;
+  }
+
+  showErrorDetails(file: any) {
+    this.currentFileErrors = file.errores_procesamiento;
+    this.errorDialogVisible = true;
   }
 
   downloadFile(file: any) {
