@@ -1,28 +1,35 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ProductosService } from './productos.service';
+import { Repository } from 'typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { ProductoEntity } from './entities/producto.entity';
 import { CategoriaEntity } from './entities/categoria.entity';
 import { MarcaEntity } from './entities/marca.entity';
 import { UnidadMedidaEntity } from './entities/unidad-medida.entity';
-import { FileGCP } from './utils/file-gcp.service';
-import { TypeOrmTestingConfig } from '../shared/testing-utils/typeorm-testing-config';
-import { Multer } from 'multer';
 import { PaisEntity } from './entities/pais.entity';
 import { ImagenProductoEntity } from './entities/imagen-producto.entity';
 import { ArchivoProductoEntity } from './entities/archivo-producto.entity';
+import { FileGCP } from './utils/file-gcp.service';
+import { TypeOrmTestingConfig } from '../shared/testing-utils/typeorm-testing-config';
+import { faker } from '@faker-js/faker';
 
 describe('ProductosService', () => {
   let service: ProductosService;
-  let productoRepository: jest.Mocked<Repository<ProductoEntity>>;
-  let categoriaRepository: jest.Mocked<Repository<CategoriaEntity>>;
-  let marcaRepository: jest.Mocked<Repository<MarcaEntity>>;
-  let unidadMedidaRepository: jest.Mocked<Repository<UnidadMedidaEntity>>;
-  let paisRepository: jest.Mocked<Repository<PaisEntity>>;
-  let imagenProductoRepository: jest.Mocked<Repository<ImagenProductoEntity>>;
-  let archivoProductoRepository: jest.Mocked<Repository<ArchivoProductoEntity>>;
+  let productoRepository: Repository<ProductoEntity>;
+  let categoriaRepository: Repository<CategoriaEntity>;
+  let marcaRepository: Repository<MarcaEntity>;
+  let unidadMedidaRepository: Repository<UnidadMedidaEntity>;
+  let paisRepository: Repository<PaisEntity>;
+  let imagenProductoRepository: Repository<ImagenProductoEntity>;
+  let archivoProductoRepository: Repository<ArchivoProductoEntity>;
   let fileGcpService: FileGCP;
+
+  let productosList: ProductoEntity[];
+  let categoriasList: CategoriaEntity[];
+  let marcasList: MarcaEntity[];
+  let unidadesMedidaList: UnidadMedidaEntity[];
+  let paisesList: PaisEntity[];
 
   const mockFileGCP = {
     save: jest.fn(),
@@ -37,279 +44,203 @@ describe('ProductosService', () => {
       providers: [
         ProductosService,
         { provide: FileGCP, useValue: mockFileGCP },
-        {
-          provide: getRepositoryToken(ProductoEntity),
-          useValue: {
-            save: jest.fn(),
-            find: jest.fn().mockImplementation((options) => {
-              if (options?.relations) {
-                return Promise.resolve([{
-                  id_producto: '1',
-                  nombre: 'Test Product',
-                  descripcion: 'Test Description',
-                  sku: 'TEST-123',
-                  codigo_barras: '123456789',
-                  categoria: { id_categoria: '1' },
-                  marca: { id_marca: '1' },
-                  unidad_medida: { id_unidad_medida: '1' },
-                  precio: 100,
-                  activo: true,
-                  alto: 10,
-                  ancho: 10,
-                  largo: 10,
-                  peso: 1,
-                  fecha_creacion: new Date(),
-                  fecha_actualizacion: new Date(),
-                  id_fabricante: 'FAB-001',
-                  pais: { id_pais: '1' }
-                }]);
-              }
-              return Promise.resolve([]);
-            }),
-            findOne: jest.fn(),
-            createQueryBuilder: jest.fn(() => ({
-              leftJoinAndSelect: jest.fn().mockReturnThis(),
-              where: jest.fn().mockReturnThis(),
-              getOne: jest.fn().mockResolvedValue(null),
-              getMany: jest.fn().mockResolvedValue([]),
-            })),
-          },
-        },
-        {
-          provide: getRepositoryToken(CategoriaEntity),
-          useValue: {
-            save: jest.fn(),
-            find: jest.fn().mockResolvedValue([new CategoriaEntity()]),
-            findOne: jest.fn(),
-            createQueryBuilder: jest.fn(() => ({
-              getOne: jest.fn().mockResolvedValue(null),
-              getMany: jest.fn().mockResolvedValue([]),
-            })),
-          },
-        },
-        {
-          provide: getRepositoryToken(MarcaEntity),
-          useValue: {
-            save: jest.fn(),
-            find: jest.fn().mockResolvedValue([{ id_marca: '1', nombre: 'Test Brand', descripcion: 'Test Description' }]),
-            findOne: jest.fn(),
-            createQueryBuilder: jest.fn(() => ({
-              getOne: jest.fn().mockResolvedValue(null),
-              getMany: jest.fn().mockResolvedValue([]),
-            })),
-          },
-        },
-        {
-          provide: getRepositoryToken(UnidadMedidaEntity),
-          useValue: {
-            save: jest.fn(),
-            find: jest.fn().mockResolvedValue([{ id_unidad_medida: '1', nombre: 'Test Unit', abreviatura: 'TU' }]),
-            findOne: jest.fn(),
-            createQueryBuilder: jest.fn(() => ({
-              getOne: jest.fn().mockResolvedValue(null),
-              getMany: jest.fn().mockResolvedValue([]),
-            })),
-          },
-        },
-        {
-          provide: getRepositoryToken(PaisEntity),
-          useValue: {
-            save: jest.fn(),
-            find: jest.fn(),
-            findOne: jest.fn(),
-            createQueryBuilder: jest.fn(() => ({
-              getOne: jest.fn().mockResolvedValue(null),
-              getMany: jest.fn().mockResolvedValue([]),
-            })),
-          },
-        },
-        {
-          provide: getRepositoryToken(ImagenProductoEntity),
-          useValue: {
-            save: jest.fn(),
-            find: jest.fn(),
-            findOne: jest.fn(),
-            createQueryBuilder: jest.fn(() => ({
-              getOne: jest.fn().mockResolvedValue(null),
-              getMany: jest.fn().mockResolvedValue([]),
-            })),
-          },
-        },
-        {
-          provide: getRepositoryToken(ArchivoProductoEntity),
-          useValue: {
-            save: jest.fn(),
-            find: jest.fn().mockImplementation((options) => {
-              if (options?.order) {
-                return Promise.resolve([{
-                  id_archivo: '1',
-                  nombre_archivo: 'test.csv',
-                  estado: 'activo',
-                  fecha_carga: new Date(),
-                  url: 'http://test.com/test.csv'
-                }]);
-              }
-              return Promise.resolve([]);
-            }),
-            findOne: jest.fn(),
-            createQueryBuilder: jest.fn(() => ({
-              getOne: jest.fn().mockResolvedValue(null),
-              getMany: jest.fn().mockResolvedValue([]),
-            })),
-          },
-        },
       ],
     }).compile();
 
     service = module.get<ProductosService>(ProductosService);
-    productoRepository = jest.mocked(module.get<Repository<ProductoEntity>>(getRepositoryToken(ProductoEntity)));
-    categoriaRepository = jest.mocked(module.get<Repository<CategoriaEntity>>(getRepositoryToken(CategoriaEntity)));
-    marcaRepository = jest.mocked(module.get<Repository<MarcaEntity>>(getRepositoryToken(MarcaEntity)));
-    unidadMedidaRepository = jest.mocked(module.get<Repository<UnidadMedidaEntity>>(getRepositoryToken(UnidadMedidaEntity)));
-    paisRepository = jest.mocked(module.get<Repository<PaisEntity>>(getRepositoryToken(PaisEntity)));
-    imagenProductoRepository = jest.mocked(module.get<Repository<ImagenProductoEntity>>(getRepositoryToken(ImagenProductoEntity)));
-    archivoProductoRepository = jest.mocked(module.get<Repository<ArchivoProductoEntity>>(getRepositoryToken(ArchivoProductoEntity)));
+    productoRepository = module.get<Repository<ProductoEntity>>(getRepositoryToken(ProductoEntity));
+    categoriaRepository = module.get<Repository<CategoriaEntity>>(getRepositoryToken(CategoriaEntity));
+    marcaRepository = module.get<Repository<MarcaEntity>>(getRepositoryToken(MarcaEntity));
+    unidadMedidaRepository = module.get<Repository<UnidadMedidaEntity>>(getRepositoryToken(UnidadMedidaEntity));
+    paisRepository = module.get<Repository<PaisEntity>>(getRepositoryToken(PaisEntity));
+    imagenProductoRepository = module.get<Repository<ImagenProductoEntity>>(getRepositoryToken(ImagenProductoEntity));
+    archivoProductoRepository = module.get<Repository<ArchivoProductoEntity>>(getRepositoryToken(ArchivoProductoEntity));
     fileGcpService = module.get<FileGCP>(FileGCP);
+
+    await seedDatabase();
   });
+
+  const seedDatabase = async () => {
+    await productoRepository.clear();
+    await categoriaRepository.clear();
+    await marcaRepository.clear();
+    await unidadMedidaRepository.clear();
+    await paisRepository.clear();
+
+    productosList = [];
+    categoriasList = [];
+    marcasList = [];
+    unidadesMedidaList = [];
+    paisesList = [];
+
+    // Crear países
+    const pais1 = await paisRepository.save({
+      id_pais: faker.string.uuid(),
+      nombre: 'Colombia',
+      abreviatura: 'COL',
+      moneda: 'COP',
+      iva: 19.0,
+    });
+    const pais2 = await paisRepository.save({
+      id_pais: faker.string.uuid(),
+      nombre: 'Estados Unidos',
+      abreviatura: 'US',
+      moneda: 'USD',
+      iva: 0.0,
+    });
+    paisesList.push(pais1, pais2);
+
+    // Crear categorías
+    const categoria1 = await categoriaRepository.save({
+      id_categoria: faker.string.uuid(),
+      nombre: 'Electrónica',
+      descripcion: 'Productos electrónicos',
+    });
+    const categoria2 = await categoriaRepository.save({
+      id_categoria: faker.string.uuid(),
+      nombre: 'Alimentos',
+      descripcion: 'Productos alimenticios',
+    });
+    categoriasList.push(categoria1, categoria2);
+
+    // Crear marcas
+    const marca1 = await marcaRepository.save({
+      id_marca: faker.string.uuid(),
+      nombre: 'Samsung',
+      descripcion: 'Tecnología coreana',
+    });
+    const marca2 = await marcaRepository.save({
+      id_marca: faker.string.uuid(),
+      nombre: 'Nestlé',
+      descripcion: 'Alimentos suizos',
+    });
+    marcasList.push(marca1, marca2);
+
+    // Crear unidades de medida
+    const unidad1 = await unidadMedidaRepository.save({
+      id_unidad_medida: faker.string.uuid(),
+      nombre: 'Unidad',
+      abreviatura: 'UN',
+    });
+    const unidad2 = await unidadMedidaRepository.save({
+      id_unidad_medida: faker.string.uuid(),
+      nombre: 'Kilogramo',
+      abreviatura: 'KG',
+    });
+    unidadesMedidaList.push(unidad1, unidad2);
+
+    // Crear productos
+    for (let i = 0; i < 5; i++) {
+      const producto = await productoRepository.save({
+        id_producto: faker.string.uuid(),
+        nombre: faker.commerce.productName(),
+        descripcion: faker.commerce.productDescription(),
+        sku: faker.string.alphanumeric(10),
+        codigo_barras: faker.string.numeric(13),
+        precio: parseFloat(faker.commerce.price()),
+        activo: true,
+        alto: faker.number.int({ min: 1, max: 100 }),
+        ancho: faker.number.int({ min: 1, max: 100 }),
+        largo: faker.number.int({ min: 1, max: 100 }),
+        peso: faker.number.int({ min: 1, max: 10 }),
+        id_fabricante: faker.string.alphanumeric(5),
+        categoria: categoriasList[i % 2],
+        marca: marcasList[i % 2],
+        unidad_medida: unidadesMedidaList[i % 2],
+        pais: paisesList[i % 2],
+        fecha_creacion: new Date('2025-04-05T17:40:54-05:00'),
+        fecha_actualizacion: new Date('2025-04-05T17:40:54-05:00'),
+      });
+      productosList.push(producto);
+    }
+  };
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
+  describe('obtenerProductos', () => {
+    it('should return all products', async () => {
+      const productos = await service.obtenerProductos();
+      expect(productos).not.toBeNull();
+      expect(productos).toHaveLength(productosList.length);
+    });
+  });
+
+  describe('obtenerProducto', () => {
+    it('should return a product by id', async () => {
+      const storedProduct = productosList[0];
+      const producto = await service.obtenerProducto(storedProduct.id_producto);
+      expect(producto).not.toBeNull();
+      expect(producto.nombre).toEqual(storedProduct.nombre);
+      expect(producto.sku).toEqual(storedProduct.sku);
+    });
+
+    it('should throw an exception for an invalid product', async () => {
+      await expect(service.obtenerProducto('0')).rejects.toThrow(NotFoundException);
+    });
+  });
+
   describe('obtenerCategorias', () => {
     it('should return all categories', async () => {
-      const expectedCategories = [new CategoriaEntity()];
-      jest.spyOn(categoriaRepository, 'find').mockResolvedValueOnce(expectedCategories);
-
-      const result = await service.obtenerCategorias();
-      expect(result).toEqual(expectedCategories);
-      expect(categoriaRepository.find).toHaveBeenCalled();
+      const categorias = await service.obtenerCategorias();
+      expect(categorias).not.toBeNull();
+      expect(categorias).toHaveLength(categoriasList.length);
     });
   });
 
   describe('obtenerMarcas', () => {
     it('should return all brands', async () => {
-      const expectedBrands = [{ id_marca: '1', nombre: 'Test Brand', descripcion: 'Test Description' }] as MarcaEntity[];
-      jest.spyOn(marcaRepository, 'find').mockResolvedValueOnce(expectedBrands);
-
-      const result = await service.obtenerMarcas();
-      expect(result).toEqual(expectedBrands);
-      expect(marcaRepository.find).toHaveBeenCalled();
+      const marcas = await service.obtenerMarcas();
+      expect(marcas).not.toBeNull();
+      expect(marcas).toHaveLength(marcasList.length);
     });
   });
 
   describe('obtenerUnidadesMedida', () => {
     it('should return all measurement units', async () => {
-      const expectedUnits = [{ id_unidad_medida: '1', nombre: 'Test Unit', abreviatura: 'TU' }] as UnidadMedidaEntity[];
-      jest.spyOn(unidadMedidaRepository, 'find').mockResolvedValueOnce(expectedUnits);
-
-      const result = await service.obtenerUnidadesMedida();
-      expect(result).toEqual(expectedUnits);
-      expect(unidadMedidaRepository.find).toHaveBeenCalled();
-    });
-  });
-
-  describe('obtenerProductos', () => {
-    it('should return all products', async () => {
-      const expectedProducts = [{
-        id_producto: '1',
-        nombre: 'Test Product',
-        descripcion: 'Test Description',
-        sku: 'TEST-123',
-        codigo_barras: '123456789',
-        categoria: { id_categoria: '1' } as CategoriaEntity,
-        marca: { id_marca: '1' } as MarcaEntity,
-        unidad_medida: { id_unidad_medida: '1' } as UnidadMedidaEntity,
-        precio: 100,
-        activo: true,
-        alto: 10,
-        ancho: 10,
-        largo: 10,
-        peso: 1,
-        fecha_creacion: new Date(),
-        fecha_actualizacion: new Date(),
-        id_fabricante: 'FAB-001',
-        pais: { id_pais: '1' }
-      }] as ProductoEntity[];
-      jest.spyOn(productoRepository, 'find').mockResolvedValueOnce(expectedProducts);
-
-      const result = await service.obtenerProductos();
-      expect(result).toEqual(expectedProducts);
-      expect(productoRepository.find).toHaveBeenCalled();
+      const unidades = await service.obtenerUnidadesMedida();
+      expect(unidades).not.toBeNull();
+      expect(unidades).toHaveLength(unidadesMedidaList.length);
     });
   });
 
   describe('GuardarProducto', () => {
-    it('should save a product with images', async () => {
-      // Create related entities
-      const mockCategoria = new CategoriaEntity();
-      mockCategoria.id_categoria = '550e8400-e29b-41d4-a716-446655440002';
-      mockCategoria.nombre = 'Test Category';
-      mockCategoria.descripcion = 'Test Description';
-
-      const mockMarca = new MarcaEntity();
-      mockMarca.id_marca = '550e8400-e29b-41d4-a716-446655440004';
-      mockMarca.nombre = 'Test Brand';
-      mockMarca.descripcion = 'Test Description';
-
-      const mockUnidadMedida = new UnidadMedidaEntity();
-      mockUnidadMedida.id_unidad_medida = '550e8400-e29b-41d4-a716-446655440006';
-      mockUnidadMedida.nombre = 'Test Unit';
-      mockUnidadMedida.abreviatura = 'TU';
-
-      const mockPais = new PaisEntity();
-      mockPais.id_pais = '550e8400-e29b-41d4-a716-446655440000';
-      mockPais.nombre = 'Test Country';
-      mockPais.abreviatura = 'TC';
-      mockPais.moneda = 'TCU';
-      mockPais.iva = 19;
-
-      // Mock save methods for repositories
-      jest.spyOn(categoriaRepository, 'save').mockResolvedValueOnce(mockCategoria);
-      jest.spyOn(marcaRepository, 'save').mockResolvedValueOnce(mockMarca);
-      jest.spyOn(unidadMedidaRepository, 'save').mockResolvedValueOnce(mockUnidadMedida);
-      jest.spyOn(paisRepository, 'save').mockResolvedValueOnce(mockPais);
-
-      const mockProduct = {
-        nombre: 'Test Product',
-        descripcion: 'Test Description',
-        sku: 'TEST-123',
-        categoria: mockCategoria,
-        marca: mockMarca,
-        unidad_medida: mockUnidadMedida,
-        precio: 100,
+    it('should create a new product', async () => {
+      const producto: ProductoEntity = {
+        id_producto: '',
+        nombre: faker.commerce.productName(),
+        descripcion: faker.commerce.productDescription(),
+        sku: faker.string.alphanumeric(10),
+        codigo_barras: faker.string.numeric(13),
+        precio: parseFloat(faker.commerce.price()),
         activo: true,
-        alto: 10,
-        ancho: 10,
-        largo: 10,
-        peso: 1,
-        id_fabricante: 'FAB-001',
-        pais: mockPais
-      } as ProductoEntity;
-
-      const mockFiles = [{
-        fieldname: 'file',
-        originalname: 'test.jpg',
-        encoding: '7bit',
-        mimetype: 'image/jpeg',
-        buffer: Buffer.from('test'),
-        size: 4
-      }] as Multer.File[];
-
-      const expectedProduct = { ...mockProduct, id_producto: '1' } as ProductoEntity;
-
-      jest.spyOn(productoRepository, 'save').mockResolvedValueOnce(expectedProduct);
-      jest.spyOn(imagenProductoRepository, 'save').mockResolvedValueOnce({
-        id_imagen: '1',
-        key_object_storage: `imagenes/${expectedProduct.id_producto}/test.jpg`,
-        url: 'http://test.com/test.jpg',
-        producto: expectedProduct
-      } as ImagenProductoEntity);
+        alto: faker.number.int({ min: 1, max: 100 }),
+        ancho: faker.number.int({ min: 1, max: 100 }),
+        largo: faker.number.int({ min: 1, max: 100 }),
+        peso: faker.number.float({ min: 0.1, max: 100, fractionDigits: 1 }),
+        id_fabricante: `FAB-${faker.string.alphanumeric(5)}`,
+        fecha_creacion: new Date('2025-04-05T17:40:54-05:00'),
+        fecha_actualizacion: new Date('2025-04-05T17:40:54-05:00'),
+        categoria: categoriasList[0],
+        marca: marcasList[0],
+        unidad_medida: unidadesMedidaList[0],
+        pais: paisesList[0],
+        imagenes: [],
+        movimientos_inventario: []
+      };
 
       mockFileGCP.save.mockResolvedValue('http://test.com/test.jpg');
 
-      const result = await service.GuardarProducto(mockProduct, mockFiles);
-      expect(result).toEqual(expectedProduct);
+      const newProduct = await service.GuardarProducto(producto, []);
+      expect(newProduct).not.toBeNull();
+
+      const storedProduct = await productoRepository.findOne({
+        where: { id_producto: newProduct.id_producto },
+        relations: ['categoria', 'marca', 'unidad_medida', 'pais']
+      });
+      expect(storedProduct).not.toBeNull();
+      expect(storedProduct?.nombre).toEqual(newProduct.nombre);
     });
   });
 
@@ -322,36 +253,28 @@ describe('ProductosService', () => {
         mimetype: 'text/csv',
         buffer: Buffer.from('test'),
         size: 4
-      } as Multer.File;
-      const expectedUrl = 'http://test.com/test.csv';
+      };
 
-      mockFileGCP.save.mockResolvedValue(expectedUrl);
-      jest.spyOn(archivoProductoRepository, 'save').mockResolvedValueOnce({
-        id_archivo: '1',
-        nombre_archivo: mockFile.originalname,
-        url: expectedUrl,
-        estado: 'pendiente',
-        fecha_carga: new Date()
-      } as ArchivoProductoEntity);
+      mockFileGCP.save.mockResolvedValue('http://test.com/test.csv');
 
       const result = await service.guardarArchivoCSV(mockFile);
-      expect(result).toEqual({ url: expectedUrl });
+      expect(result).not.toBeNull();
+      expect(result.url).toEqual('http://test.com/test.csv');
     });
   });
 
   describe('obtenerArchivosCSV', () => {
-    it('should return list of CSV files', async () => {
-      const expectedFiles = [{
-        id_archivo: '1',
+    it('should return all CSV files', async () => {
+      const archivo = await archivoProductoRepository.save({
         nombre_archivo: 'test.csv',
-        estado: 'activo',
-        fecha_carga: new Date(),
-        url: 'http://test.com/test.csv'
-      }];
-      jest.spyOn(archivoProductoRepository, 'find').mockResolvedValueOnce(expectedFiles);
+        url: 'http://test.com/test.csv',
+        estado: 'pendiente',
+        fecha_carga: new Date()
+      });
 
-      const result = await service.obtenerArchivosCSV();
-      expect(result).toEqual(expectedFiles);
+      const archivos = await service.obtenerArchivosCSV();
+      expect(archivos).not.toBeNull();
+      expect(archivos.length).toBeGreaterThan(0);
     });
   });
 });
