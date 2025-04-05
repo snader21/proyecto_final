@@ -6,8 +6,8 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
-import { ModalService } from '../../../services/products/modal.service';
-import { ProductsService } from '../../../services/products/products.service';
+import { ModalService } from '../../../services/productos/modal.service';
+import { ProductsService } from '../../../services/productos/products.service';
 
 @Component({
   selector: 'app-manage-product-bulk',

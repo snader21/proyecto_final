@@ -1,5 +1,8 @@
 .product-image {
-    width: 30px;
-    height: 25px;
-    object-fit: cover;
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    object-position: center;
+    border-radius: 50%;
+    overflow: hidden;
   }

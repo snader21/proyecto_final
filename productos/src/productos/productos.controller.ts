@@ -49,6 +49,7 @@ export class ProductosController {
     @UploadedFiles() files: UploadedFile[],
   ): Promise<ProductoEntity> {
     const producto = JSON.parse(productoStr);
+    console.log('files XXX', files, productoStr);
     return this.productosService.GuardarProducto(producto, files);
   }
 

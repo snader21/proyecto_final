@@ -4,18 +4,16 @@ import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { ModalService } from '../../../services/products/modal.service';
-import { ProductsService } from '../../../services/products/products.service';
+import { ModalService } from '../../../services/productos/modal.service';
+import { ProductsService } from '../../../services/productos/products.service';
 import { EventsService } from '../../../services/events/events.service';
 import { Category, Brand, Unit, Product, Maker, Status } from '../../../interfaces/product.interfaces';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ToastModule } from 'primeng/toast';
-import { ProgressBarModule } from 'primeng/progressbar';
 import { BadgeModule } from 'primeng/badge';
 import { CommonModule } from '@angular/common';
 import { MessageService} from 'primeng/api';
 import { PrimeNG } from 'primeng/config';
-import { HttpClientModule } from '@angular/common/http';
 
 
 
@@ -31,9 +29,7 @@ import { HttpClientModule } from '@angular/common/http';
     SelectModule,
     FileUploadModule,
     ToastModule,
-    ProgressBarModule,
     BadgeModule,
-    HttpClientModule,
   ],
   providers: [MessageService],
   templateUrl: './manage-product.component.html',
@@ -225,7 +221,7 @@ export class ManageProductComponent implements OnInit {
     this.files.forEach((file) => {
       this.totalSize += parseInt(this.formatSize(file.size));
   });
-  this.totalSizePercent = this.totalSize / 10;
+  this.totalSizePercent = 100;
 }
 
   onRemoveTemplatingFile(event: Event, file: any, removeFileCallback: any, index: number) {
