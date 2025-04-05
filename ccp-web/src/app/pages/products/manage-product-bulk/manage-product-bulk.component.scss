@@ -1,4 +1,13 @@
 :host ::ng-deep {
+    .p-dialog {
+        max-width: 800px;
+        margin: 0 auto;
+
+        .p-dialog-content {
+            padding: 0 1.5rem 1.5rem 1.5rem;
+        }
+    }
+
     .p-fileupload {
         .p-fileupload-buttonbar {
             padding: 1rem;
