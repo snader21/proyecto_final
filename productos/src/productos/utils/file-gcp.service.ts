@@ -34,6 +34,19 @@ export class FileGCP {
 
   async save(file: UploadedFile, path: string): Promise<string> {
     const bucket = this.getBucket();
+    console.log('🚀 ~ FileGCP ~ save ~ bucket:', bucket);
+    console.log(
+      '🚀 ~ FileGCP ~ constructor ~ private_key:',
+      this.configService.get<string>('GCP_PROJECT_ID'),
+    );
+    console.log(
+      '🚀 ~ FileGCP ~ constructor ~ client_email:',
+      this.configService.get<string>('GCP_CLIENT_EMAIL'),
+    );
+    console.log(
+      '🚀 ~ FileGCP ~ constructor ~ projectId:',
+      this.configService.get<string>('GCP_PROJECT_ID'),
+    );
     const blob = bucket.file(path);
     const blobStream = blob.createWriteStream({
       resumable: false,
@@ -44,7 +57,7 @@ export class FileGCP {
 
     return new Promise((resolve, reject) => {
       blobStream.on('error', (error) => {
-        console.error('GCS Upload Error:', error);
+        console.error('💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥GCS Upload Error:', error);
         reject(error);
       });
 
