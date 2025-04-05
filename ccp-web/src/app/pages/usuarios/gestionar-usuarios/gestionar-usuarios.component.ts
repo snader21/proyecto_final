@@ -12,7 +12,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
-import { ModalService } from '../../../services/modal/modal.service';
+import { ModalService } from '../../../services/productos/modal.service';
 import { PrimeNG } from 'primeng/config';
 import { EventsService } from '../../../services/events/events.service';
 import { UsuariosService } from '../../../services/usuarios/usuarios.service';
