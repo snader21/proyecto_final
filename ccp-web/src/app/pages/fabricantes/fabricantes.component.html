@@ -57,6 +57,9 @@
           <td>{{ fabricante.telefono }}</td>
           <td class="text-center">
             <p-button
+              [disabled]="true"
+              pTooltip="Función no disponible"
+              tooltipPosition="bottom"
               styleClass="bg-slate-700 text-white"
               icon="pi pi-pencil"
               severity="secondary"
