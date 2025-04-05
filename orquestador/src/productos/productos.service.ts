@@ -43,8 +43,16 @@ export class ProductosService {
   }
 
   async crearMovimientoInventario(dto: CreateMovimientoInventarioDto) {
-    const apiEndPoint = `${this.apiProductos}/productos/movimientos-inventario`;
+    const apiEndPoint = `${this.apiProductos}/movimientos-inventario`;
 
+    console.log(
+      '🚀 ~ ProductosService ~ crearMovimientoInventario ~ apiEndPoint:',
+      apiEndPoint,
+    );
+    console.log(
+      '🚀 ~ ProductosService ~ crearMovimientoInventario ~ apiEndPoint:',
+      dto,
+    );
     try {
       const { data } = await firstValueFrom(
         this.httpService.post<MovimientoInventarioDto>(apiEndPoint, dto),
@@ -57,5 +65,94 @@ export class ProductosService {
       }
       throw new BadRequestException(axiosError?.response?.data?.message);
     }
+  }
+
+  async getCategories() {
+    const apiEndPoint = `${this.apiProductos}/productos/categorias`;
+    return this.httpService
+      .get<any[]>(apiEndPoint)
+      .pipe(map((respuesta) => respuesta.data));
+  }
+
+  async getBrands() {
+    const apiEndPoint = `${this.apiProductos}/productos/marcas`;
+    return this.httpService
+      .get<any[]>(apiEndPoint)
+      .pipe(map((respuesta) => respuesta.data));
+  }
+
+  async getUnits() {
+    const apiEndPoint = `${this.apiProductos}/productos/unidades-medida`;
+    return this.httpService
+      .get<any[]>(apiEndPoint)
+      .pipe(map((respuesta) => respuesta.data));
+  }
+
+  async getProducts() {
+    const apiEndPoint = `${this.apiProductos}/productos`;
+    return this.httpService
+      .get<any[]>(apiEndPoint)
+      .pipe(map((respuesta) => respuesta.data));
+  }
+
+  async saveProduct(product: any, files?: any[]) {
+    const apiEndPoint = `${this.apiProductos}/productos`;
+
+    // Create form data with proper headers for multipart/form-data
+    const FormData = require('form-data');
+    const form = new FormData();
+    form.append('product', JSON.stringify(product));
+
+    if (files && files.length > 0) {
+      files.forEach((file) => {
+        form.append('images', file.buffer, {
+          filename: file.originalname,
+          contentType: file.mimetype,
+        });
+      });
+    }
+
+    return this.httpService
+      .post<any>(apiEndPoint, form, {
+        headers: {
+          ...form.getHeaders(),
+        },
+      })
+      .pipe(map((respuesta) => respuesta.data));
+  }
+
+  async uploadCSV(file: any): Promise<{ url: string }> {
+    const apiEndPoint = `${this.apiProductos}/productos/upload-csv`;
+    const FormData = require('form-data');
+    const form = new FormData();
+
+    form.append('file', file.buffer, {
+      filename: file.originalname,
+      contentType: file.mimetype,
+    });
+
+    return firstValueFrom(
+      this.httpService
+        .post<{ url: string }>(apiEndPoint, form, {
+          headers: {
+            ...form.getHeaders(),
+          },
+        })
+        .pipe(map((respuesta) => respuesta.data)),
+    );
+  }
+
+  async getCSVFiles() {
+    const apiEndPoint = `${this.apiProductos}/productos/archivos-csv`;
+    return this.httpService
+      .get<any[]>(apiEndPoint)
+      .pipe(map((respuesta) => respuesta.data));
+  }
+
+  async getUbicaciones() {
+    const apiEndPoint = `${this.apiProductos}/ubicaciones`;
+    return this.httpService
+      .get<any[]>(apiEndPoint)
+      .pipe(map((respuesta) => respuesta.data));
   }
 }

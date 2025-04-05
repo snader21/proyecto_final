@@ -19,4 +19,10 @@ export class UbicacionesService {
     }
     return ubicacion;
   }
+
+  async obtenerUbicaciones(): Promise<UbicacionEntity[]> {
+    return this.repositorio.find({
+      relations: ['bodega'],
+    });
+  }
 }

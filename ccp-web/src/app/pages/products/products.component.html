@@ -1,4 +1,3 @@
-<app-navbar></app-navbar>
 <div class="m-4">
     <p-card class="m-4">
         <p-table [value]="products" [tableStyle]="{ 'min-width': '50rem' }">
@@ -29,7 +28,7 @@
                     <td>{{ product.nombre }}</td>
                     <td>
                         <ng-container *ngIf="product.imagenes.length > 0; else noImage">
-                            <img [src]="product.imagenes[0].url" alt="Imagen del producto" class="product-image">
+                            <p-image [src]="product.imagenes[0].url" alt="Imagen del producto" [preview]="true" imageClass="product-image" width="50" ></p-image>
                           </ng-container>
 
                           <ng-template #noImage>

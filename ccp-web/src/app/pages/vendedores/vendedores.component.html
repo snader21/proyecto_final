@@ -31,13 +31,12 @@
       </ng-template>
       <ng-template #header>
         <tr>
-          <th scope="col">Nombre</th>
-          <th scope="col">Correo</th>
-          <th scope="col">Teléfono</th>
-          <th scope="col">Zona</th>
-          <th scope="col">Estado</th>
-          <th scope="col"></th>
-          <th scope="col"></th>
+          <th scope="col" class="w-1/7">Nombre</th>
+          <th scope="col" class="w-1/7">Correo</th>
+          <th scope="col" class="w-1/7">Teléfono</th>
+          <th scope="col" class="w-1/7">Zona</th>
+          <th scope="col" class="w-1/7">Estado</th>
+          <th scope="col" class="w-1/6"></th>
         </tr>
       </ng-template>
       <ng-template #body let-vendedor>
@@ -56,7 +55,7 @@
               styleClass="w-24 text-center"
             ></p-tag>
           </td>
-          <td class="text-center">
+          <td class="flex flex-row text-center gap-3">
             <p-button
               styleClass="bg-slate-700 text-white"
               icon="pi pi-pencil"
@@ -65,8 +64,6 @@
               (click)="editVendedor(vendedor)"
               (keyup)="editVendedor(vendedor)"
             />
-          </td>
-          <td class="text-center" style="min-width: 190px">
             <p-button
               styleClass="bg-slate-700 text-white"
               icon="pi pi-briefcase"
