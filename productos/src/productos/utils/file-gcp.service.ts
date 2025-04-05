@@ -37,7 +37,7 @@ export class FileGCP {
     console.log('🚀 ~ FileGCP ~ save ~ bucket:', bucket);
     console.log(
       '🚀 ~ FileGCP ~ constructor ~ private_key:',
-      this.configService.get<string>('GCP_PROJECT_ID'),
+      this.configService.get<string>('GCP_PRIVATE_KEY'),
     );
     console.log(
       '🚀 ~ FileGCP ~ constructor ~ client_email:',
@@ -47,6 +47,7 @@ export class FileGCP {
       '🚀 ~ FileGCP ~ constructor ~ projectId:',
       this.configService.get<string>('GCP_PROJECT_ID'),
     );
+    console.log('🚀🚀🚀 environment', process.env.NODE_ENV);
     const blob = bucket.file(path);
     const blobStream = blob.createWriteStream({
       resumable: false,
