@@ -18,14 +18,16 @@ export class FileGCP {
       projectId: this.configService.get<string>('GCP_PROJECT_ID'),
       credentials: {
         client_email: this.configService.get<string>('GCP_CLIENT_EMAIL'),
-        private_key: this.configService.get<string>('GCP_PRIVATE_KEY')
-      }
+        private_key: this.configService.get<string>('GCP_PRIVATE_KEY'),
+      },
     });
   }
 
   private getBucket(): Bucket {
     if (!this.bucket) {
-      this.bucket = this.storage.bucket(this.configService.get<string>('GCP_BUCKET_NAME')!);
+      this.bucket = this.storage.bucket(
+        this.configService.get<string>('GCP_BUCKET_NAME')!,
+      );
     }
     return this.bucket;
   }
@@ -41,7 +43,11 @@ export class FileGCP {
     });
 
     return new Promise((resolve, reject) => {
-      blobStream.on('error', (error) => reject(error));
+      blobStream.on('error', (error) => {
+        console.error('GCS Upload Error:', error);
+        reject(error);
+      });
+
       blobStream.on('finish', async () => {
         try {
           const [url] = await blob.getSignedUrl({
