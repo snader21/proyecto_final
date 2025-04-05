@@ -2,8 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PubSub } from '@google-cloud/pubsub';
 import { GCPConfigService } from './gcp-config.service';
 
-const TOPIC_NAME = 'projects/intense-guru-453022-j0/topics/proyecto-final-topic';
-const SUBSCRIPTION_NAME = 'projects/intense-guru-453022-j0/subscriptions/proyecto-final-topic-sub';
+const TOPIC_NAME =
+  'projects/intense-guru-453022-j0/topics/proyecto-final-topic';
+const SUBSCRIPTION_NAME =
+  'projects/intense-guru-453022-j0/subscriptions/proyecto-final-topic-sub';
 
 @Injectable()
 export class PubSubService {
@@ -14,8 +16,14 @@ export class PubSubService {
   constructor(private readonly gcpConfigService: GCPConfigService) {
     try {
       const config = this.gcpConfigService.getCredentials();
-      if (!config.projectId || !config.credentials.client_email || !config.credentials.private_key) {
-        this.logger.error('PubSub está deshabilitado: Faltan credenciales de GCP');
+      if (
+        !config.projectId ||
+        !config?.credentials?.client_email ||
+        !config?.credentials?.private_key
+      ) {
+        this.logger.error(
+          'PubSub está deshabilitado: Faltan credenciales de GCP',
+        );
         return;
       }
 
@@ -24,7 +32,9 @@ export class PubSubService {
       this.logger.log('PubSub client inicializado correctamente');
     } catch (error) {
       this.logger.error('Error al inicializar PubSub client:', error);
-      this.logger.error('PubSub está deshabilitado debido a un error de inicialización');
+      this.logger.error(
+        'PubSub está deshabilitado debido a un error de inicialización',
+      );
     }
   }
 
@@ -46,7 +56,9 @@ export class PubSubService {
     }
   }
 
-  async subscribe<T>(messageHandler: (message: T) => Promise<void>): Promise<void> {
+  async subscribe<T>(
+    messageHandler: (message: T) => Promise<void>,
+  ): Promise<void> {
     if (!this.enabled || !this.pubSubClient) {
       this.logger.error('Intento de suscripción con PubSub deshabilitado');
       return;
