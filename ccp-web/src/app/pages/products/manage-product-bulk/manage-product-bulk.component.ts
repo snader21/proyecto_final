@@ -1,20 +1,20 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { DialogModule } from 'primeng/dialog';
-import { TabsModule } from 'primeng/tabs';
-import { FileUploadModule } from 'primeng/fileupload';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
-import { ModalService } from '../../../services/productos/modal.service';
-import { ProductsService } from '../../../services/productos/products.service';
-import { MessageService } from 'primeng/api';
-import { interval, Subscription } from 'rxjs';
-import { startWith, switchMap } from 'rxjs/operators';
+import { Component, OnInit, OnDestroy, ViewChild } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { DialogModule } from "primeng/dialog";
+import { TabsModule } from "primeng/tabs";
+import { FileUploadModule } from "primeng/fileupload";
+import { TableModule } from "primeng/table";
+import { ButtonModule } from "primeng/button";
+import { TagModule } from "primeng/tag";
+import { TooltipModule } from "primeng/tooltip";
+import { ModalService } from "../../../services/productos/modal.service";
+import { ProductsService } from "../../../services/productos/products.service";
+import { MessageService } from "primeng/api";
+import { interval, Subscription } from "rxjs";
+import { startWith, switchMap } from "rxjs/operators";
 
 @Component({
-  selector: 'app-manage-product-bulk',
+  selector: "app-manage-product-bulk",
   standalone: true,
   imports: [
     CommonModule,
@@ -24,13 +24,13 @@ import { startWith, switchMap } from 'rxjs/operators';
     TableModule,
     ButtonModule,
     TagModule,
-    TooltipModule
+    TooltipModule,
   ],
-  templateUrl: './manage-product-bulk.component.html',
-  styleUrls: ['./manage-product-bulk.component.scss']
+  templateUrl: "./manage-product-bulk.component.html",
+  styleUrls: ["./manage-product-bulk.component.scss"],
 })
 export class ManageProductBulkComponent implements OnInit, OnDestroy {
-  @ViewChild('fileUpload') fileUpload: any;
+  @ViewChild("fileUpload") fileUpload: any;
 
   visible = false;
   errorDialogVisible = false;
@@ -46,16 +46,16 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
     private productsService: ProductsService,
     private messageService: MessageService
   ) {
-    this.modalService.bulkModalState$.subscribe(state => {
+    this.modalService.bulkModalState$.subscribe((state) => {
       this.visible = state;
       if (state) {
-        this.startAutoUpdate();
+        // this.startAutoUpdate();
       }
     });
   }
 
   ngOnInit() {
-    this.startAutoUpdate();
+    // this.startAutoUpdate();
   }
 
   ngOnDestroy() {
@@ -76,11 +76,11 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
         },
         error: () => {
           this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Error al actualizar la lista de archivos'
+            severity: "error",
+            summary: "Error",
+            detail: "Error al actualizar la lista de archivos",
           });
-        }
+        },
       });
   }
 
@@ -98,14 +98,14 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
     if (this.file) {
       this.loading = true;
       const formData = new FormData();
-      formData.append('file', this.file);
+      formData.append("file", this.file);
 
       this.productsService.uploadCSV(formData).subscribe({
         next: () => {
           this.messageService.add({
-            severity: 'success',
-            summary: 'Éxito',
-            detail: 'Archivo cargado correctamente'
+            severity: "success",
+            summary: "Éxito",
+            detail: "Archivo cargado correctamente",
           });
           this.fileUpload.clear();
           this.file = null;
@@ -113,39 +113,50 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
         },
         error: () => {
           this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Error al cargar el archivo'
+            severity: "error",
+            summary: "Error",
+            detail: "Error al cargar el archivo",
           });
           this.loading = false;
-        }
+        },
       });
     }
   }
 
-  getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
+  getStatusSeverity(
+    status: string
+  ): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
     switch (status) {
-      case 'pendiente': return 'warn';
-      case 'procesado': return 'success';
-      case 'parcial': return 'info';
-      case 'error': return 'danger';
-      default: return 'info';
+      case "pendiente":
+        return "warn";
+      case "procesado":
+        return "success";
+      case "parcial":
+        return "info";
+      case "error":
+        return "danger";
+      default:
+        return "info";
     }
   }
 
   getErrorSummary(file: any): string {
-    if (file.estado !== 'error' || !file.errores_procesamiento?.length) {
-      return '';
+    if (file.estado !== "error" || !file.errores_procesamiento?.length) {
+      return "";
     }
 
     const totalErrors = file.errores_procesamiento.length;
     const firstError = file.errores_procesamiento[0].error;
-    
+
     return `
       <div class="text-sm">
         <div><strong>Total errores:</strong> ${totalErrors}</div>
         <div><strong>Primer error:</strong> ${firstError}</div>
-        ${totalErrors > 1 ? '<div class="text-xs">(Click en el ícono de error para ver todos)</div>' : ''}
+        ${
+          totalErrors > 1
+            ? '<div class="text-xs">(Click en el ícono de error para ver todos)</div>'
+            : ""
+        }
       </div>
     `;
   }
@@ -156,6 +167,6 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
   }
 
   downloadFile(file: any) {
-    window.open(file.url, '_blank');
+    window.open(file.url, "_blank");
   }
 }
