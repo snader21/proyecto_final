@@ -16,10 +16,14 @@ export class FileGCP {
   constructor(private readonly configService: ConfigService) {
     this.storage = new Storage({
       projectId: this.configService.get<string>('GCP_PROJECT_ID'),
-      credentials: {
-        client_email: this.configService.get<string>('GCP_CLIENT_EMAIL'),
-        private_key: this.configService.get<string>('GCP_PRIVATE_KEY'),
-      },
+      ...(process.env.NODE_ENV === 'production'
+        ? {}
+        : {
+            credentials: {
+              client_email: this.configService.get<string>('GCP_CLIENT_EMAIL'),
+              private_key: this.configService.get<string>('GCP_PRIVATE_KEY'),
+            },
+          }),
     });
   }
 
@@ -34,7 +38,7 @@ export class FileGCP {
 
   async save(file: UploadedFile, path: string): Promise<string> {
     const bucket = this.getBucket();
-    console.log('🚀 ~ FileGCP ~ save ~ bucket:', bucket);
+    console.log('🚀 ~ FileGCP ~ save ~ bucketName:', bucket.name);
     console.log(
       '🚀 ~ FileGCP ~ constructor ~ private_key:',
       this.configService.get<string>('GCP_PRIVATE_KEY'),
