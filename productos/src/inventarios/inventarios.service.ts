@@ -13,9 +13,13 @@ export class InventariosService {
 
   async obtenerInventarioDeProducto(
     idProducto: string,
+    idUbicacion: string,
   ): Promise<InventarioEntity | null> {
     const inventario = await this.repositorio.findOne({
-      where: { producto: { id_producto: idProducto } },
+      where: {
+        producto: { id_producto: idProducto },
+        ubicacion: { id_ubicacion: idUbicacion },
+      },
     });
     return inventario;
   }
@@ -27,7 +31,10 @@ export class InventariosService {
     cantidad: number,
     manager: EntityManager,
   ): Promise<InventarioEntity> {
-    let inventario = await this.obtenerInventarioDeProducto(idProducto);
+    let inventario = await this.obtenerInventarioDeProducto(
+      idProducto,
+      ubicacion.id_ubicacion,
+    );
 
     if (!inventario) {
       inventario = await manager.save(InventarioEntity, {

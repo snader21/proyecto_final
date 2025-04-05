@@ -52,7 +52,11 @@ export interface CreateProduct {
   id_fabricante: string;
 }
 
-export interface Product extends Omit<CreateProduct, 'categoria' | 'marca' | 'unidad_medida' | 'pais'> {
+export interface Product
+  extends Omit<
+    CreateProduct,
+    "categoria" | "marca" | "unidad_medida" | "pais"
+  > {
   id_producto: string;
   categoria: Category;
   marca: Brand;
@@ -62,4 +66,18 @@ export interface Product extends Omit<CreateProduct, 'categoria' | 'marca' | 'un
   };
   fecha_creacion: Date;
   fecha_actualizacion: Date;
+}
+
+export interface Ubicacion {
+  id_ubicacion: string;
+  nombre: string;
+  descripcion: string;
+}
+
+export interface MovimientoInventario {
+  tipoMovimiento: string;
+  idProducto: string;
+  idUbicacion: string;
+  cantidad: number;
+  fechaRegistro: Date;
 }

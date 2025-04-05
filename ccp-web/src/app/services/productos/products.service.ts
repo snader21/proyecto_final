@@ -1,18 +1,24 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { HttpClient } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import { Observable } from "rxjs";
+import { environment } from "../../../environments/environment";
 
-import { Category, Brand, Unit, Product, CreateProduct } from '../../interfaces/product.interfaces';
+import {
+  Category,
+  Brand,
+  Unit,
+  Product,
+  CreateProduct,
+  MovimientoInventario,
+} from "../../interfaces/product.interfaces";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class ProductsService {
-
   private apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(`${this.apiUrl}/productos/categorias`);
@@ -32,7 +38,7 @@ export class ProductsService {
 
   saveProduct(product: CreateProduct, files?: File[]): Observable<Product> {
     const formData = new FormData();
-    formData.append('product', JSON.stringify(product));
+    formData.append("product", JSON.stringify(product));
 
     if (files && files.length > 0) {
       files.forEach((file, index) => {
@@ -44,10 +50,24 @@ export class ProductsService {
   }
 
   uploadCSV(formData: FormData): Observable<{ url: string }> {
-    return this.http.post<{ url: string }>(`${this.apiUrl}/productos/upload-csv`, formData);
+    return this.http.post<{ url: string }>(
+      `${this.apiUrl}/productos/upload-csv`,
+      formData
+    );
   }
 
   getCSVFiles(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/productos/archivos-csv`);
+  }
+
+  getUbicaciones(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/productos/ubicaciones`);
+  }
+
+  generarEntrada(movimiento: MovimientoInventario) {
+    return this.http.post<any>(
+      `${this.apiUrl}/productos/movimientos-inventario`,
+      movimiento
+    );
   }
 }
