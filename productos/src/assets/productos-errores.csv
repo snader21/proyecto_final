@@ -1,0 +1,9 @@
+nombre,descripcion,sku,codigo_barras,marca,categoria,unidad_medida,precio,alto,ancho,largo,peso,id_fabricante,pais
+"Laptop Error SKU","Laptop con SKU duplicado","SKU001","123456789","Dell","Computadores","Unidad",4500000,0.5,30.5,20,1.5,"FAB001","Colombia"
+"Monitor Error Marca","Monitor con marca inexistente","SKU006","987654321","MarcaInexistente","Monitores","Unidad",1200000,35,61,25,4.2,"FAB002","Corea del Sur"
+"Teclado Error Categoria","Teclado con categoría inexistente","SKU007","456789123","Logitech","CategoriaInexistente","Unidad",350000,4,45,15,0.8,"FAB003","Estados Unidos"
+"Mouse Error Unidad","Mouse con unidad de medida inexistente","SKU008","789123456","Logitech","Periféricos","UnidadInexistente",120000,3,12,7,0.15,"FAB003","Estados Unidos"
+"Disco Error País","Disco con país inexistente","SKU009","321654987","Samsung","Almacenamiento","Unidad",450000,0.2,10,7,0.05,"FAB002","PaísInexistente"
+"Laptop Sin SKU","Laptop sin SKU","","123456788","Dell","Computadores","Unidad",4500000,0.5,30.5,20,1.5,"FAB001","Colombia"
+"Monitor Precio Negativo","Monitor con precio negativo","SKU010","987654322","Samsung","Monitores","Unidad",-1200000,35,61,25,4.2,"FAB002","Corea del Sur"
+"Teclado Peso Negativo","Teclado con peso negativo","SKU011","456789124","Logitech","Periféricos","Unidad",350000,4,45,15,-0.8,"FAB003","Estados Unidos"

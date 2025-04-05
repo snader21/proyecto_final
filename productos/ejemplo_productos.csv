@@ -1,0 +1,5 @@
+nombre,descripcion,sku,codigo_barras,marca,categoria,unidad_medida,precio,alto,ancho,largo,peso,id_fabricante,pais
+Disco SSD Samsung,Disco SSD 1TB NVMe,SKU001,123456789,Samsung,Electrónica,Unidad,450000,0.2,10,7,0.05,FAB001,Colombia
+iPhone 14 Pro,Smartphone Apple 256GB,SKU002,987654321,Apple,Electrónica,Unidad,5500000,0.15,7.5,15,0.2,FAB002,Estados Unidos
+Galaxy S21,Smartphone Samsung 128GB,SKU003,456789123,Samsung,Electrónica,Unidad,3500000,0.15,7.2,14.8,0.18,FAB001,Colombia
+MacBook Pro,Laptop Apple M1 Pro,SKU004,789123456,Apple,Electrónica,Unidad,8500000,1.5,35.2,24.7,2.1,FAB002,Estados Unidos
