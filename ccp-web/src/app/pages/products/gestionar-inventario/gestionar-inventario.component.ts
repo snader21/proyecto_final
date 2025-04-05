@@ -69,8 +69,7 @@ export class GestionarInventarioComponent implements OnInit {
       ubicacion: [null, Validators.required],
       fechaRegistro: [
         new Date(),
-        Validators.required,
-        // this.fechaRegistroNoEsMayorQueHoy,
+        [Validators.required, this.fechaRegistroNoEsMayorQueHoy],
       ],
     });
   }
@@ -139,7 +138,7 @@ export class GestionarInventarioComponent implements OnInit {
       idProducto: this.product?.id_producto,
       cantidad: parseInt(this.form.value.cantidad),
       idUbicacion: this.form.value.ubicacion,
-      fechaRegistro: new Date(),
+      fechaRegistro: this.form.value.fechaRegistro,
       tipoMovimiento: "Entrada",
       idUsuario: usuario?.id,
     };

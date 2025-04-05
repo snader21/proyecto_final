@@ -34,9 +34,9 @@
         formControlName="fechaRegistro"
         [showIcon]="true"
         appendTo="body"
+        styleClass="w-full"
         dateFormat="dd/mm/yy"
         placeholder="Seleccione la fecha de registro"
-        class="w-full"
         [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('fechaRegistro') }"
       ></p-datepicker>
       <small class="text-red-500" *ngIf="isFieldInvalid('fechaRegistro')">
