@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PubSub } from '@google-cloud/pubsub';
-import { ConfigService } from '@nestjs/config';
+import { GCPConfigService } from './gcp-config.service';
 
 const TOPIC_NAME = 'projects/intense-guru-453022-j0/topics/proyecto-final-topic';
 const SUBSCRIPTION_NAME = 'projects/intense-guru-453022-j0/subscriptions/proyecto-final-topic-sub';
@@ -11,41 +11,26 @@ export class PubSubService {
   private readonly logger = new Logger(PubSubService.name);
   private enabled = false;
 
-  constructor(private readonly configService: ConfigService) {
-    const projectId = this.configService.get<string>('GCP_PROJECT_ID');
-    const keyFilename = this.configService.get<string>('GCP_KEY_FILE');
-
-    this.logger.debug('Configuración leída:', { 
-      projectId: projectId || 'no configurado',
-      keyFilename: keyFilename ? 'configurado' : 'no configurado'
-    });
-
-    if (!projectId || !keyFilename) {
-      this.logger.warn('PubSub está deshabilitado: Faltan variables de entorno', {
-        GCP_PROJECT_ID: projectId ? 'configurado' : 'falta',
-        GCP_KEY_FILE: keyFilename ? 'configurado' : 'falta'
-      });
-      return;
-    }
-
+  constructor(private readonly gcpConfigService: GCPConfigService) {
     try {
-      this.pubSubClient = new PubSub({
-        projectId,
-        keyFilename,
-      });
+      const config = this.gcpConfigService.getCredentials();
+      if (!config.projectId || !config.credentials.client_email || !config.credentials.private_key) {
+        this.logger.error('PubSub está deshabilitado: Faltan credenciales de GCP');
+        return;
+      }
+
+      this.pubSubClient = new PubSub(config);
       this.enabled = true;
       this.logger.log('PubSub client inicializado correctamente');
-      this.logger.log(`Project ID: ${projectId}`);
-      this.logger.debug('Key File configurado en:', keyFilename);
     } catch (error) {
       this.logger.error('Error al inicializar PubSub client:', error);
-      this.logger.warn('PubSub está deshabilitado debido a un error de inicialización');
+      this.logger.error('PubSub está deshabilitado debido a un error de inicialización');
     }
   }
 
   async publishMessage<T>(data: T): Promise<string | null> {
     if (!this.enabled || !this.pubSubClient) {
-      this.logger.warn('Intento de publicar mensaje con PubSub deshabilitado');
+      this.logger.error('Intento de publicar mensaje con PubSub deshabilitado');
       return null;
     }
 
@@ -63,7 +48,7 @@ export class PubSubService {
 
   async subscribe<T>(messageHandler: (message: T) => Promise<void>): Promise<void> {
     if (!this.enabled || !this.pubSubClient) {
-      this.logger.warn('Intento de suscripción con PubSub deshabilitado');
+      this.logger.error('Intento de suscripción con PubSub deshabilitado');
       return;
     }
 
@@ -75,15 +60,14 @@ export class PubSubService {
           const data = JSON.parse(message.data.toString()) as T;
           await messageHandler(data);
           message.ack();
-        } catch (error: unknown) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          this.logger.error(`Error al procesar mensaje: ${errorMessage}`);
+        } catch (error) {
+          this.logger.error('Error al procesar mensaje:', error);
           message.nack();
         }
       });
 
-      subscription.on('error', (error: Error) => {
-        this.logger.error('Error en la suscripción:', error.message);
+      subscription.on('error', (error) => {
+        this.logger.error('Error en la suscripción:', error);
       });
 
       this.logger.log(`Suscripción exitosa a ${SUBSCRIPTION_NAME}`);

@@ -3,8 +3,14 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule } from '@nestjs/config';
-import { ProductosModule } from './productos/productos.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ProductosModule } from './productos/productos.module';
+import { ProductosFileModule } from './productos/productos-file.module';
+import { InventariosModule } from './inventarios/inventarios.module';
+import { UbicacionesModule } from './ubicaciones/ubicaciones.module';
+import { BodegasModule } from './bodegas/bodegas.module';
+import { MovimientosInventarioModule } from './movimientos-inventario/movimientos-inventario.module';
+import { CommonModule } from './common/common.module';
 import { BodegaEntity } from './bodegas/entities/bodega.entity';
 import { CategoriaEntity } from './productos/entities/categoria.entity';
 import { ImagenProductoEntity } from './productos/entities/imagen-producto.entity';
@@ -15,10 +21,6 @@ import { ProductoEntity } from './productos/entities/producto.entity';
 import { UbicacionEntity } from './ubicaciones/entities/ubicacion.entity';
 import { UnidadMedidaEntity } from './productos/entities/unidad-medida.entity';
 import { ArchivoProductoEntity } from './productos/entities/archivo-producto.entity';
-import { MovimientosInventarioModule } from './movimientos-inventario/movimientos-inventario.module';
-import { InventariosModule } from './inventarios/inventarios.module';
-import { UbicacionesModule } from './ubicaciones/ubicaciones.module';
-import { BodegasModule } from './bodegas/bodegas.module';
 import { MovimientoInventarioEntity } from './movimientos-inventario/entities/movimiento-inventario.entity';
 
 @Module({
@@ -28,7 +30,6 @@ import { MovimientoInventarioEntity } from './movimientos-inventario/entities/mo
       isGlobal: true,
       envFilePath: '.env',
     }),
-    ProductosModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST || 'localhost',
@@ -49,13 +50,16 @@ import { MovimientoInventarioEntity } from './movimientos-inventario/entities/mo
         UnidadMedidaEntity,
         ArchivoProductoEntity,
       ],
-      dropSchema: true,
+      autoLoadEntities: true,
       synchronize: true,
     }),
-    MovimientosInventarioModule,
+    CommonModule,
+    ProductosModule,
+    ProductosFileModule,
     InventariosModule,
     UbicacionesModule,
     BodegasModule,
+    MovimientosInventarioModule,
   ],
   controllers: [AppController],
   providers: [AppService],

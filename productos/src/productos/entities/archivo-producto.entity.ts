@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('archivo_producto')
 export class ArchivoProductoEntity {
@@ -11,18 +11,21 @@ export class ArchivoProductoEntity {
   @Column()
   url: string;
 
-  @Column()
-  estado: string; // pendiente, procesado, error
+  @Column({ default: 'pendiente' })
+  estado: string;
 
-  @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
-  fecha_carga: Date;
-
-  @Column({ type: 'integer', default: 0 })
+  @Column({ type: 'int', default: 0 })
   total_registros: number;
 
-  @Column({ type: 'integer', default: 0 })
+  @Column({ type: 'int', default: 0 })
   registros_cargados: number;
 
   @Column({ type: 'jsonb', nullable: true })
-  errores_procesamiento: Array<{row: any, error: string}>;
+  errores_procesamiento: Array<{ row: any, error: string }>;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  fecha_carga: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  fecha_procesamiento: Date;
 }

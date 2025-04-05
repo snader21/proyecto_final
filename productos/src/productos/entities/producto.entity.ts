@@ -5,6 +5,7 @@ import {
   ManyToOne,
   OneToMany,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import { CategoriaEntity } from './categoria.entity';
 import { MarcaEntity } from './marca.entity';
@@ -12,6 +13,7 @@ import { UnidadMedidaEntity } from './unidad-medida.entity';
 import { PaisEntity } from './pais.entity';
 import { ImagenProductoEntity } from './imagen-producto.entity';
 import { MovimientoInventarioEntity } from '../../movimientos-inventario/entities/movimiento-inventario.entity';
+
 @Entity('producto')
 export class ProductoEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -23,7 +25,8 @@ export class ProductoEntity {
   @Column()
   descripcion: string;
 
-  @Column()
+  @Column({ unique: true })
+  @Index('IDX_PRODUCTO_SKU', { unique: true })
   sku: string;
 
   @Column({ nullable: true })

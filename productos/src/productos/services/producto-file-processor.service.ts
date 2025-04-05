@@ -1,35 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DeepPartial } from 'typeorm';
-import { Storage } from '@google-cloud/storage';
-import { parse } from 'csv-parse';
-import { ConfigService } from '@nestjs/config';
+import { Repository } from 'typeorm';
 import { ProductoEntity } from '../entities/producto.entity';
 import { ArchivoProductoEntity } from '../entities/archivo-producto.entity';
+import { FileGCP } from '../utils/file-gcp.service';
 import { ProductoValidator } from '../validations/producto-validator.interface';
-import axios from 'axios';
+import { parse } from 'csv-parse';
 
 @Injectable()
 export class ProductoFileProcessorService {
-  private readonly storage: Storage;
-  private readonly projectId: string;
-  private readonly keyFilename: string;
+  private readonly logger = new Logger(ProductoFileProcessorService.name);
 
   constructor(
     @InjectRepository(ProductoEntity)
     private readonly productoRepository: Repository<ProductoEntity>,
     @InjectRepository(ArchivoProductoEntity)
     private readonly archivoProductoRepository: Repository<ArchivoProductoEntity>,
+    @Inject('PRODUCTO_VALIDATORS')
     private readonly validators: ProductoValidator[],
-    private readonly configService: ConfigService,
-  ) {
-    this.projectId = this.configService.get('GCP_PROJECT_ID') || '';
-    this.keyFilename = this.configService.get('GCP_KEY_FILE') || '';
-    this.storage = new Storage({
-      projectId: this.projectId,
-      keyFilename: this.keyFilename,
-    });
-  }
+    private readonly fileGCP: FileGCP,
+  ) {}
 
   async processFile(archivoProductoId: string) {
     const archivoProducto = await this.archivoProductoRepository.findOne({
@@ -37,22 +27,36 @@ export class ProductoFileProcessorService {
     });
 
     if (!archivoProducto) {
-      throw new Error('Archivo no encontrado');
+      this.logger.error(`Archivo no encontrado: ${archivoProductoId}`);
+      return;
+    }
+
+    if (archivoProducto.estado === 'procesado' || archivoProducto.estado === 'error') {
+      return;
     }
 
     try {
-      const fileContent = await this.downloadFile(archivoProducto.url);
-      const rows = await this.parseCSV(fileContent);
+      const urlParts = archivoProducto.url.split('/');
+      const fileName = urlParts[urlParts.length - 2] + '/' + urlParts[urlParts.length - 1];
+      const fileContent = await this.fileGCP.getFile(fileName);
+      const rows = await this.parseCSV(fileContent.toString('utf-8'));
       
       let totalRows = rows.length;
       let successfulRows = 0;
       let errors: Array<{row: any, error: string}> = [];
 
+      this.logger.log(`Procesando archivo ${archivoProducto.nombre_archivo} (${totalRows} registros)`);
+
       for (const row of rows) {
         try {
-          // Ejecutar todas las validaciones
           const validationResults = await Promise.all(
-            this.validators.map(validator => validator.validate(row))
+            this.validators.map(async validator => {
+              try {
+                return await validator.validate(row);
+              } catch (error) {
+                return { isValid: false, message: error.message };
+              }
+            })
           );
 
           const validationFailed = validationResults.find(result => !result.isValid);
@@ -64,8 +68,7 @@ export class ProductoFileProcessorService {
             continue;
           }
 
-          // Si todas las validaciones pasan, crear el producto
-          const productoData: DeepPartial<ProductoEntity> = {
+          const productoData = {
             nombre: row.nombre,
             descripcion: row.descripcion,
             sku: row.sku,
@@ -87,8 +90,8 @@ export class ProductoFileProcessorService {
 
           const nuevoProducto = this.productoRepository.create(productoData);
           await this.productoRepository.save(nuevoProducto);
-
           successfulRows++;
+
         } catch (error: any) {
           errors.push({
             row: row,
@@ -97,38 +100,28 @@ export class ProductoFileProcessorService {
         }
       }
 
-      // Actualizar estado del archivo según resultados
-      let estado;
-      if (successfulRows === 0) {
-        estado = 'fallida';
-      } else if (successfulRows === totalRows) {
-        estado = 'cargado';
-      } else {
-        estado = 'carga_parcial';
-      }
+      let estado = successfulRows === 0 ? 'error' : 
+                   successfulRows === totalRows ? 'procesado' : 
+                   'parcial';
 
       await this.archivoProductoRepository.update(archivoProductoId, {
         estado,
         total_registros: totalRows,
         registros_cargados: successfulRows,
-        errores_procesamiento: errors
+        errores_procesamiento: errors,
+        fecha_procesamiento: new Date()
       });
+
+      this.logger.log(`Archivo ${archivoProducto.nombre_archivo} procesado: ${successfulRows}/${totalRows} registros exitosos`);
 
     } catch (error: any) {
+      this.logger.error(`Error procesando archivo ${archivoProducto.nombre_archivo}:`, error);
       await this.archivoProductoRepository.update(archivoProductoId, {
-        estado: 'fallida',
-        errores_procesamiento: [{ error: error.message }]
+        estado: 'error',
+        errores_procesamiento: [{ error: error.message }],
+        fecha_procesamiento: new Date()
       });
       throw error;
-    }
-  }
-
-  private async downloadFile(signedUrl: string): Promise<string> {
-    try {
-      const response = await axios.get(signedUrl);
-      return response.data;
-    } catch (error) {
-      throw new Error(`Error downloading file: ${error.message}`);
     }
   }
 
@@ -138,11 +131,8 @@ export class ProductoFileProcessorService {
         columns: true,
         skip_empty_lines: true,
       }, (err: unknown, data: any[]) => {
-        if (err) {
-          reject(err instanceof Error ? err : new Error(String(err)));
-        } else {
-          resolve(data);
-        }
+        if (err) reject(err instanceof Error ? err : new Error(String(err)));
+        else resolve(data);
       });
     });
   }
