@@ -3,8 +3,8 @@ import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { ModalService } from '../../services/products/modal.service';
-import { ProductsService } from '../../services/products/products.service';
+import { ModalService } from '../../services/productos/modal.service';
+import { ProductsService } from '../../services/productos/products.service';
 import { EventsService } from '../../services/events/events.service';
 import { Product } from '../../interfaces/product.interfaces';
 import { ManageProductComponent } from './manage-product/manage-product.component';
@@ -13,6 +13,7 @@ import { TagModule } from 'primeng/tag';
 import { GestionarInventarioComponent } from './gestionar-inventario/gestionar-inventario.component';
 import { CommonModule } from '@angular/common';
 import { ManageProductBulkComponent } from './manage-product-bulk/manage-product-bulk.component';
+import { ImageModule } from 'primeng/image';
 
 @Component({
   selector: 'app-products',
@@ -26,7 +27,8 @@ import { ManageProductBulkComponent } from './manage-product-bulk/manage-product
     TagModule,
     GestionarInventarioComponent,
     ManageProductBulkComponent,
-    CommonModule],
+    CommonModule,
+    ImageModule],
   providers: [ProductsService],
   templateUrl: './products.component.html',
   styleUrl: './products.component.scss'
