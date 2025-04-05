@@ -12,7 +12,7 @@ import { Usuario } from '../../interfaces/user.interfaces';
 import { BadgeModule } from 'primeng/badge';
 import { TagModule } from 'primeng/tag';
 import { GestionarUsuariosComponent } from './gestionar-usuarios/gestionar-usuarios.component';
-import { ModalService } from '../../services/modal/modal.service';
+import { ModalService } from '../../services/productos/modal.service';
 
 @Component({
   selector: 'app-usuarios',
