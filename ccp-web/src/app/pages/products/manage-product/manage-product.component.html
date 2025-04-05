@@ -87,12 +87,11 @@
         </div>
         <div class="flex flex-col gap-2">
             <label for="name" class="font-light">Imagen</label>
-            <p-toast />
             <p-fileupload
                 class="w-full"
                 name="myfile[]"
                 url="https://www.primefaces.org/cdn/api/upload.php"
-                [multiple]="true"
+                [multiple]="false"
                 accept="image/*"
                 maxFileSize="1000000"
                 (onUpload)="onTemplatedUpload()"
@@ -113,34 +112,27 @@
                                 severity="danger"
                                 [disabled]="!files || files.length === 0" />
                         </div>
-                        <p-progressbar
-                            [value]="totalSizePercent"
-                            [showValue]="false"
-                            class="w-full"
-                            styleClass="h-1 w-full">
-                            <span class="whitespace-nowrap">{{ totalSize }}B / 1Mb</span>
-                        </p-progressbar>
                     </div>
                 </ng-template>
                 <ng-template #content let-files let-uploadedFiles="uploadedFiles" let-removeFileCallback="removeFileCallback" let-removeUploadedFileCallback="removeUploadedFileCallback">
                     <div class="flex flex-col gap-8 pt-4">
                         <div *ngIf="files?.length > 0">
                             <h5>Pendientes</h5>
-                            <div class="flex flex-wrap gap-4">
+                            <div class="flex flex-wrap gap-2">
                                 <div *ngFor="let file of files; let i = index"
-                                    class="p-4 rounded-lg flex flex-col border border-surface items-center gap-4 w-48">
+                                    class="p-4 rounded-lg flex flex-col border border-surface items-center gap-4 w-full">
                                     <div>
                                         <img
                                             role="presentation"
                                             [alt]="file.name"
                                             [src]="file.objectURL"
-                                            width="100"
-                                            height="50" />
+                                            width="300"
+                                            height="250" />
                                     </div>
-                                    <span class="font-light text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">
+                                    <span class="font-light text-ellipsis max-w-60 whitespace-nowrap overflow-hidden" style="font-size: x-small;">
                                         {{ file.name }}
                                     </span>
-                                    <div>{{ formatSize(file.size) }}</div>
+                                    <div style="font-size: x-small;">{{ formatSize(file.size) }}</div>
                                     <p-badge value="Pendiente" severity="warn" />
                                     <p-button
                                         icon="pi pi-times"

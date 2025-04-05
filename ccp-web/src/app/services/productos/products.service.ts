@@ -10,24 +10,24 @@ import { Category, Brand, Unit, Product, CreateProduct } from '../../interfaces/
 })
 export class ProductsService {
 
-  private apiProductos = environment.apiProductos;
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 
   getCategories(): Observable<Category[]> {
-    return this.http.get<Category[]>(`${this.apiProductos}/productos/categorias`);
+    return this.http.get<Category[]>(`${this.apiUrl}/productos/categorias`);
   }
 
   getBrands(): Observable<Brand[]> {
-    return this.http.get<Brand[]>(`${this.apiProductos}/productos/marcas`);
+    return this.http.get<Brand[]>(`${this.apiUrl}/productos/marcas`);
   }
 
   getUnits(): Observable<Unit[]> {
-    return this.http.get<Unit[]>(`${this.apiProductos}/productos/unidades-medida`);
+    return this.http.get<Unit[]>(`${this.apiUrl}/productos/unidades-medida`);
   }
 
   getProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>(`${this.apiProductos}/productos`);
+    return this.http.get<Product[]>(`${this.apiUrl}/productos`);
   }
 
   saveProduct(product: CreateProduct, files?: File[]): Observable<Product> {
@@ -40,14 +40,14 @@ export class ProductsService {
       });
     }
 
-    return this.http.post<Product>(`${this.apiProductos}/productos`, formData);
+    return this.http.post<Product>(`${this.apiUrl}/productos`, formData);
   }
 
   uploadCSV(formData: FormData): Observable<{ url: string }> {
-    return this.http.post<{ url: string }>(`${this.apiProductos}/productos/upload-csv`, formData);
+    return this.http.post<{ url: string }>(`${this.apiUrl}/productos/upload-csv`, formData);
   }
 
   getCSVFiles(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiProductos}/productos/archivos-csv`);
+    return this.http.get<any[]>(`${this.apiUrl}/productos/archivos-csv`);
   }
 }
