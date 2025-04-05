@@ -49,13 +49,13 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
     this.modalService.bulkModalState$.subscribe((state) => {
       this.visible = state;
       if (state) {
-        // this.startAutoUpdate();
+        this.startAutoUpdate();
       }
     });
   }
 
   ngOnInit() {
-    // this.startAutoUpdate();
+    this.startAutoUpdate();
   }
 
   ngOnDestroy() {
