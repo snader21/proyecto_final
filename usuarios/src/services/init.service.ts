@@ -8,7 +8,8 @@ import { Rol } from '../entities/rol.entity';
 import { Permiso, TipoRecurso } from '../entities/permiso.entity';
 import { Usuario } from '../entities/usuario.entity';
 import { UsuarioService } from './usuario.service';
-import { EstadoUsuario } from 'src/dto/create-usuario.dto';
+import { EstadoUsuario } from '../dto/create-usuario.dto';
+
 @Injectable()
 export class InitService implements OnModuleInit {
   constructor(
