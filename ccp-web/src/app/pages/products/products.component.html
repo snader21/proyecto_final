@@ -36,14 +36,13 @@
             </ng-template>
         <ng-template pTemplate="header">
             <tr>
-                <th class="w-1/8">SKU</th>
-                <th class="w-1/8">Nombre</th>
-                <th class="w-1/8">Imagen</th>
-                <th class="w-1/8">Categoria</th>
-                <th class="w-1/8">U.Medida</th>
-                <th class="w-1/8">Precio</th>
-                <th class="w-1/8">Estado</th>
-                <th class="w-1/7">Acciones</th>
+                <th class="w-1/7">SKU</th>
+                <th class="w-1/7">Nombre</th>
+                <th class="w-1/7">Imagen</th>
+                <th class="w-1/7">Categoria</th>
+                <th class="w-1/7">U.Medida</th>
+                <th class="w-1/7">Estado</th>
+                <th class="w-1/6">Acciones</th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-product>
@@ -61,7 +60,6 @@
                 </td>
                 <td>{{ product.categoria?.nombre }}</td>
                 <td>{{ product.unidad_medida?.nombre }}</td>
-                <td>{{ product.precio}}</td>
                 <td>
                     <p-tag
                         [value]="product.activo ? 'Activo' : 'Inactivo'"
