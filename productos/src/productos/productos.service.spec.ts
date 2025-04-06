@@ -13,6 +13,7 @@ import { ArchivoProductoEntity } from './entities/archivo-producto.entity';
 import { FileGCP } from './utils/file-gcp.service';
 import { TypeOrmTestingConfig } from '../shared/testing-utils/typeorm-testing-config';
 import { faker } from '@faker-js/faker';
+import { PubSubService } from '../common/services/pubsub.service';
 
 describe('ProductosService', () => {
   let service: ProductosService;
@@ -24,6 +25,7 @@ describe('ProductosService', () => {
   let imagenProductoRepository: Repository<ImagenProductoEntity>;
   let archivoProductoRepository: Repository<ArchivoProductoEntity>;
   let fileGcpService: FileGCP;
+  let pubSubService: PubSubService;
 
   let productosList: ProductoEntity[];
   let categoriasList: CategoriaEntity[];
@@ -38,24 +40,44 @@ describe('ProductosService', () => {
     deleteFile: jest.fn(),
   };
 
+  const mockPubSubService = {
+    publishMessage: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [...TypeOrmTestingConfig()],
       providers: [
         ProductosService,
         { provide: FileGCP, useValue: mockFileGCP },
+        { provide: PubSubService, useValue: mockPubSubService },
       ],
     }).compile();
 
     service = module.get<ProductosService>(ProductosService);
-    productoRepository = module.get<Repository<ProductoEntity>>(getRepositoryToken(ProductoEntity));
-    categoriaRepository = module.get<Repository<CategoriaEntity>>(getRepositoryToken(CategoriaEntity));
-    marcaRepository = module.get<Repository<MarcaEntity>>(getRepositoryToken(MarcaEntity));
-    unidadMedidaRepository = module.get<Repository<UnidadMedidaEntity>>(getRepositoryToken(UnidadMedidaEntity));
-    paisRepository = module.get<Repository<PaisEntity>>(getRepositoryToken(PaisEntity));
-    imagenProductoRepository = module.get<Repository<ImagenProductoEntity>>(getRepositoryToken(ImagenProductoEntity));
-    archivoProductoRepository = module.get<Repository<ArchivoProductoEntity>>(getRepositoryToken(ArchivoProductoEntity));
+    productoRepository = module.get<Repository<ProductoEntity>>(
+      getRepositoryToken(ProductoEntity),
+    );
+    categoriaRepository = module.get<Repository<CategoriaEntity>>(
+      getRepositoryToken(CategoriaEntity),
+    );
+    marcaRepository = module.get<Repository<MarcaEntity>>(
+      getRepositoryToken(MarcaEntity),
+    );
+    unidadMedidaRepository = module.get<Repository<UnidadMedidaEntity>>(
+      getRepositoryToken(UnidadMedidaEntity),
+    );
+    paisRepository = module.get<Repository<PaisEntity>>(
+      getRepositoryToken(PaisEntity),
+    );
+    imagenProductoRepository = module.get<Repository<ImagenProductoEntity>>(
+      getRepositoryToken(ImagenProductoEntity),
+    );
+    archivoProductoRepository = module.get<Repository<ArchivoProductoEntity>>(
+      getRepositoryToken(ArchivoProductoEntity),
+    );
     fileGcpService = module.get<FileGCP>(FileGCP);
+    pubSubService = module.get<PubSubService>(PubSubService);
 
     await seedDatabase();
   });
@@ -177,7 +199,9 @@ describe('ProductosService', () => {
     });
 
     it('should throw an exception for an invalid product', async () => {
-      await expect(service.obtenerProducto('0')).rejects.toThrow(NotFoundException);
+      await expect(service.obtenerProducto('0')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -227,7 +251,7 @@ describe('ProductosService', () => {
         unidad_medida: unidadesMedidaList[0],
         pais: paisesList[0],
         imagenes: [],
-        movimientos_inventario: []
+        movimientos_inventario: [],
       };
 
       mockFileGCP.save.mockResolvedValue('http://test.com/test.jpg');
@@ -237,7 +261,7 @@ describe('ProductosService', () => {
 
       const storedProduct = await productoRepository.findOne({
         where: { id_producto: newProduct.id_producto },
-        relations: ['categoria', 'marca', 'unidad_medida', 'pais']
+        relations: ['categoria', 'marca', 'unidad_medida', 'pais'],
       });
       expect(storedProduct).not.toBeNull();
       expect(storedProduct?.nombre).toEqual(newProduct.nombre);
@@ -252,7 +276,7 @@ describe('ProductosService', () => {
         encoding: '7bit',
         mimetype: 'text/csv',
         buffer: Buffer.from('test'),
-        size: 4
+        size: 4,
       };
 
       mockFileGCP.save.mockResolvedValue('http://test.com/test.csv');
@@ -269,7 +293,7 @@ describe('ProductosService', () => {
         nombre_archivo: 'test.csv',
         url: 'http://test.com/test.csv',
         estado: 'pendiente',
-        fecha_carga: new Date()
+        fecha_carga: new Date(),
       });
 
       const archivos = await service.obtenerArchivosCSV();
