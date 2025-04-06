@@ -197,11 +197,12 @@ export class InitService implements OnModuleInit {
         case 'Director de ventas':
           rolActualizado.permisos = permisosCreados.filter(
             (p) =>
-              (p.modulo === 'pedidos' ||
+              ((p.modulo === 'pedidos' ||
                 p.modulo === 'productos' ||
                 p.modulo === 'vendedores') &&
-              (p.tipoRecurso === TipoRecurso.BACKEND ||
-                p.tipoRecurso === TipoRecurso.FRONTEND),
+                (p.tipoRecurso === TipoRecurso.BACKEND ||
+                  p.tipoRecurso === TipoRecurso.FRONTEND)) ||
+              (p.modulo == 'usuarios' && p.tipoRecurso == TipoRecurso.BACKEND),
           );
           break;
         case 'Director de compras':
