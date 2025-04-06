@@ -1,0 +1,43 @@
+:host ::ng-deep {
+    .p-dialog {
+        max-width: 800px;
+        margin: 0 auto;
+
+        .p-dialog-content {
+            padding: 0 1.5rem 1.5rem 1.5rem;
+        }
+    }
+
+    .p-fileupload {
+        .p-fileupload-buttonbar {
+            padding: 1rem;
+            background: var(--surface-50);
+            border-bottom: 1px solid var(--surface-200);
+        }
+        
+        .p-fileupload-content {
+            padding: 1rem;
+        }
+    }
+
+    .p-table {
+        .p-datatable-wrapper {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        th {
+            background: var(--surface-50) !important;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+        }
+
+        td {
+            padding: 0.5rem !important;
+            &.text-red-500 {
+                font-size: 0.875rem;
+            }
+        }
+    }
+}

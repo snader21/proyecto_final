@@ -1,6 +1,86 @@
-<p-dialog header="Inventario del Producto" [(visible)]="visible" [style]="{width: '50vw'}" [modal]="true" (onHide)="onHide()">
-    <div class="p-4" *ngIf="product">
-        <h1>Add work</h1>
-        <!-- Aquí puedes agregar más campos relacionados con el inventario -->
+<p-toast key="success" position="top-right"></p-toast>
+<p-toast key="error" position="top-right"></p-toast>
+<p-dialog
+  [header]="'Agregar inventario'"
+  [modal]="true"
+  [(visible)]="visible"
+  [style]="{ width: '35rem' }"
+  (onHide)="hideDialog()"
+  (onShow)="loadForm()"
+>
+  <div *ngIf="loading" class="flex flex-col gap-4">
+    <div *ngFor="let i of [1, 2, 3, 4, 5]" class="flex flex-col gap-2">
+      <div class="h-4 bg-gray-200 rounded animate-pulse w-24"></div>
+      <div class="h-10 bg-gray-200 rounded animate-pulse"></div>
     </div>
+  </div>
+  <form *ngIf="!loading" [formGroup]="form" class="flex flex-col gap-4">
+    <div class="flex flex-col gap-2">
+      <label for="cantidad">Cantidad</label>
+      <input
+        pInputText
+        id="cantidad"
+        formControlName="cantidad"
+        placeholder="Ingrese la cantidad"
+        [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('cantidad') }"
+      />
+      <small class="text-red-500" *ngIf="isFieldInvalid('cantidad')">
+        {{ getErrorMessage("cantidad") }}
+      </small>
+    </div>
+    <div class="flex flex-col gap-2">
+      <label for="fechaRegistro">Fecha de registro</label>
+      <p-datepicker
+        formControlName="fechaRegistro"
+        [showIcon]="true"
+        appendTo="body"
+        styleClass="w-full"
+        dateFormat="dd/mm/yy"
+        placeholder="Seleccione la fecha de registro"
+        [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('fechaRegistro') }"
+      ></p-datepicker>
+      <small class="text-red-500" *ngIf="isFieldInvalid('fechaRegistro')">
+        {{ getErrorMessage("fechaRegistro") }}
+      </small>
+    </div>
+    <div class="flex flex-col gap-2">
+      <label for="bodega">Bodega</label>
+      <p-select
+        [options]="bodegas"
+        (onChange)="onBodegaChange($event)"
+        formControlName="bodega"
+        placeholder="Seleccione la bodega"
+        class="w-full"
+        appendTo="body"
+        [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('bodega') }"
+      ></p-select>
+      <small class="text-red-500" *ngIf="isFieldInvalid('bodega')">
+        {{ getErrorMessage("bodega") }}
+      </small>
+    </div>
+    <div *ngIf="form.value.bodega" class="flex flex-col gap-2">
+      <label for="ubicacion">Ubicación</label>
+      <p-select
+        [options]="ubicaciones"
+        formControlName="ubicacion"
+        placeholder="Seleccione la ubicación"
+        class="w-full"
+        appendTo="body"
+        [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('ubicacion') }"
+      ></p-select>
+      <small class="text-red-500" *ngIf="isFieldInvalid('ubicacion')">
+        {{ getErrorMessage("ubicacion") }}
+      </small>
+    </div>
+  </form>
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2">
+      <p-button label="Cancelar" severity="secondary" (click)="hideDialog()" />
+      <p-button
+        label="Agregar inventario"
+        styleClass="bg-slate-700 text-white"
+        (click)="onSubmit()"
+      />
+    </div>
+  </ng-template>
 </p-dialog>

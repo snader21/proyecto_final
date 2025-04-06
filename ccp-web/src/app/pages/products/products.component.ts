@@ -8,13 +8,14 @@ import { ProductsService } from '../../services/productos/products.service';
 import { EventsService } from '../../services/events/events.service';
 import { Product } from '../../interfaces/product.interfaces';
 import { ManageProductComponent } from './manage-product/manage-product.component';
-import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { TagModule } from 'primeng/tag';
 import { GestionarInventarioComponent } from './gestionar-inventario/gestionar-inventario.component';
 import { CommonModule } from '@angular/common';
 import { ManageProductBulkComponent } from './manage-product-bulk/manage-product-bulk.component';
 import { ImageModule } from 'primeng/image';
-
+import { InputTextModule } from 'primeng/inputtext';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 @Component({
   selector: 'app-products',
   standalone: true,
@@ -23,15 +24,17 @@ import { ImageModule } from 'primeng/image';
     TableModule,
     ButtonModule,
     ManageProductComponent,
-    NavbarComponent,
     TagModule,
     GestionarInventarioComponent,
     ManageProductBulkComponent,
     CommonModule,
-    ImageModule],
+    ImageModule,
+    InputTextModule,
+    IconFieldModule,
+    InputIconModule],
   providers: [ProductsService],
   templateUrl: './products.component.html',
-  styleUrl: './products.component.scss'
+  styleUrls: ['./products.component.scss']
 })
 export class ProductsComponent implements OnInit {
   products: Product[] = [];

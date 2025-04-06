@@ -28,6 +28,9 @@ RUN addgroup -S nodeuser && \
 
 USER nodeuser
 
+# Set NODE_ENV to production
+ENV NODE_ENV=production
+
 # Copy built application
 COPY --chown=nodeuser:nodeuser --from=build /app/dist ./dist
 COPY --chown=nodeuser:nodeuser --from=build /app/package*.json ./

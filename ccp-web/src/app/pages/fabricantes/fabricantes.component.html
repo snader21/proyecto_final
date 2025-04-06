@@ -1,4 +1,4 @@
-<div class="flex flex-col m-10 p-10 bg-white rounded-sm">
+<p-card class="flex flex-col p-8">
   <div class="flex flex-row justify-between mb-3">
     <h1 class="text-4xl font-bold">Fabricantes</h1>
     <p-button
@@ -57,6 +57,9 @@
           <td>{{ fabricante.telefono }}</td>
           <td class="text-center">
             <p-button
+              [disabled]="true"
+              pTooltip="Función no disponible"
+              tooltipPosition="bottom"
               styleClass="bg-slate-700 text-white"
               icon="pi pi-pencil"
               severity="secondary"
@@ -79,4 +82,4 @@
     [(visible)]="dialogVisible"
     (success)="onSuccess($event)"
   ></app-fabricantes-form>
-</div>
+</p-card>

@@ -3,7 +3,9 @@
     header="Agregar Usuario"
     [modal]="true"
     [(visible)]="visible"
-    [style]="{ width: '40rem', height: '90rem' }">
+    (onHide)="closeModal()"
+    [style]="{ width: '40rem' }">
+    
     <form [formGroup]="userForm" class="flex flex-col gap-4">
         <div class="flex flex-col gap-2">
             <label for="nombre" class="font-light">Nombre</label>
@@ -47,6 +49,7 @@
           <label for="rol" class="font-light">Rol</label>
           <p-select
               [options]="roles"
+              appendTo="body"
               formControlName="rol"
               optionLabel="nombre"
               optionValue="id"
@@ -60,6 +63,6 @@
     </form>
     <div class="flex justify-end gap-2 mt-4">
         <p-button label="Cancelar" severity="secondary" (click)="closeModal()" />
-        <p-button label="Guardar" [disabled]="userForm.invalid" severity="success" (click)="onSubmit()" />
+        <p-button label="Guardar usuario" [disabled]="userForm.invalid" styleClass="bg-slate-700 text-white" (click)="onSubmit()" />
     </div>
 </p-dialog>

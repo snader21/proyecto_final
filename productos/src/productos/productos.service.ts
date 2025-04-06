@@ -14,6 +14,7 @@ import { BodegaEntity } from '../bodegas/entities/bodega.entity';
 import { UbicacionEntity } from '../ubicaciones/entities/ubicacion.entity';
 import { ImagenProductoEntity } from './entities/imagen-producto.entity';
 import { MovimientoInventarioEntity } from '../movimientos-inventario/entities/movimiento-inventario.entity';
+import { PubSubService } from '../common/services/pubsub.service';
 
 @Injectable()
 export class ProductosService implements OnModuleInit {
@@ -49,11 +50,21 @@ export class ProductosService implements OnModuleInit {
     private readonly archivoProductoRepository: Repository<ArchivoProductoEntity>,
 
     private readonly fileGCP: FileGCP,
+    private readonly pubSubService: PubSubService,
   ) {}
 
   async onModuleInit() {
-    // Insert data into the Pais table
-    await this.paisRepository.insert([
+    await this.initializePaises();
+    await this.initializeCategorias();
+    await this.initializeMarcas();
+    await this.initializeUnidadesMedida();
+    await this.initializeProductos();
+    await this.initializeBodegas();
+    await this.initializeUbicaciones();
+  }
+
+  private async initializePaises() {
+    const paises = [
       {
         id_pais: '550e8400-e29b-41d4-a716-446655440000',
         nombre: 'Colombia',
@@ -68,10 +79,18 @@ export class ProductosService implements OnModuleInit {
         moneda: 'USD',
         iva: 0.0,
       },
-    ]);
+    ];
 
-    // Insert data into the Categoria table
-    await this.categoriaRepository.insert([
+    for (const pais of paises) {
+      await this.paisRepository.save(pais, { 
+        transaction: false,
+        reload: false,
+      });
+    }
+  }
+
+  private async initializeCategorias() {
+    const categorias = [
       {
         id_categoria: '550e8400-e29b-41d4-a716-446655440002',
         nombre: 'Electrónica',
@@ -94,10 +113,18 @@ export class ProductosService implements OnModuleInit {
           id_categoria: '550e8400-e29b-41d4-a716-446655440002',
         },
       },
-    ]);
+    ];
 
-    // Insert data into the Marca table
-    await this.marcaRepository.insert([
+    for (const categoria of categorias) {
+      await this.categoriaRepository.save(categoria, {
+        transaction: false,
+        reload: false,
+      });
+    }
+  }
+
+  private async initializeMarcas() {
+    const marcas = [
       {
         id_marca: '550e8400-e29b-41d4-a716-446655440004',
         nombre: 'Samsung',
@@ -108,10 +135,18 @@ export class ProductosService implements OnModuleInit {
         nombre: 'Apple',
         descripcion: 'Fabricante de productos electrónicos',
       },
-    ]);
+    ];
 
-    // Insert data into the UnidadMedida table
-    await this.unidadMedidaRepository.insert([
+    for (const marca of marcas) {
+      await this.marcaRepository.save(marca, {
+        transaction: false,
+        reload: false,
+      });
+    }
+  }
+
+  private async initializeUnidadesMedida() {
+    const unidadesMedida = [
       {
         id_unidad_medida: '550e8400-e29b-41d4-a716-446655440006',
         nombre: 'Unidad',
@@ -122,10 +157,74 @@ export class ProductosService implements OnModuleInit {
         nombre: 'Kilogramo',
         abreviatura: 'KG',
       },
-    ]);
+    ];
 
-    // Insert data into the Bodega table
-    await this.bodegaRepository.insert([
+    for (const unidadMedida of unidadesMedida) {
+      await this.unidadMedidaRepository.save(unidadMedida, {
+        transaction: false,
+        reload: false,
+      });
+    }
+  }
+
+  private async initializeProductos() {
+    const productos = [
+      {
+        id_producto: '550e8400-e29b-41d4-a716-446655440008',
+        nombre: 'Samsung Galaxy S21',
+        descripcion: 'Smartphone de gama alta',
+        sku: 'SGS21',
+        codigo_barras: '1234567890123',
+        categoria: { id_categoria: '550e8400-e29b-41d4-a716-446655440003' },
+        marca: { id_marca: '550e8400-e29b-41d4-a716-446655440004' },
+        unidad_medida: {
+          id_unidad_medida: '550e8400-e29b-41d4-a716-446655440006',
+        },
+        precio: 799.99,
+        activo: true,
+        alto: 15.0,
+        ancho: 7.0,
+        largo: 0.8,
+        peso: 0.169,
+        fecha_creacion: new Date('2025-02-28'),
+        fecha_actualizacion: new Date('2025-02-28'),
+        id_fabricante: '550e8400-e29b-41d4-a716-446655440004',
+        pais: { id_pais: '550e8400-e29b-41d4-a716-446655440000' },
+      },
+      {
+        id_producto: '550e8400-e29b-41d4-a716-446655440009',
+        nombre: 'iPhone 13',
+        descripcion: 'Smartphone de gama alta',
+        sku: 'IP13',
+        codigo_barras: '2345678901234',
+        categoria: { id_categoria: '550e8400-e29b-41d4-a716-446655440003' },
+        marca: { id_marca: '550e8400-e29b-41d4-a716-446655440005' },
+        unidad_medida: {
+          id_unidad_medida: '550e8400-e29b-41d4-a716-446655440006',
+        },
+        precio: 999.99,
+        activo: true,
+        alto: 14.5,
+        ancho: 7.2,
+        largo: 0.7,
+        peso: 0.174,
+        fecha_creacion: new Date('2025-02-28'),
+        fecha_actualizacion: new Date('2025-02-28'),
+        id_fabricante: '550e8400-e29b-41d4-a716-446655440005',
+        pais: { id_pais: '550e8400-e29b-41d4-a716-446655440001' },
+      },
+    ];
+
+    for (const producto of productos) {
+      await this.productoRepository.save(producto, {
+        transaction: false,
+        reload: false,
+      });
+    }
+  }
+
+  private async initializeBodegas() {
+    const bodegas = [
       {
         id_bodega: '550e8400-e29b-41d4-a716-446655440010',
         nombre: 'Bodega Central',
@@ -138,10 +237,18 @@ export class ProductosService implements OnModuleInit {
         direccion: 'Calle Norte 456, Monterrey',
         capacidad: 150,
       },
-    ]);
+    ];
 
-    // Insert data into the Ubicacion table
-    await this.ubicacionRepository.insert([
+    for (const bodega of bodegas) {
+      await this.bodegaRepository.save(bodega, {
+        transaction: false,
+        reload: false,
+      });
+    }
+  }
+
+  private async initializeUbicaciones() {
+    const ubicaciones = [
       {
         id_ubicacion: '550e8400-e29b-41d4-a716-446655440012',
         bodega: { id_bodega: '550e8400-e29b-41d4-a716-446655440010' },
@@ -163,7 +270,14 @@ export class ProductosService implements OnModuleInit {
         descripcion: 'Estante para dispositivos de alta gama',
         tipo: 'Estante',
       },
-    ]);
+    ];
+
+    for (const ubicacion of ubicaciones) {
+      await this.ubicacionRepository.save(ubicacion, {
+        transaction: false,
+        reload: false,
+      });
+    }
   }
 
   async obtenerProductosPorPedido(
@@ -249,10 +363,15 @@ export class ProductosService implements OnModuleInit {
     const url = await this.fileGCP.save(file, fileName);
 
     // Save file record
-    await this.archivoProductoRepository.save({
+    const archivoProducto = await this.archivoProductoRepository.save({
       nombre_archivo: file.originalname,
       url,
       estado: 'pendiente',
+    });
+
+    // Publicar mensaje al tópico para procesar el archivo
+    await this.pubSubService.publishMessage({
+      archivoProductoId: archivoProducto.id_archivo,
     });
 
     return { url };

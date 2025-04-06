@@ -2,6 +2,7 @@
 <p-dialog
     header="Agregar Producto"
     [modal]="true"
+    (onHide)="closeModal()"
     [(visible)]="visible"
     [style]="{ width: '40rem', height: '90rem' }">
     <form [formGroup]="productForm" class="flex flex-col gap-4">
@@ -196,6 +197,6 @@
     </form>
     <div class="flex justify-end gap-2 mt-4">
         <p-button label="Cancelar" severity="secondary" (click)="closeModal()" />
-        <p-button label="Guardar" [disabled]="productForm.invalid" severity="success" (click)="onSubmit()" />
+        <p-button label="Guardar producto" [disabled]="productForm.invalid" styleClass="bg-slate-700 text-white" (click)="onSubmit()" />
     </div>
 </p-dialog>

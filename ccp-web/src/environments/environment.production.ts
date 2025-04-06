@@ -1,4 +1,4 @@
 export const environment = {
-  apiUrl: 'http://localhost:3000',
-  apiProductos: 'http://localhost:3002'
+  production: true,
+  apiUrl: "https://orquestador-1083277898027.us-central1.run.app",
 };

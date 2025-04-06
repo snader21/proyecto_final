@@ -1,65 +1,92 @@
-<div class="m-4">
-    <p-card class="m-4">
-        <p-table [value]="products" [tableStyle]="{ 'min-width': '50rem' }">
-            <ng-template #caption>
-                <div class="flex items-center justify-between">
-                    <span class="text-xl font-bold">Productos</span>
-                    <div class="flex gap-2">
-                        <p-button label="Agregar producto individual" icon="pi pi-plus" [raised]="true" severity="warn" (click)="openModal()" />
-                        <p-button label="Cargar varios productos" icon="pi pi-upload" [raised]="true" (click)="openBulkModal()"/>
-                    </div>
-                </div>
+<p-card class="flex flex-col p-8">
+    <div class="flex flex-row justify-between mb-3">
+        <h1 class="text-4xl font-bold">Productos</h1>
+        <div class="flex gap-2">
+            <p-button
+                label="Agregar producto individual"
+                styleClass="bg-orange-400 text-slate-900 border-orange-500"
+                icon="pi pi-plus"
+                size="large"
+                (click)="openModal()"
+            />
+            <p-button
+                label="Cargar varios productos"
+                styleClass="bg-slate-700 text-white border-slate-700"
+                icon="pi pi-upload"
+                size="large"
+                (click)="openBulkModal()"
+            />
+        </div>
+        </div>
+    <p-table [value]="products" [tableStyle]="{ 'min-width': '50rem' }">
+        <ng-template #caption>
+            <div class="flex items-center justify-between">
+                <span class="text-xl font-bold">Listado de productos</span>
+                <p-iconfield iconPosition="left" class="ml-auto">
+                <p-inputicon>
+                    <i class="pi pi-search"></i>
+                </p-inputicon>
+                <input
+                    pInputText
+                    type="text"
+                    placeholder="Buscar producto"
+                />
+                </p-iconfield>
+            </div>
             </ng-template>
-            <ng-template pTemplate="header">
-                <tr>
-                    <th>SKU</th>
-                    <th>Nombre</th>
-                    <th>Imagen</th>
-                    <th>Categoria</th>
-                    <th>U.Medida</th>
-                    <th>Precio</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-product>
-                <tr>
-                    <td>{{ product.sku }}</td>
-                    <td>{{ product.nombre }}</td>
-                    <td>
-                        <ng-container *ngIf="product.imagenes.length > 0; else noImage">
-                            <p-image [src]="product.imagenes[0].url" alt="Imagen del producto" [preview]="true" imageClass="product-image" width="50" ></p-image>
-                          </ng-container>
+        <ng-template pTemplate="header">
+            <tr>
+                <th>SKU</th>
+                <th>Nombre</th>
+                <th>Imagen</th>
+                <th>Categoria</th>
+                <th>U.Medida</th>
+                <th>Precio</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-product>
+            <tr>
+                <td>{{ product.sku }}</td>
+                <td>{{ product.nombre }}</td>
+                <td>
+                    <ng-container *ngIf="product.imagenes.length > 0; else noImage">
+                        <p-image [src]="product.imagenes[0].url" alt="Imagen del producto" [preview]="true" imageClass="product-image" width="50" ></p-image>
+                        </ng-container>
 
-                          <ng-template #noImage>
-                            <span class="pi pi-image"></span>
-                          </ng-template>
-                    </td>
-                    <td>{{ product.categoria?.nombre }}</td>
-                    <td>{{ product.unidad_medida?.nombre }}</td>
-                    <td>{{ product.precio}}</td>
-                    <td>
-                        <p-tag
-                            [value]="product.activo ? 'Activo' : 'Inactivo'"
-                            [icon]="
-                                product.activo ? 'pi pi-check' : 'pi pi-times'
-                            "
-                            [severity]="product.activo ? 'success' : 'danger'"
-                            styleClass="w-24 text-center"
-                        ></p-tag>
-                    </td>
-                    <td>
-                        <p-button label="Editar" icon="pi pi-pencil" severity="secondary"/>
-                    </td>
-                    <td>
-                        <p-button label="Inventario" icon="pi pi-plus" variant="outlined" severity="help" (click)="openInventoryDialog(product)"/>
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
-    </p-card>
-</div>
+                        <ng-template #noImage>
+                        <span class="pi pi-image"></span>
+                        </ng-template>
+                </td>
+                <td>{{ product.categoria?.nombre }}</td>
+                <td>{{ product.unidad_medida?.nombre }}</td>
+                <td>{{ product.precio}}</td>
+                <td>
+                    <p-tag
+                        [value]="product.activo ? 'Activo' : 'Inactivo'"
+                        [icon]="
+                            product.activo ? 'pi pi-check' : 'pi pi-times'
+                        "
+                        [severity]="product.activo ? 'success' : 'danger'"
+                        styleClass="w-24 text-center"
+                    ></p-tag>
+                </td>
+                <td>
+                    <p-button label="Editar" icon="pi pi-pencil" severity="secondary"/>
+                </td>
+                <td>
+                    <p-button label="Inventario" icon="pi pi-plus" variant="outlined" severity="help" (click)="openInventoryDialog(product)"/>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+            <tr>
+                <td colspan="8">No se encontraron productos.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-card>
 <app-manage-product />
 <app-manage-product-bulk />
 <app-gestionar-inventario [(visible)]="showInventoryDialog" [product]="selectedProduct" />
-

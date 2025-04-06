@@ -1,4 +1,4 @@
-<div class="flex flex-col m-10 p-10 bg-white rounded-sm">
+<p-card class="flex flex-col p-8">
   <div class="flex flex-row justify-between mb-3">
     <h1 class="text-4xl font-bold">Vendedores</h1>
     <p-button
@@ -31,31 +31,31 @@
       </ng-template>
       <ng-template #header>
         <tr>
-          <th scope="col">Nombre</th>
-          <th scope="col">Correo</th>
-          <th scope="col">Teléfono</th>
-          <th scope="col">Zona</th>
-          <th scope="col">Estado</th>
-          <th scope="col"></th>
+          <th scope="col" class="w-1/7">Nombre</th>
+          <th scope="col" class="w-1/7">Correo</th>
+          <th scope="col" class="w-1/7">Teléfono</th>
+          <th scope="col" class="w-1/7">Zona</th>
+          <th scope="col" class="w-1/7">Estado</th>
+          <th scope="col" class="w-1/6"></th>
         </tr>
       </ng-template>
       <ng-template #body let-vendedor>
         <tr>
           <td>{{ vendedor.nombre }}</td>
           <td>{{ vendedor.correo }}</td>
-          <td>{{ vendedor.direccion }}</td>
+          <td>{{ vendedor.telefono }}</td>
+          <td>{{ vendedor.zona.nombre }}</td>
           <td>
             <p-tag
               [value]="vendedor.estado"
               [icon]="
-                vendedor.estado === 'activo' ? 'pi pi-check' : 'pi pi-times'
+                vendedor.estado === 'Activo' ? 'pi pi-check' : 'pi pi-times'
               "
-              [severity]="vendedor.estado === 'activo' ? 'success' : 'danger'"
+              [severity]="vendedor.estado === 'Activo' ? 'success' : 'danger'"
               styleClass="w-24 text-center"
             ></p-tag>
           </td>
-          <td>{{ vendedor.telefono }}</td>
-          <td class="text-center">
+          <td class="flex flex-row text-center gap-3">
             <p-button
               styleClass="bg-slate-700 text-white"
               icon="pi pi-pencil"
@@ -64,19 +64,27 @@
               (click)="editVendedor(vendedor)"
               (keyup)="editVendedor(vendedor)"
             />
+            <p-button
+              styleClass="bg-slate-700 text-white"
+              icon="pi pi-briefcase"
+              severity="secondary"
+              label="Plan de ventas"
+              (click)="planDeVenta(vendedor)"
+              (keyup)="planDeVenta(vendedor)"
+            />
           </td>
         </tr>
       </ng-template>
       <ng-template #emptymessage>
         <tr>
-          <td colspan="6">No se encontraron fabricantes.</td>
+          <td colspan="6">No se encontraron vendedores.</td>
         </tr>
       </ng-template>
     </p-table>
   </div>
-  <!-- <app-fabricantes-form
+  <app-vendedores-form
     [vendedor]="selectedVendedor"
     [(visible)]="dialogVisible"
     (success)="onSuccess($event)"
-  ></app-fabricantes-form> -->
-</div>
+  ></app-vendedores-form>
+</p-card>

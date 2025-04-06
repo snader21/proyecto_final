@@ -10,6 +10,7 @@ import { TagModule } from 'primeng/tag';
 import { FabricantesFormComponent } from './fabricantes-form/fabricantes-form.component';
 import { FabricantesService } from '../../services/fabricantes/fabricantes.service';
 import { FormsModule } from '@angular/forms';
+import { TooltipModule } from 'primeng/tooltip';
 @Component({
   selector: 'app-fabricantes',
   templateUrl: './fabricantes.component.html',
@@ -25,10 +26,11 @@ import { FormsModule } from '@angular/forms';
     IconField,
     InputIcon,
     TagModule,
-    FabricantesFormComponent
-  ]
+    FabricantesFormComponent,
+    TooltipModule,
+  ],
 })
-  export class FabricantesComponent implements OnInit {
+export class FabricantesComponent implements OnInit {
   public fabricantesRaw: any[] = [];
   public fabricantes: any[] = [];
   public selectedFabricante: any = null;

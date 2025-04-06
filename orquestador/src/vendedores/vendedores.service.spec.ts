@@ -38,6 +38,7 @@ describe('VendedoresService (Orquestador)', () => {
     estado: mockUsuario.estado,
     telefono: vendedor.telefono,
     zonaId: faker.string.uuid(),
+    roles: [faker.string.uuid()],
   };
 
   const mockHttpService = {

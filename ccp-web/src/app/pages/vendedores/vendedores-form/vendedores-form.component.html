@@ -1,7 +1,7 @@
 <p-toast key="success" position="top-right"></p-toast>
 <p-toast key="error" position="top-right"></p-toast>
 <p-dialog
-  [header]="fabricante ? 'Editar fabricante' : 'Agregar fabricante'"
+  [header]="vendedor ? 'Editar vendedor' : 'Agregar vendedor'"
   [modal]="true"
   [(visible)]="visible"
   [style]="{ width: '35rem' }"
@@ -21,11 +21,59 @@
         pInputText
         id="nombre"
         formControlName="nombre"
-        placeholder="Ingrese el nombre del fabricante"
+        placeholder="Ingrese el nombre del vendedor"
         [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('nombre') }"
       />
       <small class="text-red-500" *ngIf="isFieldInvalid('nombre')">
         {{ getErrorMessage("nombre") }}
+      </small>
+    </div>
+    <div class="flex flex-col gap-2">
+      <label for="contrasena" class="font-light">Contraseña</label>
+      <input
+        placeholder="Contraseña"
+        pInputText
+        id="contrasena"
+        type="password"
+        formControlName="contrasena"
+        class="w-full"
+        autocomplete="off"
+        [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('contrasena') }"
+      />
+      <small class="text-red-500" *ngIf="isFieldInvalid('contrasena')">
+        {{ getErrorMessage("contrasena") }}
+      </small>
+    </div>
+    <div class="flex flex-col gap-2">
+      <label for="confirmacion_contrasena" class="font-light"
+        >Confirmación de contraseña</label
+      >
+      <input
+        placeholder="Confirmación de contraseña"
+        pInputText
+        id="confirmacion_contrasena"
+        type="password"
+        formControlName="confirmacion_contrasena"
+        class="w-full"
+        autocomplete="off"
+        [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('confirmacion_contrasena') }"
+      />
+      <small
+        class="text-red-500"
+        *ngIf="isFieldInvalid('confirmacion_contrasena')"
+      >
+        {{ getErrorMessage("confirmacion_contrasena") }}
+      </small>
+      <small
+        class="text-red-500"
+        *ngIf="
+          form.hasError('passwordMismatch') &&
+          form.get('contrasena')?.value &&
+          form.get('confirmacion_contrasena')?.value &&
+          form.get('confirmacion_contrasena')?.touched
+        "
+      >
+        Las contraseñas no coinciden
       </small>
     </div>
     <div class="flex flex-col gap-2">
@@ -42,49 +90,6 @@
       </small>
     </div>
     <div class="flex flex-col gap-2">
-      <label for="direccion">Dirección</label>
-      <input
-        pInputText
-        id="direccion"
-        formControlName="direccion"
-        placeholder="Ingrese la dirección"
-        [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('direccion') }"
-      />
-      <small class="text-red-500" *ngIf="isFieldInvalid('direccion')">
-        {{ getErrorMessage("direccion") }}
-      </small>
-    </div>
-    
-    <div class="flex flex-col gap-2">
-      <label for="pais_id">País</label>
-      <p-select
-        [options]="paises"
-        formControlName="pais_id"
-        placeholder="Seleccione el país"
-        class="w-full"
-        appendTo="body"
-        [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('pais_id') }"
-        (onChange)="loadCiudades()"
-      ></p-select>
-      <small class="text-red-500" *ngIf="isFieldInvalid('pais_id')">
-        {{ getErrorMessage("pais_id") }}
-      </small>
-    </div>
-    <div class="flex flex-col gap-2">
-      <label for="ciudad_id">Ciudad</label>
-      <p-select
-        [options]="ciudades"
-        formControlName="ciudad_id"
-        placeholder="Seleccione la ciudad"
-        class="w-full"
-        appendTo="body"
-        [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('ciudad_id') }"
-      ></p-select>
-      <small class="text-red-500" *ngIf="isFieldInvalid('ciudad_id')">
-        {{ getErrorMessage("ciudad_id") }}
-      </small>
-    </div>
-    <div class="flex flex-col gap-2">
       <label for="telefono">Teléfono</label>
       <input
         pInputText
@@ -95,6 +100,21 @@
       />
       <small class="text-red-500" *ngIf="isFieldInvalid('telefono')">
         {{ getErrorMessage("telefono") }}
+      </small>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="zona_id">Zona</label>
+      <p-select
+        [options]="zonas"
+        formControlName="zona_id"
+        placeholder="Seleccione la zona"
+        class="w-full"
+        appendTo="body"
+        [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('zona_id') }"
+      ></p-select>
+      <small class="text-red-500" *ngIf="isFieldInvalid('zona_id')">
+        {{ getErrorMessage("zona_id") }}
       </small>
     </div>
     <div class="flex flex-col gap-2">
@@ -116,7 +136,7 @@
     <div class="flex justify-end gap-2">
       <p-button label="Cancelar" severity="secondary" (click)="hideDialog()" />
       <p-button
-        label="Guardar fabricante"
+        label="Guardar vendedor"
         styleClass="bg-slate-700 text-white"
         (click)="onSubmit()"
       />

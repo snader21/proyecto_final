@@ -1,0 +1,6 @@
+nombre,descripcion,sku,codigo_barras,marca,categoria,unidad_medida,precio,alto,ancho,largo,peso,id_fabricante,pais
+"Laptop XPS 13","Laptop Dell XPS 13 con procesador Intel i7","SKU001","123456789","Dell","Computadores","Unidad",4500000,0.5,30.5,20,1.5,"FAB001","Colombia"
+"Monitor 27","Monitor LED 27 pulgadas","SKU002","987654321","Samsung","Monitores","Unidad",1200000,35,61,25,4.2,"FAB002","Corea del Sur"
+"Teclado Mecánico","Teclado mecánico RGB switches blue","SKU003","456789123","Logitech","Periféricos","Unidad",350000,4,45,15,0.8,"FAB003","Estados Unidos"
+"Mouse Inalámbrico","Mouse óptico inalámbrico","SKU004","789123456","Logitech","Periféricos","Unidad",120000,3,12,7,0.15,"FAB003","Estados Unidos"
+"Disco SSD","Disco SSD 1TB NVMe","SKU005","321654987","Samsung","Almacenamiento","Unidad",450000,0.2,10,7,0.05,"FAB002","Corea del Sur"
