@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FabricantesService } from '../../../services/fabricantes/fabricantes.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -14,6 +15,7 @@ import { BadgeModule } from 'primeng/badge';
 import { CommonModule } from '@angular/common';
 import { MessageService} from 'primeng/api';
 import { PrimeNG } from 'primeng/config';
+import { Fabricante } from '../../../interfaces/fabricante.interface';
 
 
 
@@ -46,13 +48,8 @@ export class ManageProductComponent implements OnInit {
   units: Unit[] = [];
   selectedUnit: Unit | null = null;
 
-  makers: Maker[] = [
-    { code: 'ELEC', name: 'Samsung' },
-    { code: 'FOOD', name: 'Apple' },
-    { code: 'CLTH', name: 'Adidas' },
-    { code: 'HOME', name: 'Puma' }
-  ];
-  selectedMaker: Maker | null = null;
+  makers: Fabricante[] = [];
+  selectedMaker: Fabricante | null = null;
 
   statuses: Status[] = [
     { code: 'ACTIVO', name: 'Activo' },
@@ -71,6 +68,7 @@ export class ManageProductComponent implements OnInit {
     private modalService: ModalService,
     private messageService: MessageService,
     private config: PrimeNG,
+    private fabricantesService: FabricantesService,
     private fb: FormBuilder,
     private productsService: ProductsService,
     private eventsService: EventsService
@@ -82,6 +80,7 @@ export class ManageProductComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.listarVendedores();
     this.initForm();
     this.loadCategories();
     this.loadBrands();
@@ -99,6 +98,26 @@ export class ManageProductComponent implements OnInit {
     this.productForm.get('status')?.valueChanges.subscribe(value => {
       this.selectedStatus = value;
     });
+    this.productForm.get('maker')?.valueChanges.subscribe(value => {
+      this.selectedMaker = value;
+    });
+  }
+
+  public async listarVendedores() {
+    try {
+      let makerResponse = await this.fabricantesService.getFabricantes();
+      this.makers = makerResponse.map((maker: Fabricante) => ({
+        ...maker,
+        code: maker.id,
+        name: maker.nombre
+      }));
+    } catch (error) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Error loading makers'
+      });
+    }
   }
 
   private loadCategories() {
@@ -170,7 +189,7 @@ export class ManageProductComponent implements OnInit {
         marca: { id_marca: this.selectedBrand?.id_marca || '' },
         unidad_medida: { id_unidad_medida: this.selectedUnit?.id_unidad_medida || '' },
         pais: { id_pais: "550e8400-e29b-41d4-a716-446655440000" },
-        id_fabricante: 'DELL-001',
+        id_fabricante: this.selectedMaker?.id?.toString() || '',
         activo: this.selectedStatus?.code === 'ACTIVO',
         precio: 0,
         alto: 0,
