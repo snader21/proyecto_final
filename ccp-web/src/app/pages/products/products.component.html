@@ -72,11 +72,9 @@
                         styleClass="w-24 text-center"
                     ></p-tag>
                 </td>
-                <td>
-                    <p-button label="Editar" icon="pi pi-pencil" severity="secondary"/>
-                </td>
-                <td>
-                    <p-button label="Inventario" icon="pi pi-plus" variant="outlined" severity="help" (click)="openInventoryDialog(product)"/>
+                <td class="flex gap-3">
+                    <p-button label="Editar" icon="pi pi-pencil" styleClass="bg-slate-700 text-white" disabled/>
+                    <p-button label="Inventario" icon="pi pi-plus" styleClass="bg-slate-700 text-white" (click)="openInventoryDialog(product)"/>
                 </td>
             </tr>
         </ng-template>
