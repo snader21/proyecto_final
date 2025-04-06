@@ -13,7 +13,9 @@ import { GestionarInventarioComponent } from './gestionar-inventario/gestionar-i
 import { CommonModule } from '@angular/common';
 import { ManageProductBulkComponent } from './manage-product-bulk/manage-product-bulk.component';
 import { ImageModule } from 'primeng/image';
-
+import { InputTextModule } from 'primeng/inputtext';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 @Component({
   selector: 'app-products',
   standalone: true,
@@ -26,7 +28,10 @@ import { ImageModule } from 'primeng/image';
     GestionarInventarioComponent,
     ManageProductBulkComponent,
     CommonModule,
-    ImageModule],
+    ImageModule,
+    InputTextModule,
+    IconFieldModule,
+    InputIconModule],
   providers: [ProductsService],
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.scss']

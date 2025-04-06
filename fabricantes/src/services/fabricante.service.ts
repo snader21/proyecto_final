@@ -7,9 +7,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Fabricante } from '../entities/fabricante.entity';
 import { CreateFabricanteDto } from '../dto/create-fabricante.dto';
-import { UpdateFabricanteDto } from 'src/dto/update-fabricante.dto';
-import { Lugar } from 'src/entities/lugar.entity';
-import { GetFabricanteDto } from 'src/dto/get-fabricante.dto';
+import { UpdateFabricanteDto } from '../dto/update-fabricante.dto';
+import { Lugar } from '../entities/lugar.entity';
+import { GetFabricanteDto } from '../dto/get-fabricante.dto';
 @Injectable()
 export class FabricanteService {
   constructor(
@@ -42,40 +42,14 @@ export class FabricanteService {
     return fabricantesDto;
   }
 
-  async findOne(id: string): Promise<GetFabricanteDto> {
-    const fabricante = await this.fabricanteRepository.findOne({
-      where: { id },
-      relations: ['lugar', 'lugar.lugar_padre'],
-    });
-
-    if (!fabricante) {
-      throw new NotFoundException('Fabricante no encontrado');
-    }
-
-    return {
-      id: fabricante.id,
-      nombre: fabricante.nombre,
-      correo: fabricante.correo,
-      direccion: fabricante.direccion,
-      estado: fabricante.estado,
-      telefono: fabricante.telefono,
-      ciudad_id: fabricante.lugar.id,
-      ciudad_nombre: fabricante.lugar.nombre,
-      pais_id: fabricante.lugar.lugar_padre.id,
-      pais_nombre: fabricante.lugar.lugar_padre?.nombre,
-    };
-  }
-
-  async remove(id: string): Promise<void> {
+  async findOne(id: string): Promise<Fabricante> {
     const fabricante = await this.fabricanteRepository.findOne({
       where: { id },
     });
-
     if (!fabricante) {
-      throw new NotFoundException('Fabricante no encontrado');
+      throw new NotFoundException(`Fabricante con ID ${id} no encontrado`);
     }
-
-    await this.fabricanteRepository.remove(fabricante);
+    return fabricante;
   }
 
   async create(createFabricanteDto: CreateFabricanteDto): Promise<Fabricante> {
@@ -84,7 +58,9 @@ export class FabricanteService {
     });
 
     if (existingFabricante) {
-      throw new ConflictException('El fabricante ya está registrado');
+      throw new ConflictException(
+        'El nombre del fabricante ya está registrado',
+      );
     }
 
     const existingLugar = await this.lugarRepository.findOne({
@@ -92,7 +68,7 @@ export class FabricanteService {
     });
 
     if (!existingLugar) {
-      throw new NotFoundException('Ciudad no encontrada');
+      throw new NotFoundException('La ciudad no está registrada');
     }
 
     const fabricanteData = {
@@ -111,8 +87,6 @@ export class FabricanteService {
     const fabricante = await this.fabricanteRepository.findOne({
       where: { id },
     });
-
-    console.log(updateFabricanteDto);
 
     if (!fabricante) {
       throw new NotFoundException('Fabricante no encontrado');

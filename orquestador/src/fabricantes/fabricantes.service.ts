@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
+import { AxiosError } from 'axios';
 
 @Injectable()
 export class FabricantesService {
@@ -27,30 +28,38 @@ export class FabricantesService {
     return response.data;
   }
   async createFabricante(fabricante: any) {
-    const response = await firstValueFrom(
-      this.httpService.post(
-        `${this.fabricantesServiceUrl}/fabricantes`,
-        fabricante,
-      ),
-    );
-    return response.data;
+    try {
+      const response = await firstValueFrom(
+        this.httpService.post(
+          `${this.fabricantesServiceUrl}/fabricantes`,
+          fabricante,
+        ),
+      );
+      return response.data;
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      throw new BadRequestException(
+        'Se produjo un error al crear el fabricante: ' +
+          axiosError?.response?.data?.message,
+      );
+    }
   }
   async updateFabricante(id: string, fabricante: any) {
-    const response = await firstValueFrom(
-      this.httpService.put(
-        `${this.fabricantesServiceUrl}/fabricantes/${id}`,
-        fabricante,
-      ),
-    );
-    return response.data;
-  }
-  async deleteFabricante(id: string) {
-    const response = await firstValueFrom(
-      this.httpService.delete(
-        `${this.fabricantesServiceUrl}/fabricantes/${id}`,
-      ),
-    );
-    return response.data;
+    try {
+      const response = await firstValueFrom(
+        this.httpService.put(
+          `${this.fabricantesServiceUrl}/fabricantes/${id}`,
+          fabricante,
+        ),
+      );
+      return response.data;
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      throw new BadRequestException(
+        'Se produjo un error al actualizar el fabricante: ' +
+          axiosError?.response?.data?.message,
+      );
+    }
   }
 
   async getCiudades() {

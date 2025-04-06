@@ -1,13 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Delete,
-  Put,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put } from '@nestjs/common';
 import { FabricantesService } from './fabricantes.service';
 
 @Controller('fabricantes')
@@ -47,10 +39,5 @@ export class FabricantesController {
   @Put(':id')
   async updateFabricante(@Param('id') id: string, @Body() fabricante: any) {
     return this.fabricantesService.updateFabricante(id, fabricante);
-  }
-
-  @Delete(':id')
-  async deleteFabricante(@Param('id') id: string) {
-    return this.fabricantesService.deleteFabricante(id);
   }
 }
