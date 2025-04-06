@@ -40,41 +40,41 @@ steps:
 
         echo "✅ Detected service: $(cat /workspace/service.txt)"
 
-  # # Step 2: Run tests
-  # - name: "node"
-  #   id: "run-tests"
-  #   entrypoint: "bash"
-  #   args:
-  #     - "-c"
-  #     - |
-  #       echo "🧪 Running tests for services:"
-  #       cat /workspace/service.txt
+  # Step 2: Run tests
+  - name: "node"
+    id: "run-tests"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        echo "🧪 Running tests for services:"
+        cat /workspace/service.txt
 
-  #       ALL_TESTS_PASSED=true
+        ALL_TESTS_PASSED=true
 
-  #       while IFS= read -r svc; do
-  #         if [ "$svc" = "todos" ]; then
-  #           svc_list=("orquestador" "pedidos" "productos" "rutas" "fabricantes" "vendedores" "clientes" "usuarios")
-  #         else
-  #           svc_list=("$svc")
-  #         fi
+        while IFS= read -r svc; do
+          if [ "$svc" = "todos" ]; then
+            svc_list=("orquestador" "pedidos" "productos" "rutas" "fabricantes" "vendedores" "clientes" "usuarios")
+          else
+            svc_list=("$svc")
+          fi
 
-  #         for s in "${svc_list[@]}"; do
-  #           echo "⏳ Running tests for $s..."
-  #           cd $s
-  #           npm install
-  #           if ! npm run test; then
-  #             echo "❌ Tests failed for $s"
-  #             ALL_TESTS_PASSED=false
-  #           fi
-  #           cd ..
-  #         done
-  #       done < /workspace/service.txt
+          for s in "${svc_list[@]}"; do
+            echo "⏳ Running tests for $s..."
+            cd $s
+            npm install
+            if ! npm run test; then
+              echo "❌ Tests failed for $s"
+              ALL_TESTS_PASSED=false
+            fi
+            cd ..
+          done
+        done < /workspace/service.txt
 
-  #       if [ "$$ALL_TESTS_PASSED" = false ]; then
-  #         echo "🚫 Some tests failed. Exiting."
-  #         exit 1
-  #       fi
+        if [ "$$ALL_TESTS_PASSED" = false ]; then
+          echo "🚫 Some tests failed. Exiting."
+          exit 1
+        fi
 
   # Step 3: Generate .env files per service
   - name: "gcr.io/cloud-builders/gcloud"
