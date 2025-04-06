@@ -13,11 +13,13 @@ import { BadgeModule } from 'primeng/badge';
 import { TagModule } from 'primeng/tag';
 import { GestionarUsuariosComponent } from './gestionar-usuarios/gestionar-usuarios.component';
 import { ModalService } from '../../services/productos/modal.service';
-
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';  
+import { InputTextModule } from 'primeng/inputtext';
 @Component({
   selector: 'app-usuarios',
   standalone: true,
-  imports: [CommonModule, CardModule, DividerModule, TableModule, ButtonModule, BadgeModule, TagModule, GestionarUsuariosComponent, TooltipModule],
+  imports: [CommonModule, CardModule, DividerModule, TableModule, ButtonModule, BadgeModule, TagModule, GestionarUsuariosComponent, TooltipModule, IconFieldModule, InputIconModule, InputTextModule],
   templateUrl: './usuarios.component.html',
   styleUrl: './usuarios.component.scss'
 })
