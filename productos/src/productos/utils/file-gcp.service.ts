@@ -14,9 +14,7 @@ export class FileGCP {
   private bucket: Bucket;
   private readonly logger = new Logger(FileGCP.name);
 
-  constructor(
-    private readonly gcpConfigService: GCPConfigService
-  ) {
+  constructor(private readonly gcpConfigService: GCPConfigService) {
     this.storage = new Storage(this.gcpConfigService.getCredentials());
   }
 
@@ -29,8 +27,6 @@ export class FileGCP {
 
   async save(file: UploadedFile, path: string): Promise<string> {
     const bucket = this.getBucket();
-    this.logger.debug(`Guardando archivo en bucket: ${bucket.name}, ruta: ${path}`);
-    
     const blob = bucket.file(path);
     const blobStream = blob.createWriteStream({
       resumable: false,
@@ -38,27 +34,22 @@ export class FileGCP {
         contentType: file.mimetype,
       },
     });
-
-    try {
-      // Crear un stream legible desde el buffer
-      const readableStream = new Readable();
-      readableStream.push(file.buffer);
-      readableStream.push(null);
-
-      // Usar pipeline para manejar el streaming de forma segura
-      await pipelineAsync(
-        readableStream,
-        blobStream
-      );
-
-      // Generar URL pública
-      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
-      this.logger.log(`Archivo guardado exitosamente: ${publicUrl}`);
-      return publicUrl;
-    } catch (error) {
-      this.logger.error(`Error al guardar archivo en GCS: ${error.message}`);
-      throw error;
-    }
+    return new Promise((resolve, reject) => {
+      blobStream.on('error', (error) => reject(error));
+      blobStream.on('finish', async () => {
+        try {
+          const [url] = await blob.getSignedUrl({
+            version: 'v4',
+            action: 'read',
+            expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+          });
+          resolve(url);
+        } catch (error) {
+          reject(error);
+        }
+      });
+      blobStream.end(file.buffer);
+    });
   }
 
   private getFileNameFromUrl(url: string): string {
@@ -71,7 +62,9 @@ export class FileGCP {
       }
       return url; // Si no es una URL, asumimos que es una ruta relativa
     } catch (error) {
-      this.logger.warn(`Error al parsear URL ${url}, usando como ruta relativa`);
+      this.logger.warn(
+        `Error al parsear URL ${url}, usando como ruta relativa`,
+      );
       return url;
     }
   }
@@ -80,11 +73,13 @@ export class FileGCP {
     try {
       const bucket = this.getBucket();
       const fileName = this.getFileNameFromUrl(path);
-      this.logger.debug(`Obteniendo archivo: ${fileName} del bucket: ${bucket.name}`);
-      
+      this.logger.debug(
+        `Obteniendo archivo: ${fileName} del bucket: ${bucket.name}`,
+      );
+
       const file = bucket.file(fileName);
       const [exists] = await file.exists();
-      
+
       if (!exists) {
         this.logger.error(`Archivo no encontrado: ${fileName}`);
         throw new Error(`File ${fileName} not found`);
@@ -104,7 +99,7 @@ export class FileGCP {
       const bucket = this.getBucket();
       const file = bucket.file(fileName);
       const [exists] = await file.exists();
-      
+
       if (!exists) {
         throw new Error(`File ${fileName} not found`);
       }
