@@ -20,12 +20,21 @@ export class ArchivoProductoEntity {
   @Column({ type: 'int', default: 0 })
   registros_cargados: number;
 
-  @Column({ type: 'jsonb', nullable: true })
-  errores_procesamiento: Array<{ row: any, error: string }>;
+  @Column({
+    type: process.env.NODE_ENV === 'test' ? 'simple-json' : 'jsonb',
+    nullable: true,
+  })
+  errores_procesamiento: Array<{ row: any; error: string }>;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: process.env.NODE_ENV === 'test' ? 'date' : 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   fecha_carga: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({
+    type: process.env.NODE_ENV === 'test' ? 'date' : 'timestamp',
+    nullable: true,
+  })
   fecha_procesamiento: Date;
 }
