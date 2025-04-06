@@ -23,7 +23,7 @@ export class ProductoFileProcessorService {
 
   async processFile(archivoProductoId: string) {
     const archivoProducto = await this.archivoProductoRepository.findOne({
-      where: { id_archivo: archivoProductoId }
+      where: { id_archivo: archivoProductoId },
     });
 
     if (!archivoProducto) {
@@ -31,39 +31,46 @@ export class ProductoFileProcessorService {
       return;
     }
 
-    if (archivoProducto.estado === 'procesado' || archivoProducto.estado === 'error') {
+    if (
+      archivoProducto.estado === 'procesado' ||
+      archivoProducto.estado === 'error'
+    ) {
       return;
     }
 
     try {
-      const urlParts = archivoProducto.url.split('/');
-      const fileName = urlParts[urlParts.length - 2] + '/' + urlParts[urlParts.length - 1];
-      const fileContent = await this.fileGCP.getFile(fileName);
+      const fileContent = await this.fileGCP.getFileFromSignedUrl(
+        archivoProducto.url,
+      );
       const rows = await this.parseCSV(fileContent.toString('utf-8'));
-      
+
       let totalRows = rows.length;
       let successfulRows = 0;
-      let errors: Array<{row: any, error: string}> = [];
+      let errors: Array<{ row: any; error: string }> = [];
 
-      this.logger.log(`Procesando archivo ${archivoProducto.nombre_archivo} (${totalRows} registros)`);
+      this.logger.log(
+        `Procesando archivo ${archivoProducto.nombre_archivo} (${totalRows} registros)`,
+      );
 
       for (const row of rows) {
         try {
           const validationResults = await Promise.all(
-            this.validators.map(async validator => {
+            this.validators.map(async (validator) => {
               try {
                 return await validator.validate(row);
               } catch (error) {
                 return { isValid: false, message: error.message };
               }
-            })
+            }),
           );
 
-          const validationFailed = validationResults.find(result => !result.isValid);
+          const validationFailed = validationResults.find(
+            (result) => !result.isValid,
+          );
           if (validationFailed) {
             errors.push({
               row: row,
-              error: validationFailed.message || 'Validación fallida'
+              error: validationFailed.message || 'Validación fallida',
             });
             continue;
           }
@@ -85,41 +92,47 @@ export class ProductoFileProcessorService {
             fecha_creacion: new Date(),
             fecha_actualizacion: new Date(),
             id_fabricante: row.id_fabricante || '',
-            pais: { id_pais: row.paisId }
+            pais: { id_pais: row.paisId },
           };
 
           const nuevoProducto = this.productoRepository.create(productoData);
           await this.productoRepository.save(nuevoProducto);
           successfulRows++;
-
         } catch (error: any) {
           errors.push({
             row: row,
-            error: error.message
+            error: error.message,
           });
         }
       }
 
-      let estado = successfulRows === 0 ? 'error' : 
-                   successfulRows === totalRows ? 'procesado' : 
-                   'parcial';
+      let estado =
+        successfulRows === 0
+          ? 'error'
+          : successfulRows === totalRows
+            ? 'procesado'
+            : 'parcial';
 
       await this.archivoProductoRepository.update(archivoProductoId, {
         estado,
         total_registros: totalRows,
         registros_cargados: successfulRows,
         errores_procesamiento: errors,
-        fecha_procesamiento: new Date()
+        fecha_procesamiento: new Date(),
       });
 
-      this.logger.log(`Archivo ${archivoProducto.nombre_archivo} procesado: ${successfulRows}/${totalRows} registros exitosos`);
-
+      this.logger.log(
+        `Archivo ${archivoProducto.nombre_archivo} procesado: ${successfulRows}/${totalRows} registros exitosos`,
+      );
     } catch (error: any) {
-      this.logger.error(`Error procesando archivo ${archivoProducto.nombre_archivo}:`, error);
+      this.logger.error(
+        `Error procesando archivo ${archivoProducto.nombre_archivo}:`,
+        error,
+      );
       await this.archivoProductoRepository.update(archivoProductoId, {
         estado: 'error',
         errores_procesamiento: [{ error: error.message }],
-        fecha_procesamiento: new Date()
+        fecha_procesamiento: new Date(),
       });
       throw error;
     }
@@ -127,13 +140,17 @@ export class ProductoFileProcessorService {
 
   private async parseCSV(content: string): Promise<any[]> {
     return new Promise((resolve, reject) => {
-      parse(content, {
-        columns: true,
-        skip_empty_lines: true,
-      }, (err: unknown, data: any[]) => {
-        if (err) reject(err instanceof Error ? err : new Error(String(err)));
-        else resolve(data);
-      });
+      parse(
+        content,
+        {
+          columns: true,
+          skip_empty_lines: true,
+        },
+        (err: unknown, data: any[]) => {
+          if (err) reject(err instanceof Error ? err : new Error(String(err)));
+          else resolve(data);
+        },
+      );
     });
   }
 }

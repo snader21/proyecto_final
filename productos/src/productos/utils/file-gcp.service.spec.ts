@@ -5,6 +5,8 @@ import { Storage, Bucket, File } from '@google-cloud/storage';
 import { UploadedFile } from '../interfaces/uploaded-file.interface';
 import { Writable } from 'stream';
 import { ConfigService } from '@nestjs/config';
+import { HttpService } from '@nestjs/axios';
+import { of } from 'rxjs';
 
 jest.mock('@google-cloud/storage');
 jest.mock('stream');
@@ -15,6 +17,7 @@ describe('FileGCP', () => {
   let mockBucket: jest.Mocked<Bucket>;
   let mockFile: jest.Mocked<File>;
   let mockWriteStream: jest.Mocked<Writable>;
+  let mockHttpService: jest.Mocked<HttpService>;
 
   const mockGcpConfigService = {
     getCredentials: jest.fn().mockReturnValue({
@@ -24,12 +27,31 @@ describe('FileGCP', () => {
     getBucketName: jest.fn().mockReturnValue('test-bucket'),
   };
 
+  mockHttpService = {
+    get: jest.fn().mockReturnValue(of({ data: Buffer.from('test') })),
+    post: jest.fn(),
+    delete: jest.fn(),
+    put: jest.fn(),
+    patch: jest.fn(),
+    head: jest.fn(),
+    request: jest.fn(),
+    axiosRef: {} as any,
+  } as unknown as jest.Mocked<HttpService>;
+
   beforeEach(async () => {
     mockWriteStream = {
-      write: jest.fn().mockImplementation((chunk: any, encoding: string, callback: (error?: Error | null) => void) => {
-        callback();
-        return true;
-      }),
+      write: jest
+        .fn()
+        .mockImplementation(
+          (
+            chunk: any,
+            encoding: string,
+            callback: (error?: Error | null) => void,
+          ) => {
+            callback();
+            return true;
+          },
+        ),
       end: jest.fn().mockImplementation((callback?: () => void) => {
         if (callback) {
           callback();
@@ -45,7 +67,9 @@ describe('FileGCP', () => {
       createWriteStream: jest.fn().mockReturnValue(mockWriteStream),
       exists: jest.fn().mockResolvedValue([true] as any),
       download: jest.fn().mockResolvedValue([Buffer.from('test')] as any),
-      getSignedUrl: jest.fn().mockResolvedValue(['https://signed-url.com'] as any),
+      getSignedUrl: jest
+        .fn()
+        .mockResolvedValue(['https://signed-url.com'] as any),
       name: 'test.jpg',
       bucket: {} as Bucket,
       storage: {} as Storage,
@@ -93,6 +117,10 @@ describe('FileGCP', () => {
         {
           provide: GCPConfigService,
           useValue: mockGcpConfigService,
+        },
+        {
+          provide: HttpService,
+          useValue: mockHttpService,
         },
         {
           provide: ConfigService,
