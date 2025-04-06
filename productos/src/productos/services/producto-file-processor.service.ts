@@ -39,9 +39,13 @@ export class ProductoFileProcessorService {
     }
 
     try {
-      const fileContent = await this.fileGCP.getFileFromSignedUrl(
-        archivoProducto.url,
-      );
+      const urlParts = archivoProducto.url
+        .split('?X-Goog-Algorithm')[0]
+        .split('/');
+      const fileName =
+        urlParts[urlParts.length - 2] + '/' + urlParts[urlParts.length - 1];
+      const fileContent = await this.fileGCP.getFile(fileName);
+
       const rows = await this.parseCSV(fileContent.toString('utf-8'));
 
       let totalRows = rows.length;
