@@ -1,276 +1,409 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { ProductosService } from './productos.service';
-import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
+import { ProductosService } from './productos.service';
 import { ProductoEntity } from './entities/producto.entity';
+import { MovimientoInventarioEntity } from '../movimientos-inventario/entities/movimiento-inventario.entity';
+import { PaisEntity } from './entities/pais.entity';
 import { CategoriaEntity } from './entities/categoria.entity';
 import { MarcaEntity } from './entities/marca.entity';
 import { UnidadMedidaEntity } from './entities/unidad-medida.entity';
-import { PaisEntity } from './entities/pais.entity';
+import { BodegaEntity } from '../bodegas/entities/bodega.entity';
+import { UbicacionEntity } from '../ubicaciones/entities/ubicacion.entity';
 import { ImagenProductoEntity } from './entities/imagen-producto.entity';
 import { ArchivoProductoEntity } from './entities/archivo-producto.entity';
 import { FileGCP } from './utils/file-gcp.service';
-import { TypeOrmTestingConfig } from '../shared/testing-utils/typeorm-testing-config';
-import { faker } from '@faker-js/faker';
 import { PubSubService } from '../common/services/pubsub.service';
+import { NotFoundException } from '@nestjs/common';
+import { UploadedFile } from './interfaces/uploaded-file.interface';
+import { TipoMovimientoEnum } from '../movimientos-inventario/enums/tipo-movimiento.enum';
 
 describe('ProductosService', () => {
   let service: ProductosService;
-  let productoRepository: Repository<ProductoEntity>;
-  let categoriaRepository: Repository<CategoriaEntity>;
-  let marcaRepository: Repository<MarcaEntity>;
-  let unidadMedidaRepository: Repository<UnidadMedidaEntity>;
-  let paisRepository: Repository<PaisEntity>;
-  let imagenProductoRepository: Repository<ImagenProductoEntity>;
-  let archivoProductoRepository: Repository<ArchivoProductoEntity>;
-  let fileGcpService: FileGCP;
-  let pubSubService: PubSubService;
+  let mockProductoRepository: jest.Mocked<Repository<ProductoEntity>>;
+  let mockMovimientoInventarioRepository: jest.Mocked<Repository<MovimientoInventarioEntity>>;
+  let mockPaisRepository: jest.Mocked<Repository<PaisEntity>>;
+  let mockCategoriaRepository: jest.Mocked<Repository<CategoriaEntity>>;
+  let mockMarcaRepository: jest.Mocked<Repository<MarcaEntity>>;
+  let mockUnidadMedidaRepository: jest.Mocked<Repository<UnidadMedidaEntity>>;
+  let mockBodegaRepository: jest.Mocked<Repository<BodegaEntity>>;
+  let mockUbicacionRepository: jest.Mocked<Repository<UbicacionEntity>>;
+  let mockImagenProductoRepository: jest.Mocked<Repository<ImagenProductoEntity>>;
+  let mockArchivoProductoRepository: jest.Mocked<Repository<ArchivoProductoEntity>>;
+  let mockFileGCP: jest.Mocked<FileGCP>;
+  let mockPubSubService: jest.Mocked<PubSubService>;
+  let mockQueryBuilder: jest.Mocked<SelectQueryBuilder<MovimientoInventarioEntity>>;
 
-  let productosList: ProductoEntity[];
-  let categoriasList: CategoriaEntity[];
-  let marcasList: MarcaEntity[];
-  let unidadesMedidaList: UnidadMedidaEntity[];
-  let paisesList: PaisEntity[];
+  const mockCategoriaPadre = {
+    id_categoria: 'CAT-0',
+    nombre: 'Parent Category',
+    descripcion: 'Parent Description',
+    categoria_padre: null,
+    fecha_creacion: new Date(),
+    fecha_actualizacion: new Date(),
+  } as unknown as CategoriaEntity;
 
-  const mockFileGCP = {
-    save: jest.fn(),
-    listFiles: jest.fn(),
-    uploadFile: jest.fn(),
-    deleteFile: jest.fn(),
-  };
+  const mockCategoria = {
+    id_categoria: 'CAT-1',
+    nombre: 'Category 1',
+    descripcion: 'Description 1',
+    categoria_padre: mockCategoriaPadre,
+    fecha_creacion: new Date(),
+    fecha_actualizacion: new Date(),
+  } as unknown as CategoriaEntity;
 
-  const mockPubSubService = {
-    publishMessage: jest.fn(),
-  };
+  const mockBodega = {
+    id_bodega: 'BOD-1',
+    nombre: 'Test Warehouse',
+    descripcion: 'Test Description',
+    direccion: 'Test Address',
+    capacidad: 1000,
+    ubicaciones: [],
+    fecha_creacion: new Date(),
+    fecha_actualizacion: new Date(),
+  } as BodegaEntity;
+
+  const mockUbicacion = {
+    id_ubicacion: 'UBI-1',
+    nombre: 'Test Location',
+    descripcion: 'Test Description',
+    tipo: 'ALMACEN',
+    bodega: mockBodega,
+    movimientos_inventario: [],
+    fecha_creacion: new Date(),
+    fecha_actualizacion: new Date(),
+  } as UbicacionEntity;
+
+  const mockProducto = {
+    id_producto: 'PROD-1',
+    nombre: 'Test Product',
+    descripcion: 'Test Description',
+    sku: 'TEST-123',
+    codigo_barras: '123456789',
+    precio: 100,
+    activo: true,
+    alto: 10,
+    ancho: 10,
+    largo: 10,
+    peso: 1,
+    id_fabricante: 'FAB-123',
+    categoria: mockCategoria,
+    marca: {
+      id_marca: 'MAR-123',
+      nombre: 'Test Brand',
+      descripcion: 'Test Brand Description',
+      fecha_creacion: new Date(),
+      fecha_actualizacion: new Date(),
+    } as MarcaEntity,
+    unidad_medida: {
+      id_unidad_medida: 'UM-123',
+      nombre: 'Test Unit',
+      abreviatura: 'TU',
+      fecha_creacion: new Date(),
+      fecha_actualizacion: new Date(),
+    } as UnidadMedidaEntity,
+    pais: {
+      id_pais: 'PAIS-123',
+      nombre: 'Test Country',
+      abreviatura: 'TC',
+      moneda: 'USD',
+      iva: 19,
+      fecha_creacion: new Date(),
+      fecha_actualizacion: new Date(),
+    } as PaisEntity,
+    imagenes: [],
+    movimientos_inventario: [],
+    fecha_creacion: new Date(),
+    fecha_actualizacion: new Date(),
+  } as ProductoEntity;
 
   beforeEach(async () => {
+    mockQueryBuilder = {
+      innerJoinAndSelect: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      getMany: jest.fn(),
+    } as any;
+
+    mockProductoRepository = {
+      save: jest.fn(),
+      find: jest.fn(),
+      findOne: jest.fn(),
+      create: jest.fn(),
+    } as any;
+
+    mockMovimientoInventarioRepository = {
+      createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
+    } as any;
+
+    mockPaisRepository = {
+      save: jest.fn(),
+    } as any;
+
+    mockCategoriaRepository = {
+      save: jest.fn(),
+      find: jest.fn(),
+    } as any;
+
+    mockMarcaRepository = {
+      save: jest.fn(),
+      find: jest.fn(),
+    } as any;
+
+    mockUnidadMedidaRepository = {
+      save: jest.fn(),
+      find: jest.fn(),
+    } as any;
+
+    mockBodegaRepository = {
+      save: jest.fn(),
+    } as any;
+
+    mockUbicacionRepository = {
+      save: jest.fn(),
+    } as any;
+
+    mockImagenProductoRepository = {
+      save: jest.fn(),
+    } as any;
+
+    mockArchivoProductoRepository = {
+      save: jest.fn(),
+      find: jest.fn(),
+    } as any;
+
+    mockFileGCP = {
+      save: jest.fn(),
+    } as any;
+
+    mockPubSubService = {
+      publishMessage: jest.fn(),
+    } as any;
+
     const module: TestingModule = await Test.createTestingModule({
-      imports: [...TypeOrmTestingConfig()],
       providers: [
         ProductosService,
-        { provide: FileGCP, useValue: mockFileGCP },
-        { provide: PubSubService, useValue: mockPubSubService },
+        {
+          provide: getRepositoryToken(ProductoEntity),
+          useValue: mockProductoRepository,
+        },
+        {
+          provide: getRepositoryToken(MovimientoInventarioEntity),
+          useValue: mockMovimientoInventarioRepository,
+        },
+        {
+          provide: getRepositoryToken(PaisEntity),
+          useValue: mockPaisRepository,
+        },
+        {
+          provide: getRepositoryToken(CategoriaEntity),
+          useValue: mockCategoriaRepository,
+        },
+        {
+          provide: getRepositoryToken(MarcaEntity),
+          useValue: mockMarcaRepository,
+        },
+        {
+          provide: getRepositoryToken(UnidadMedidaEntity),
+          useValue: mockUnidadMedidaRepository,
+        },
+        {
+          provide: getRepositoryToken(BodegaEntity),
+          useValue: mockBodegaRepository,
+        },
+        {
+          provide: getRepositoryToken(UbicacionEntity),
+          useValue: mockUbicacionRepository,
+        },
+        {
+          provide: getRepositoryToken(ImagenProductoEntity),
+          useValue: mockImagenProductoRepository,
+        },
+        {
+          provide: getRepositoryToken(ArchivoProductoEntity),
+          useValue: mockArchivoProductoRepository,
+        },
+        {
+          provide: FileGCP,
+          useValue: mockFileGCP,
+        },
+        {
+          provide: PubSubService,
+          useValue: mockPubSubService,
+        },
       ],
     }).compile();
 
     service = module.get<ProductosService>(ProductosService);
-    productoRepository = module.get<Repository<ProductoEntity>>(
-      getRepositoryToken(ProductoEntity),
-    );
-    categoriaRepository = module.get<Repository<CategoriaEntity>>(
-      getRepositoryToken(CategoriaEntity),
-    );
-    marcaRepository = module.get<Repository<MarcaEntity>>(
-      getRepositoryToken(MarcaEntity),
-    );
-    unidadMedidaRepository = module.get<Repository<UnidadMedidaEntity>>(
-      getRepositoryToken(UnidadMedidaEntity),
-    );
-    paisRepository = module.get<Repository<PaisEntity>>(
-      getRepositoryToken(PaisEntity),
-    );
-    imagenProductoRepository = module.get<Repository<ImagenProductoEntity>>(
-      getRepositoryToken(ImagenProductoEntity),
-    );
-    archivoProductoRepository = module.get<Repository<ArchivoProductoEntity>>(
-      getRepositoryToken(ArchivoProductoEntity),
-    );
-    fileGcpService = module.get<FileGCP>(FileGCP);
-    pubSubService = module.get<PubSubService>(PubSubService);
-
-    await seedDatabase();
   });
-
-  const seedDatabase = async () => {
-    await productoRepository.clear();
-    await categoriaRepository.clear();
-    await marcaRepository.clear();
-    await unidadMedidaRepository.clear();
-    await paisRepository.clear();
-
-    productosList = [];
-    categoriasList = [];
-    marcasList = [];
-    unidadesMedidaList = [];
-    paisesList = [];
-
-    // Crear países
-    const pais1 = await paisRepository.save({
-      id_pais: faker.string.uuid(),
-      nombre: 'Colombia',
-      abreviatura: 'COL',
-      moneda: 'COP',
-      iva: 19.0,
-    });
-    const pais2 = await paisRepository.save({
-      id_pais: faker.string.uuid(),
-      nombre: 'Estados Unidos',
-      abreviatura: 'US',
-      moneda: 'USD',
-      iva: 0.0,
-    });
-    paisesList.push(pais1, pais2);
-
-    // Crear categorías
-    const categoria1 = await categoriaRepository.save({
-      id_categoria: faker.string.uuid(),
-      nombre: 'Electrónica',
-      descripcion: 'Productos electrónicos',
-    });
-    const categoria2 = await categoriaRepository.save({
-      id_categoria: faker.string.uuid(),
-      nombre: 'Alimentos',
-      descripcion: 'Productos alimenticios',
-    });
-    categoriasList.push(categoria1, categoria2);
-
-    // Crear marcas
-    const marca1 = await marcaRepository.save({
-      id_marca: faker.string.uuid(),
-      nombre: 'Samsung',
-      descripcion: 'Tecnología coreana',
-    });
-    const marca2 = await marcaRepository.save({
-      id_marca: faker.string.uuid(),
-      nombre: 'Nestlé',
-      descripcion: 'Alimentos suizos',
-    });
-    marcasList.push(marca1, marca2);
-
-    // Crear unidades de medida
-    const unidad1 = await unidadMedidaRepository.save({
-      id_unidad_medida: faker.string.uuid(),
-      nombre: 'Unidad',
-      abreviatura: 'UN',
-    });
-    const unidad2 = await unidadMedidaRepository.save({
-      id_unidad_medida: faker.string.uuid(),
-      nombre: 'Kilogramo',
-      abreviatura: 'KG',
-    });
-    unidadesMedidaList.push(unidad1, unidad2);
-
-    // Crear productos
-    for (let i = 0; i < 5; i++) {
-      const producto = await productoRepository.save({
-        id_producto: faker.string.uuid(),
-        nombre: faker.commerce.productName(),
-        descripcion: faker.commerce.productDescription(),
-        sku: faker.string.alphanumeric(10),
-        codigo_barras: faker.string.numeric(13),
-        precio: parseFloat(faker.commerce.price()),
-        activo: true,
-        alto: faker.number.int({ min: 1, max: 100 }),
-        ancho: faker.number.int({ min: 1, max: 100 }),
-        largo: faker.number.int({ min: 1, max: 100 }),
-        peso: faker.number.int({ min: 1, max: 10 }),
-        id_fabricante: faker.string.alphanumeric(5),
-        categoria: categoriasList[i % 2],
-        marca: marcasList[i % 2],
-        unidad_medida: unidadesMedidaList[i % 2],
-        pais: paisesList[i % 2],
-        fecha_creacion: new Date('2025-04-05T17:40:54-05:00'),
-        fecha_actualizacion: new Date('2025-04-05T17:40:54-05:00'),
-      });
-      productosList.push(producto);
-    }
-  };
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  describe('obtenerProductos', () => {
-    it('should return all products', async () => {
-      const productos = await service.obtenerProductos();
-      expect(productos).not.toBeNull();
-      expect(productos).toHaveLength(productosList.length);
-    });
-  });
+  describe('obtenerProductosPorPedido', () => {
+    it('should return products for a given order', async () => {
+      const mockMovimientos = [
+        {
+          id_movimiento: 'MOV-1',
+          producto: mockProducto,
+          ubicacion: mockUbicacion,
+          id_pedido: 'ORDER-1',
+          cantidad: 2,
+          tipo_movimiento: TipoMovimientoEnum.SALIDA,
+          id_usuario: 'USER-1',
+          fecha_registro: new Date(),
+        } as MovimientoInventarioEntity,
+      ];
 
-  describe('obtenerProducto', () => {
-    it('should return a product by id', async () => {
-      const storedProduct = productosList[0];
-      const producto = await service.obtenerProducto(storedProduct.id_producto);
-      expect(producto).not.toBeNull();
-      expect(producto.nombre).toEqual(storedProduct.nombre);
-      expect(producto.sku).toEqual(storedProduct.sku);
+      mockQueryBuilder.getMany.mockResolvedValue(mockMovimientos);
+
+      const result = await service.obtenerProductosPorPedido('ORDER-1');
+
+      expect(result).toEqual([
+        {
+          id_producto: 'PROD-1',
+          nombre: 'Test Product',
+          descripcion: 'Test Description',
+          sku: 'TEST-123',
+          precio: 100,
+          alto: 10,
+          largo: 10,
+          ancho: 10,
+          peso: 1,
+          cantidad: 2,
+        },
+      ]);
+
+      expect(mockMovimientoInventarioRepository.createQueryBuilder).toHaveBeenCalledWith('movimiento');
+      expect(mockQueryBuilder.innerJoinAndSelect).toHaveBeenCalledWith('movimiento.producto', 'producto');
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith('movimiento.id_pedido = :idPedido', { idPedido: 'ORDER-1' });
     });
 
-    it('should throw an exception for an invalid product', async () => {
-      await expect(service.obtenerProducto('0')).rejects.toThrow(
-        NotFoundException,
-      );
+    it('should return empty array when no products found', async () => {
+      mockQueryBuilder.getMany.mockResolvedValue([]);
+
+      const result = await service.obtenerProductosPorPedido('ORDER-1');
+
+      expect(result).toEqual([]);
     });
   });
 
   describe('obtenerCategorias', () => {
     it('should return all categories', async () => {
-      const categorias = await service.obtenerCategorias();
-      expect(categorias).not.toBeNull();
-      expect(categorias).toHaveLength(categoriasList.length);
+      const mockCategorias = [mockCategoria];
+
+      mockCategoriaRepository.find.mockResolvedValue(mockCategorias);
+
+      const result = await service.obtenerCategorias();
+
+      expect(result).toEqual(mockCategorias);
+      expect(mockCategoriaRepository.find).toHaveBeenCalled();
     });
   });
 
   describe('obtenerMarcas', () => {
     it('should return all brands', async () => {
-      const marcas = await service.obtenerMarcas();
-      expect(marcas).not.toBeNull();
-      expect(marcas).toHaveLength(marcasList.length);
+      const mockMarcas: MarcaEntity[] = [
+        {
+          id_marca: 'MARCA-1',
+          nombre: 'Brand 1',
+          descripcion: 'Description 1',
+          fecha_creacion: new Date(),
+          fecha_actualizacion: new Date(),
+        } as MarcaEntity,
+        {
+          id_marca: 'MARCA-2',
+          nombre: 'Brand 2',
+          descripcion: 'Description 2',
+          fecha_creacion: new Date(),
+          fecha_actualizacion: new Date(),
+        } as MarcaEntity,
+      ];
+
+      mockMarcaRepository.find.mockResolvedValue(mockMarcas);
+
+      const result = await service.obtenerMarcas();
+
+      expect(result).toEqual(mockMarcas);
+      expect(mockMarcaRepository.find).toHaveBeenCalled();
     });
   });
 
   describe('obtenerUnidadesMedida', () => {
     it('should return all measurement units', async () => {
-      const unidades = await service.obtenerUnidadesMedida();
-      expect(unidades).not.toBeNull();
-      expect(unidades).toHaveLength(unidadesMedidaList.length);
+      const mockUnidades: UnidadMedidaEntity[] = [
+        {
+          id_unidad_medida: 'UM-1',
+          nombre: 'Unit 1',
+          abreviatura: 'U1',
+          fecha_creacion: new Date(),
+          fecha_actualizacion: new Date(),
+        } as UnidadMedidaEntity,
+        {
+          id_unidad_medida: 'UM-2',
+          nombre: 'Unit 2',
+          abreviatura: 'U2',
+          fecha_creacion: new Date(),
+          fecha_actualizacion: new Date(),
+        } as UnidadMedidaEntity,
+      ];
+
+      mockUnidadMedidaRepository.find.mockResolvedValue(mockUnidades);
+
+      const result = await service.obtenerUnidadesMedida();
+
+      expect(result).toEqual(mockUnidades);
+      expect(mockUnidadMedidaRepository.find).toHaveBeenCalled();
     });
   });
 
   describe('GuardarProducto', () => {
-    it('should create a new product', async () => {
-      const producto: ProductoEntity = {
-        id_producto: '',
-        nombre: faker.commerce.productName(),
-        descripcion: faker.commerce.productDescription(),
-        sku: faker.string.alphanumeric(10),
-        codigo_barras: faker.string.numeric(13),
-        precio: parseFloat(faker.commerce.price()),
-        activo: true,
-        alto: faker.number.int({ min: 1, max: 100 }),
-        ancho: faker.number.int({ min: 1, max: 100 }),
-        largo: faker.number.int({ min: 1, max: 100 }),
-        peso: faker.number.float({ min: 0.1, max: 100, fractionDigits: 1 }),
-        id_fabricante: `FAB-${faker.string.alphanumeric(5)}`,
-        fecha_creacion: new Date('2025-04-05T17:40:54-05:00'),
-        fecha_actualizacion: new Date('2025-04-05T17:40:54-05:00'),
-        categoria: categoriasList[0],
-        marca: marcasList[0],
-        unidad_medida: unidadesMedidaList[0],
-        pais: paisesList[0],
-        imagenes: [],
-        movimientos_inventario: [],
-      };
+    it('should save product without files', async () => {
+      mockProductoRepository.save.mockResolvedValue(mockProducto);
 
-      mockFileGCP.save.mockResolvedValue('http://test.com/test.jpg');
+      const result = await service.GuardarProducto(mockProducto, []);
 
-      const newProduct = await service.GuardarProducto(producto, []);
-      expect(newProduct).not.toBeNull();
+      expect(result).toEqual(mockProducto);
+      expect(mockProductoRepository.save).toHaveBeenCalledWith(mockProducto);
+      expect(mockFileGCP.save).not.toHaveBeenCalled();
+      expect(mockImagenProductoRepository.save).not.toHaveBeenCalled();
+    });
 
-      const storedProduct = await productoRepository.findOne({
-        where: { id_producto: newProduct.id_producto },
-        relations: ['categoria', 'marca', 'unidad_medida', 'pais'],
+    it('should save product with files', async () => {
+      const mockFiles: UploadedFile[] = [
+        {
+          fieldname: 'file',
+          originalname: 'test.jpg',
+          encoding: '7bit',
+          mimetype: 'image/jpeg',
+          buffer: Buffer.from('test'),
+          size: 4,
+        },
+      ];
+
+      mockProductoRepository.save.mockResolvedValue(mockProducto);
+      mockFileGCP.save.mockResolvedValue('https://storage.googleapis.com/test-bucket/test.jpg');
+
+      const result = await service.GuardarProducto(mockProducto, mockFiles);
+
+      expect(result).toEqual(mockProducto);
+      expect(mockProductoRepository.save).toHaveBeenCalledWith(mockProducto);
+      expect(mockFileGCP.save).toHaveBeenCalledWith(
+        mockFiles[0],
+        `imagenes/${mockProducto.id_producto}/${mockFiles[0].originalname}`,
+      );
+      expect(mockImagenProductoRepository.save).toHaveBeenCalledWith({
+        key_object_storage: `imagenes/${mockProducto.id_producto}/${mockFiles[0].originalname}`,
+        url: 'https://storage.googleapis.com/test-bucket/test.jpg',
+        producto: mockProducto,
       });
-      expect(storedProduct).not.toBeNull();
-      expect(storedProduct?.nombre).toEqual(newProduct.nombre);
     });
   });
 
   describe('guardarArchivoCSV', () => {
-    it('should save a CSV file', async () => {
-      const mockFile = {
+    it('should save CSV file and publish message', async () => {
+      const mockFile: UploadedFile = {
         fieldname: 'file',
         originalname: 'test.csv',
         encoding: '7bit',
@@ -279,26 +412,122 @@ describe('ProductosService', () => {
         size: 4,
       };
 
-      mockFileGCP.save.mockResolvedValue('http://test.com/test.csv');
+      const mockUrl = 'https://storage.googleapis.com/test-bucket/test.csv';
+      const mockArchivoProducto: ArchivoProductoEntity = {
+        id_archivo: 'ARCH-1',
+        nombre_archivo: 'test.csv',
+        url: mockUrl,
+        estado: 'pendiente',
+        total_registros: 0,
+        registros_cargados: 0,
+        errores_procesamiento: [],
+        fecha_carga: new Date(),
+        fecha_procesamiento: new Date(),
+      } as ArchivoProductoEntity;
+
+      mockFileGCP.save.mockResolvedValue(mockUrl);
+      mockArchivoProductoRepository.save.mockResolvedValue(mockArchivoProducto);
 
       const result = await service.guardarArchivoCSV(mockFile);
-      expect(result).not.toBeNull();
-      expect(result.url).toEqual('http://test.com/test.csv');
+
+      expect(result).toEqual({ url: mockUrl });
+      expect(mockFileGCP.save).toHaveBeenCalledWith(
+        mockFile,
+        expect.stringContaining('csvs/'),
+      );
+      expect(mockArchivoProductoRepository.save).toHaveBeenCalledWith({
+        nombre_archivo: mockFile.originalname,
+        url: mockUrl,
+        estado: 'pendiente',
+      });
+      expect(mockPubSubService.publishMessage).toHaveBeenCalledWith({
+        archivoProductoId: mockArchivoProducto.id_archivo,
+      });
     });
   });
 
   describe('obtenerArchivosCSV', () => {
-    it('should return all CSV files', async () => {
-      const archivo = await archivoProductoRepository.save({
-        nombre_archivo: 'test.csv',
-        url: 'http://test.com/test.csv',
-        estado: 'pendiente',
-        fecha_carga: new Date(),
-      });
+    it('should return all CSV files ordered by upload date', async () => {
+      const mockArchivos: ArchivoProductoEntity[] = [
+        {
+          id_archivo: 'ARCH-1',
+          nombre_archivo: 'test1.csv',
+          url: 'https://example.com/test1.csv',
+          estado: 'procesado',
+          total_registros: 10,
+          registros_cargados: 10,
+          errores_procesamiento: [],
+          fecha_carga: new Date('2025-01-01'),
+          fecha_procesamiento: new Date('2025-01-01'),
+        } as ArchivoProductoEntity,
+        {
+          id_archivo: 'ARCH-2',
+          nombre_archivo: 'test2.csv',
+          url: 'https://example.com/test2.csv',
+          estado: 'pendiente',
+          total_registros: 0,
+          registros_cargados: 0,
+          errores_procesamiento: [],
+          fecha_carga: new Date('2025-01-02'),
+          fecha_procesamiento: new Date('2025-01-02'),
+        } as ArchivoProductoEntity,
+      ];
 
-      const archivos = await service.obtenerArchivosCSV();
-      expect(archivos).not.toBeNull();
-      expect(archivos.length).toBeGreaterThan(0);
+      mockArchivoProductoRepository.find.mockResolvedValue(mockArchivos);
+
+      const result = await service.obtenerArchivosCSV();
+
+      expect(result).toEqual(mockArchivos);
+      expect(mockArchivoProductoRepository.find).toHaveBeenCalledWith({
+        order: {
+          fecha_carga: 'DESC',
+        },
+      });
+    });
+  });
+
+  describe('obtenerProducto', () => {
+    it('should return product by id', async () => {
+      mockProductoRepository.findOne.mockResolvedValue(mockProducto);
+
+      const result = await service.obtenerProducto('PROD-1');
+
+      expect(result).toEqual(mockProducto);
+      expect(mockProductoRepository.findOne).toHaveBeenCalledWith({
+        where: { id_producto: 'PROD-1' },
+      });
+    });
+
+    it('should throw NotFoundException when product not found', async () => {
+      mockProductoRepository.findOne.mockResolvedValue(null);
+
+      await expect(service.obtenerProducto('PROD-1')).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(mockProductoRepository.findOne).toHaveBeenCalledWith({
+        where: { id_producto: 'PROD-1' },
+      });
+    });
+  });
+
+  describe('obtenerProductos', () => {
+    it('should return all products with relations', async () => {
+      const mockProductos = [mockProducto];
+
+      mockProductoRepository.find.mockResolvedValue(mockProductos);
+
+      const result = await service.obtenerProductos();
+
+      expect(result).toEqual(mockProductos);
+      expect(mockProductoRepository.find).toHaveBeenCalledWith({
+        relations: {
+          categoria: true,
+          unidad_medida: true,
+          marca: true,
+          imagenes: true,
+        },
+        select: expect.any(Object),
+      });
     });
   });
 });
