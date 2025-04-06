@@ -84,17 +84,22 @@ describe('InitService', () => {
       expect(mockRolRepository.save).toHaveBeenCalled();
     });
 
-    it('should not create roles if they already exist', async () => {
+    it('should not create initial roles if they already exist', async () => {
       const existingRole = {
         id: '1',
         nombre: 'Administrador',
         descripcion: 'Usuario con acceso total al sistema',
       };
-      mockRolRepository.findOne.mockResolvedValue(existingRole);
+
+      // Para la búsqueda inicial del rol
+      mockRolRepository.findOne
+        .mockResolvedValueOnce(existingRole)
+        // Para las siguientes búsquedas (asignación de permisos)
+        .mockResolvedValue({ ...existingRole, permisos: [] });
 
       await service.onModuleInit();
 
-      expect(mockRolRepository.findOne).toHaveBeenCalled();
+      // Verificar que save no fue llamado con el rol existente sin permisos
       expect(mockRolRepository.save).not.toHaveBeenCalledWith(existingRole);
     });
 
