@@ -44,10 +44,6 @@ export class ProductoFileProcessorService {
         .split('/');
       const fileName =
         urlParts[urlParts.length - 2] + '/' + urlParts[urlParts.length - 1];
-      console.log(
-        '🚀 ~ ProductoFileProcessorService ~ processFile ~ fileName:',
-        fileName,
-      );
       const decodedFileName = decodeURIComponent(fileName);
 
       const fileContent = await this.fileGCP.getFile(decodedFileName);

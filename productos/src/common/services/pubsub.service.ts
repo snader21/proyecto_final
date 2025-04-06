@@ -68,7 +68,6 @@ export class PubSubService {
       const subscription = this.pubSubClient.subscription(SUBSCRIPTION_NAME);
 
       subscription.on('message', async (message) => {
-        console.log('🚀 ~ PubSubService ~ message:', message);
         try {
           const data = JSON.parse(message.data.toString()) as T;
           await messageHandler(data);

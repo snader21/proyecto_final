@@ -80,7 +80,6 @@ export class ProductosFileModule implements OnModuleInit {
     try {
       await this.pubSubService.subscribe<FileProcessingMessage>(
         async (message) => {
-          console.log('message', message);
           try {
             await this.fileProcessor.processFile(message.archivoProductoId);
           } catch (error) {

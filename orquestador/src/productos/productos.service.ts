@@ -45,14 +45,6 @@ export class ProductosService {
   async crearMovimientoInventario(dto: CreateMovimientoInventarioDto) {
     const apiEndPoint = `${this.apiProductos}/movimientos-inventario`;
 
-    console.log(
-      '🚀 ~ ProductosService ~ crearMovimientoInventario ~ apiEndPoint:',
-      apiEndPoint,
-    );
-    console.log(
-      '🚀 ~ ProductosService ~ crearMovimientoInventario ~ apiEndPoint:',
-      dto,
-    );
     try {
       const { data } = await firstValueFrom(
         this.httpService.post<MovimientoInventarioDto>(apiEndPoint, dto),
