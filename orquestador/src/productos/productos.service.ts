@@ -5,11 +5,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { map } from 'rxjs/operators';
-import { firstValueFrom, Observable } from 'rxjs';
+import { async, firstValueFrom, Observable } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { CreateMovimientoInventarioDto } from './dto/create-movimiento-inventario.dto';
 import { AxiosError } from 'axios';
 import { MovimientoInventarioDto } from './dto/movimiento-inventario.dto';
+import { QueryInventarioDto } from './dto/query-inventario.dto';
+import { ProductoConInventarioDto } from './dto/producto-con-inventario.dto';
 
 export interface IRespuestaProducto {
   id_producto: string;
@@ -55,6 +57,22 @@ export class ProductosService {
       if (axiosError?.response?.status === 404) {
         throw new NotFoundException(axiosError?.response?.data?.message);
       }
+      throw new BadRequestException(axiosError?.response?.data?.message);
+    }
+  }
+
+  async getInventario(query: QueryInventarioDto) {
+    const apiEndPoint = `${this.apiProductos}/inventarios`;
+
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.get<ProductoConInventarioDto[]>(apiEndPoint, {
+          params: query,
+        }),
+      );
+      return data;
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message: string }>;
       throw new BadRequestException(axiosError?.response?.data?.message);
     }
   }

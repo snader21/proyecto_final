@@ -21,7 +21,7 @@ import { VendedorEntity } from './vendedores/entities/vendedor.entity';
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_NAME || 'vendedores',
       entities: [VendedorEntity, ZonaEntity],
-      dropSchema: true,
+      dropSchema: false,
       synchronize: true,
     }),
     VendedoresModule,

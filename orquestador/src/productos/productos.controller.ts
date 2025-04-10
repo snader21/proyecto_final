@@ -5,14 +5,21 @@ import {
   Get,
   UploadedFiles,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { ProductosService } from './productos.service';
 import { CreateMovimientoInventarioDto } from './dto/create-movimiento-inventario.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { QueryInventarioDto } from './dto/query-inventario.dto';
 
 @Controller('productos')
 export class ProductosController {
   constructor(private readonly productosService: ProductosService) {}
+
+  @Get('inventarios')
+  async getInventario(@Query() query: QueryInventarioDto) {
+    return this.productosService.getInventario(query);
+  }
 
   @Post('movimientos-inventario')
   async crearMovimientoInventario(@Body() dto: CreateMovimientoInventarioDto) {

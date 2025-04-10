@@ -422,4 +422,14 @@ describe('Pruebas con servicio de inventario real', () => {
     });
     expect(matchProductos.length).toEqual(0);
   });
+
+  it('no deberia retornar productos si no hay match', async () => {
+    await poblarBaseDeDatos(true);
+    const substring =
+      faker.string.alpha(10) + faker.lorem.word() + faker.string.alpha(10);
+    const matchProductos = await service.obtenerInventarioDeProductos({
+      nombre_producto: substring,
+    });
+    expect(matchProductos.length).toEqual(0);
+  });
 });
