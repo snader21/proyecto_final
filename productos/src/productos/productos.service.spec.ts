@@ -21,18 +21,26 @@ import { TipoMovimientoEnum } from '../movimientos-inventario/enums/tipo-movimie
 describe('ProductosService', () => {
   let service: ProductosService;
   let mockProductoRepository: jest.Mocked<Repository<ProductoEntity>>;
-  let mockMovimientoInventarioRepository: jest.Mocked<Repository<MovimientoInventarioEntity>>;
+  let mockMovimientoInventarioRepository: jest.Mocked<
+    Repository<MovimientoInventarioEntity>
+  >;
   let mockPaisRepository: jest.Mocked<Repository<PaisEntity>>;
   let mockCategoriaRepository: jest.Mocked<Repository<CategoriaEntity>>;
   let mockMarcaRepository: jest.Mocked<Repository<MarcaEntity>>;
   let mockUnidadMedidaRepository: jest.Mocked<Repository<UnidadMedidaEntity>>;
   let mockBodegaRepository: jest.Mocked<Repository<BodegaEntity>>;
   let mockUbicacionRepository: jest.Mocked<Repository<UbicacionEntity>>;
-  let mockImagenProductoRepository: jest.Mocked<Repository<ImagenProductoEntity>>;
-  let mockArchivoProductoRepository: jest.Mocked<Repository<ArchivoProductoEntity>>;
+  let mockImagenProductoRepository: jest.Mocked<
+    Repository<ImagenProductoEntity>
+  >;
+  let mockArchivoProductoRepository: jest.Mocked<
+    Repository<ArchivoProductoEntity>
+  >;
   let mockFileGCP: jest.Mocked<FileGCP>;
   let mockPubSubService: jest.Mocked<PubSubService>;
-  let mockQueryBuilder: jest.Mocked<SelectQueryBuilder<MovimientoInventarioEntity>>;
+  let mockQueryBuilder: jest.Mocked<
+    SelectQueryBuilder<MovimientoInventarioEntity>
+  >;
 
   const mockCategoriaPadre = {
     id_categoria: 'CAT-0',
@@ -111,6 +119,7 @@ describe('ProductosService', () => {
       fecha_creacion: new Date(),
       fecha_actualizacion: new Date(),
     } as PaisEntity,
+    inventario: [],
     imagenes: [],
     movimientos_inventario: [],
     fecha_creacion: new Date(),
@@ -275,9 +284,17 @@ describe('ProductosService', () => {
         },
       ]);
 
-      expect(mockMovimientoInventarioRepository.createQueryBuilder).toHaveBeenCalledWith('movimiento');
-      expect(mockQueryBuilder.innerJoinAndSelect).toHaveBeenCalledWith('movimiento.producto', 'producto');
-      expect(mockQueryBuilder.where).toHaveBeenCalledWith('movimiento.id_pedido = :idPedido', { idPedido: 'ORDER-1' });
+      expect(
+        mockMovimientoInventarioRepository.createQueryBuilder,
+      ).toHaveBeenCalledWith('movimiento');
+      expect(mockQueryBuilder.innerJoinAndSelect).toHaveBeenCalledWith(
+        'movimiento.producto',
+        'producto',
+      );
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith(
+        'movimiento.id_pedido = :idPedido',
+        { idPedido: 'ORDER-1' },
+      );
     });
 
     it('should return empty array when no products found', async () => {
@@ -383,7 +400,9 @@ describe('ProductosService', () => {
       ];
 
       mockProductoRepository.save.mockResolvedValue(mockProducto);
-      mockFileGCP.save.mockResolvedValue('https://storage.googleapis.com/test-bucket/test.jpg');
+      mockFileGCP.save.mockResolvedValue(
+        'https://storage.googleapis.com/test-bucket/test.jpg',
+      );
 
       const result = await service.GuardarProducto(mockProducto, mockFiles);
 

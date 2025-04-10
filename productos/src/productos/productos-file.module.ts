@@ -15,6 +15,7 @@ import { SkuValidator } from './validations/validators/sku.validator';
 import { CommonModule } from '../common/common.module';
 import { PubSubService } from '../common/services/pubsub.service';
 import { FileGCP } from './utils/file-gcp.service';
+import { HttpModule } from '@nestjs/axios';
 
 interface FileProcessingMessage {
   archivoProductoId: string;
@@ -28,9 +29,10 @@ interface FileProcessingMessage {
       CategoriaEntity,
       MarcaEntity,
       UnidadMedidaEntity,
-      PaisEntity
+      PaisEntity,
     ]),
     CommonModule,
+    HttpModule,
   ],
   providers: [
     ProductoFileProcessorService,
@@ -47,22 +49,22 @@ interface FileProcessingMessage {
         marcaValidator: MarcaValidator,
         categoriaValidator: CategoriaValidator,
         unidadMedidaValidator: UnidadMedidaValidator,
-        paisValidator: PaisValidator
+        paisValidator: PaisValidator,
       ) => [
         skuValidator,
         marcaValidator,
         categoriaValidator,
         unidadMedidaValidator,
-        paisValidator
+        paisValidator,
       ],
       inject: [
         SkuValidator,
         MarcaValidator,
         CategoriaValidator,
         UnidadMedidaValidator,
-        PaisValidator
-      ]
-    }
+        PaisValidator,
+      ],
+    },
   ],
   exports: [ProductoFileProcessorService],
 })
@@ -76,17 +78,22 @@ export class ProductosFileModule implements OnModuleInit {
 
   async onModuleInit() {
     try {
-      await this.pubSubService.subscribe<FileProcessingMessage>(async (message) => {
-        try {
-          await this.fileProcessor.processFile(message.archivoProductoId);
-        } catch (error) {
-          this.logger.error('Error procesando archivo:', error);
-        }
-      });
+      await this.pubSubService.subscribe<FileProcessingMessage>(
+        async (message) => {
+          try {
+            await this.fileProcessor.processFile(message.archivoProductoId);
+          } catch (error) {
+            this.logger.error('Error procesando archivo:', error);
+          }
+        },
+      );
 
       this.logger.log('Servicio de procesamiento de archivos iniciado');
     } catch (error) {
-      this.logger.error('Error al iniciar el servicio de procesamiento:', error);
+      this.logger.error(
+        'Error al iniciar el servicio de procesamiento:',
+        error,
+      );
     }
   }
 }

@@ -28,7 +28,7 @@ import { CommonModule } from '../common/common.module';
       MovimientoInventarioEntity,
       BodegaEntity,
       UbicacionEntity,
-      ImagenProductoEntity
+      ImagenProductoEntity,
     ]),
     HttpModule,
     CommonModule,

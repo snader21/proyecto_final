@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { UploadedFile } from './interfaces/uploaded-file.interface';
 import { ProductosService } from './productos.service';
@@ -33,7 +41,9 @@ export class ProductosController {
   }
 
   @Get(':idPedido')
-  async obtenerProductosPorPedido(@Param('idPedido') idPedido: string): Promise<ProductoPorPedidoDto[]> {
+  async obtenerProductosPorPedido(
+    @Param('idPedido') idPedido: string,
+  ): Promise<ProductoPorPedidoDto[]> {
     return this.productosService.obtenerProductosPorPedido(idPedido);
   }
 
@@ -49,13 +59,14 @@ export class ProductosController {
     @UploadedFiles() files: UploadedFile[],
   ): Promise<ProductoEntity> {
     const producto = JSON.parse(productoStr);
-    console.log('files XXX', files, productoStr);
     return this.productosService.GuardarProducto(producto, files);
   }
 
   @Post('upload-csv')
   @UseInterceptors(FilesInterceptor('file'))
-  async uploadCSV(@UploadedFiles() files: UploadedFile[]): Promise<{ url: string }> {
+  async uploadCSV(
+    @UploadedFiles() files: UploadedFile[],
+  ): Promise<{ url: string }> {
     return this.productosService.guardarArchivoCSV(files[0]);
   }
 }

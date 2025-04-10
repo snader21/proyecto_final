@@ -5,6 +5,8 @@ import { UploadedFile } from '../interfaces/uploaded-file.interface';
 import { Readable } from 'stream';
 import { promisify } from 'util';
 import { pipeline } from 'stream';
+import { lastValueFrom } from 'rxjs';
+import { HttpService } from '@nestjs/axios';
 
 const pipelineAsync = promisify(pipeline);
 
@@ -14,7 +16,10 @@ export class FileGCP {
   private bucket: Bucket;
   private readonly logger = new Logger(FileGCP.name);
 
-  constructor(private readonly gcpConfigService: GCPConfigService) {
+  constructor(
+    private readonly gcpConfigService: GCPConfigService,
+    private readonly httpService: HttpService,
+  ) {
     this.storage = new Storage(this.gcpConfigService.getCredentials());
   }
 
@@ -23,6 +28,22 @@ export class FileGCP {
       this.bucket = this.storage.bucket(this.gcpConfigService.getBucketName());
     }
     return this.bucket;
+  }
+
+  async getFileFromSignedUrl(signedUrl: string): Promise<Buffer> {
+    try {
+      const response$ = this.httpService.get(signedUrl, {
+        responseType: 'arraybuffer',
+      });
+
+      const response = await lastValueFrom(response$);
+      return Buffer.from(response.data);
+    } catch (error) {
+      this.logger.error(
+        `Error fetching file from signed URL: ${error.message}`,
+      );
+      throw error;
+    }
   }
 
   async save(file: UploadedFile, path: string): Promise<string> {
