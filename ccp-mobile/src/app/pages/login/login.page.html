@@ -1,0 +1,41 @@
+<ion-content [fullscreen]="true">
+  <div class="logo-container">
+    <ion-img
+      src="assets/CCP_logo.svg"
+      alt="The Wisconsin State Capitol building in Madison, WI at night"
+      class="logo-img"
+    ></ion-img>
+  </div>
+  <ion-card class="login-card">
+    <ion-card-header>
+      <ion-card-title>Bienvenido</ion-card-title>
+      <ion-card-subtitle>Inicia sesión para continuar</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <div class="login-form">
+        <ion-item>
+          <ion-input
+            [(ngModel)]="correo"
+            label="Correo electrónico"
+            label-placement="floating"
+            placeholder="Ingresa tu correo electrónico"
+          ></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input
+            [(ngModel)]="contrasena"
+            label="Contraseña"
+            label-placement="floating"
+            placeholder="Ingresa tu contraseña"
+            type="password"
+          ></ion-input>
+        </ion-item>
+      </div>
+      <ion-button expand="full" (click)="login()">Iniciar sesión</ion-button>
+      <div class="login-form-footer ion-text-center">
+        <p>¿No tienes una cuenta? <a href="#">Regístrate</a></p>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

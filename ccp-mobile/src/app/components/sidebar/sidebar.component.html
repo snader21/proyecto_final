@@ -1,0 +1,23 @@
+<ion-menu contentId="main-content">
+  <ion-header>
+    <ion-toolbar></ion-toolbar>
+  </ion-header>
+  <ion-content>
+    <ion-list id="inbox-list">
+      @for (p of appPages; track p; let i = $index) {
+        <ion-menu-toggle auto-hide="false">
+          <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="selected">
+            <ion-icon aria-hidden="true" slot="start" [md]="p.icon + '-outline'"></ion-icon>
+            <ion-label>{{ p.title }}</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+      }
+    </ion-list>
+      <ion-menu-toggle auto-hide="false">
+        <ion-item (click)="logout()" lines="none" detail="false">
+          <ion-icon aria-hidden="true" slot="start" name="log-out-outline"></ion-icon>
+          <ion-label>Cerrar sesión</ion-label>
+        </ion-item>
+      </ion-menu-toggle>
+  </ion-content>
+</ion-menu>
