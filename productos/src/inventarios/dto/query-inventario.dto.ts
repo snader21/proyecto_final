@@ -1,10 +1,8 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 
 export class QueryInventarioDto {
-  @IsOptional()
-  @IsString({
-    message:
-      'El patrón para el nombre del producto debe ser una cadena de texto',
+  @IsNotEmpty({
+    message: 'El patrón para el nombre del producto es requerido',
   })
   nombre_producto?: string;
 }
