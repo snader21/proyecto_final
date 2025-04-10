@@ -13,6 +13,7 @@ import { UnidadMedidaEntity } from './unidad-medida.entity';
 import { PaisEntity } from './pais.entity';
 import { ImagenProductoEntity } from './imagen-producto.entity';
 import { MovimientoInventarioEntity } from '../../movimientos-inventario/entities/movimiento-inventario.entity';
+import { InventarioEntity } from '../../inventarios/entities/inventario.entity';
 
 @Entity('producto')
 export class ProductoEntity {
@@ -74,6 +75,9 @@ export class ProductoEntity {
   @ManyToOne(() => PaisEntity)
   @JoinColumn({ name: 'id_pais' })
   pais: PaisEntity;
+
+  @OneToMany(() => InventarioEntity, (inventario) => inventario.producto)
+  inventario: InventarioEntity[];
 
   @OneToMany(
     () => MovimientoInventarioEntity,

@@ -4,6 +4,7 @@ import { EntityManager, Repository } from 'typeorm';
 import { InventarioEntity } from './entities/inventario.entity';
 import { UbicacionEntity } from '../ubicaciones/entities/ubicacion.entity';
 import { TipoMovimientoEnum } from '../movimientos-inventario/enums/tipo-movimiento.enum';
+import { QueryInventarioDto } from './dto/query-inventario.dto';
 @Injectable()
 export class InventariosService {
   constructor(
@@ -11,7 +12,26 @@ export class InventariosService {
     private readonly repositorio: Repository<InventarioEntity>,
   ) {}
 
-  async obtenerInventarioDeProducto(
+  async obtenerInventarioDeProductos(
+    query: QueryInventarioDto,
+  ): Promise<any[]> {
+    const operadorLike = process.env.NODE_ENV === 'test' ? 'LIKE' : 'ILIKE';
+    return this.repositorio
+      .createQueryBuilder('inventario')
+      .leftJoin('inventario.producto', 'producto')
+      .where('producto.nombre ' + operadorLike + ' :nombre', {
+        nombre: `%${query.nombre_producto}%`,
+      })
+      .andWhere('inventario.cantidad_disponible > 0')
+      .select([
+        'producto.id_producto',
+        'producto.nombre',
+        'inventario.cantidad_disponible',
+      ])
+      .getMany();
+  }
+
+  async obtenerInventarioDeProductoEnBodega(
     idProducto: string,
     idUbicacion: string,
   ): Promise<InventarioEntity | null> {
@@ -31,7 +51,7 @@ export class InventariosService {
     cantidad: number,
     manager: EntityManager,
   ): Promise<InventarioEntity> {
-    let inventario = await this.obtenerInventarioDeProducto(
+    let inventario = await this.obtenerInventarioDeProductoEnBodega(
       idProducto,
       ubicacion.id_ubicacion,
     );

@@ -82,7 +82,7 @@ export class ProductosService implements OnModuleInit {
     ];
 
     for (const pais of paises) {
-      await this.paisRepository.save(pais, { 
+      await this.paisRepository.save(pais, {
         transaction: false,
         reload: false,
       });
