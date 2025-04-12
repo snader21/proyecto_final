@@ -56,8 +56,19 @@ export class ProductsService {
     );
   }
 
+  uploadImages(formData: FormData): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.apiUrl}/productos/upload-images`,
+      formData
+    );
+  }
+
   getCSVFiles(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/productos/archivos-csv`);
+  }
+
+  getImageFiles(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/productos/archivos-imagenes`);
   }
 
   getUbicaciones(): Observable<any[]> {

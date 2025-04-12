@@ -5,82 +5,187 @@
         [maximizable]="true"
         [draggable]="false"
         [resizable]="false"
-        header="Carga Masiva de Productos"
+        header="Carga Masiva"
         (onHide)="closeModal()">
 
-        <div class="grid">
-            <div class="col-12">
-                <p-fileUpload
-                    #fileUpload
-                    name="file"
-                    [customUpload]="true"
-                    (uploadHandler)="uploadFile()"
-                    [auto]="false"
-                    chooseLabel="Seleccionar Archivo"
-                    uploadLabel="Cargar"
-                    cancelLabel="Cancelar"
-                    [showUploadButton]="true"
-                    [showCancelButton]="true"
-                    accept=".csv"
-                    (onSelect)="onFileSelect($event)">
-                </p-fileUpload>
-            </div>
+        <p-tabView>
+            <!-- Tab de Productos -->
+            <p-tabPanel header="Productos">
+                <div class="grid">
+                    <div class="col-12">
+                        <p-fileUpload
+                            #fileUpload
+                            name="file"
+                            [customUpload]="true"
+                            (uploadHandler)="uploadFile()"
+                            [auto]="false"
+                            chooseLabel="Seleccionar Archivo"
+                            uploadLabel="Cargar"
+                            cancelLabel="Cancelar"
+                            [showUploadButton]="true"
+                            [showCancelButton]="true"
+                            accept=".csv"
+                            (onSelect)="onFileSelect($event)">
+                        </p-fileUpload>
+                    </div>
 
-            <div class="col-12">
-                <p-table [value]="csvFiles" [scrollable]="true" [tableStyle]="{ 'min-width': '100%' }">
-                    <ng-template pTemplate="header">
-                        <tr>
-                            <th style="width: 20%">Nombre</th>
-                            <th style="width: 10%">Estado</th>
-                            <th style="width: 15%">Total</th>
-                            <th style="width: 15%">Cargados</th>
-                            <th style="width: 25%">Fecha</th>
-                            <th style="width: 15%">Acciones</th>
-                        </tr>
-                    </ng-template>
-                    <ng-template pTemplate="body" let-file>
-                        <tr>
-                            <td style="width: 20%">{{file.nombre_archivo}}</td>
-                            <td style="width: 10%">
-                                <div
-                                    pTooltip="{{getErrorSummary(file)}}"
-                                    tooltipPosition="top"
-                                    [escape]="false">
-                                    <p-tag
-                                        [severity]="getStatusSeverity(file.estado)"
-                                        [value]="file.estado">
-                                    </p-tag>
+                    <div class="col-12">
+                        <p-table [value]="csvFiles" [scrollable]="true" [tableStyle]="{ 'min-width': '100%' }">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th style="width: 20%">Nombre</th>
+                                    <th style="width: 10%">Estado</th>
+                                    <th style="width: 15%">Total</th>
+                                    <th style="width: 15%">Cargados</th>
+                                    <th style="width: 25%">Fecha</th>
+                                    <th style="width: 15%">Acciones</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-file>
+                                <tr>
+                                    <td style="width: 20%">{{file.nombre_archivo}}</td>
+                                    <td style="width: 10%">
+                                        <div
+                                            pTooltip="{{getErrorSummary(file)}}"
+                                            tooltipPosition="top"
+                                            [escape]="false">
+                                            <p-tag
+                                                [severity]="getStatusSeverity(file.estado)"
+                                                [value]="file.estado">
+                                            </p-tag>
+                                        </div>
+                                    </td>
+                                    <td style="width: 15%">{{file.total_registros}}</td>
+                                    <td style="width: 15%">{{file.registros_cargados}}</td>
+                                    <td style="width: 25%">{{file.fecha_carga | date:'short'}}</td>
+                                    <td style="width: 15%">
+                                        <div class="flex gap-2">
+                                            <p-button
+                                                icon="pi pi-download"
+                                                [rounded]="true"
+                                                [text]="true"
+                                                (onClick)="downloadFile(file)"
+                                                [disabled]="!file.url"
+                                                pTooltip="Descargar archivo">
+                                            </p-button>
+                                            <p-button
+                                                *ngIf="file.estado === 'error' && file.errores_procesamiento?.length"
+                                                icon="pi pi-exclamation-circle"
+                                                [rounded]="true"
+                                                [text]="true"
+                                                severity="danger"
+                                                (onClick)="showErrorDetails(file)"
+                                                pTooltip="Ver errores">
+                                            </p-button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </div>
+            </p-tabPanel>
+
+            <!-- Tab de Imágenes -->
+            <p-tabPanel header="Imágenes">
+                <div class="grid">
+                    <div class="col-12">
+                        <div class="text-sm mb-3">
+                            <p><i class="pi pi-info-circle mr-2"></i>Requisitos para la carga de imágenes:</p>
+                            <ul class="list-disc pl-4 mt-2">
+                                <li>Máximo 25 imágenes por carga</li>
+                                <li>Tamaño máximo por imagen: 10 MB</li>
+                                <li>Formatos permitidos: .png, .jpeg, .jpg</li>
+                                <li>El nombre del archivo debe ser el SKU del producto (Formato: ABC-123, ABC123, donde ABC son letras o números y 123 son números)</li>
+                            </ul>
+                        </div>
+                        <p-fileUpload
+                            #imageUpload
+                            name="images"
+                            [customUpload]="true"
+                            (uploadHandler)="uploadImages()"
+                            [auto]="false"
+                            [multiple]="true"
+                            chooseLabel="Seleccionar Imágenes"
+                            uploadLabel="Cargar"
+                            cancelLabel="Cancelar"
+                            [showUploadButton]="true"
+                            [showCancelButton]="true"
+                            accept="image/png,image/jpeg"
+                            [maxFileSize]="10000000"
+                            [fileLimit]="25"
+                            (onSelect)="onImageSelect($event)"
+                            (onError)="onImageUploadError($event)"
+                            [disabled]="hasValidationErrors">
+                            <ng-template pTemplate="content">
+                                <div *ngIf="invalidFileNames.length > 0" class="text-red-500 mt-2">
+                                    <p>Los siguientes archivos no tienen un formato de nombre válido:</p>
+                                    <ul class="list-disc pl-4">
+                                        <li *ngFor="let name of invalidFileNames">{{name}}</li>
+                                    </ul>
                                 </div>
-                            </td>
-                            <td style="width: 15%">{{file.total_registros}}</td>
-                            <td style="width: 15%">{{file.registros_cargados}}</td>
-                            <td style="width: 25%">{{file.fecha_carga | date:'short'}}</td>
-                            <td style="width: 15%">
-                                <div class="flex gap-2">
-                                    <p-button
-                                        icon="pi pi-download"
-                                        [rounded]="true"
-                                        [text]="true"
-                                        (onClick)="downloadFile(file)"
-                                        [disabled]="!file.url"
-                                        pTooltip="Descargar archivo">
-                                    </p-button>
-                                    <p-button
-                                        *ngIf="file.estado === 'error' && file.errores_procesamiento?.length"
-                                        icon="pi pi-exclamation-circle"
-                                        [rounded]="true"
-                                        [text]="true"
-                                        severity="danger"
-                                        (onClick)="showErrorDetails(file)"
-                                        pTooltip="Ver errores">
-                                    </p-button>
-                                </div>
-                            </td>
-                        </tr>
-                    </ng-template>
-                </p-table>
-            </div>
-        </div>
+                            </ng-template>
+                        </p-fileUpload>
+                    </div>
+
+                    <div class="col-12">
+                        <p-table [value]="imageFiles" [scrollable]="true" [tableStyle]="{ 'min-width': '100%' }">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th style="width: 20%">Nombre</th>
+                                    <th style="width: 15%">SKU</th>
+                                    <th style="width: 10%">Estado</th>
+                                    <th style="width: 10%">Total</th>
+                                    <th style="width: 10%">Cargadas</th>
+                                    <th style="width: 15%">Fecha</th>
+                                    <th style="width: 10%">Vista Previa</th>
+                                    <th style="width: 10%">Acciones</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-file>
+                                <tr>
+                                    <td style="width: 20%">{{file.nombre_archivo}}</td>
+                                    <td style="width: 15%">{{file.sku}}</td>
+                                    <td style="width: 10%">
+                                        <p-tag
+                                            [severity]="getStatusSeverity(file.estado)"
+                                            [value]="file.estado">
+                                        </p-tag>
+                                    </td>
+                                    <td style="width: 10%">{{file.total_imagenes}}</td>
+                                    <td style="width: 10%">{{file.imagenes_cargadas}}</td>
+                                    <td style="width: 15%">{{file.fecha_carga | date:'short'}}</td>
+                                    <td style="width: 10%">
+                                        <img [src]="file.preview_url" *ngIf="file.preview_url" style="max-height: 50px;" />
+                                    </td>
+                                    <td style="width: 10%">
+                                        <div class="flex gap-2">
+                                            <p-button
+                                                icon="pi pi-eye"
+                                                [rounded]="true"
+                                                [text]="true"
+                                                (onClick)="viewImage(file)"
+                                                [disabled]="!file.url"
+                                                pTooltip="Ver imagen">
+                                            </p-button>
+                                            <p-button
+                                                *ngIf="file.estado === 'error'"
+                                                icon="pi pi-exclamation-circle"
+                                                [rounded]="true"
+                                                [text]="true"
+                                                severity="danger"
+                                                (onClick)="showImageError(file)"
+                                                pTooltip="Ver error">
+                                            </p-button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </div>
+            </p-tabPanel>
+        </p-tabView>
     </p-dialog>
 
     <p-dialog
@@ -103,5 +208,17 @@
                 </tr>
             </ng-template>
         </p-table>
+    </p-dialog>
+
+    <!-- Dialog para vista previa de imagen -->
+    <p-dialog
+        [(visible)]="imagePreviewVisible"
+        header="Vista Previa de Imagen"
+        [modal]="true"
+        [maximizable]="true"
+        [style]="{ width: '800px' }">
+        <div class="flex justify-content-center">
+            <img [src]="selectedImageUrl" *ngIf="selectedImageUrl" style="max-width: 100%;" />
+        </div>
     </p-dialog>
 </div>
