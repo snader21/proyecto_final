@@ -13,6 +13,22 @@
             <p-tabPanel header="Productos">
                 <div class="grid">
                     <div class="col-12">
+                        <div class="text-sm mb-3">
+                            <p>
+                                <i class="pi pi-info-circle mr-2"></i>Requisitos para la carga de productos:
+                                <i class="pi pi-list ml-2 cursor-pointer"
+                                   pTooltip="Campos requeridos en el CSV:
+SKU, nombre, descripcion, codigo_barras, id_categoria, id_marca, id_unidad_medida, precio, activo, alto, ancho, largo, peso, id_fabricante, id_pais"
+                                   tooltipPosition="right"
+                                   [escape]="false"
+                                   [showDelay]="0"
+                                   [hideDelay]="0">
+                                </i>
+                            </p>
+                            <ul class="list-none pl-4 mt-2">
+                                <li>Solo se permiten archivos en formato CSV</li>
+                            </ul>
+                        </div>
                         <p-fileUpload
                             #fileUpload
                             name="file"
