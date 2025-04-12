@@ -11,6 +11,7 @@ import {
   CreateProduct,
   MovimientoInventario,
 } from "../../interfaces/product.interfaces";
+import { UploadResult } from "../../interfaces/upload-result.interface";
 
 @Injectable({
   providedIn: "root",
@@ -56,8 +57,8 @@ export class ProductsService {
     );
   }
 
-  uploadImages(formData: FormData): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(
+  uploadImages(formData: FormData): Observable<UploadResult> {
+    return this.http.post<UploadResult>(
       `${this.apiUrl}/productos/upload-images`,
       formData
     );

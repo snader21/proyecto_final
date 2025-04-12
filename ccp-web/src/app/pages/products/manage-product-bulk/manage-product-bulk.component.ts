@@ -12,6 +12,7 @@ import { ProductsService } from "../../../services/productos/products.service";
 import { MessageService } from "primeng/api";
 import { interval, Subscription } from "rxjs";
 import { startWith, switchMap } from "rxjs/operators";
+import { UploadResult } from "../../../interfaces/upload-result.interface";
 
 // Regex para validar el formato del SKU (ejemplo: ABC-123, ABC123, ABC_123)
 const SKU_REGEX = /^[A-Za-z0-9]{3,}-?\d{3,}$/;
@@ -144,11 +145,8 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
   onImageSelect(event: any) {
     this.invalidFileNames = [];
     this.hasValidationErrors = false;
-    const files = event.files;
+    const files = Array.from(event.files);
     
-    if (!files || files.length === 0) return;
-
-    // Validar el número de archivos
     if (files.length > 25) {
       this.messageService.add({
         severity: 'error',
@@ -160,9 +158,8 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Validar cada archivo
-    files.forEach((file: File) => {
-      const fileName = file.name.split('.')[0];
+    files.forEach((file: any) => {
+      const fileName = file.name.split('.')[0]; // Obtener el nombre sin extensión
       
       // Validar formato del archivo
       if (!file.type.match(/image\/(png|jpeg|jpg)/)) {
@@ -174,7 +171,7 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
         this.hasValidationErrors = true;
       }
 
-      // Validar tamaño del archivo
+      // Validar tamaño del archivo (10MB)
       if (file.size > 10 * 1024 * 1024) {
         this.messageService.add({
           severity: 'error',
@@ -184,46 +181,36 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
         this.hasValidationErrors = true;
       }
 
-      // Validar nombre del archivo (SKU)
+      // Validar formato de SKU
       if (!this.isValidSKU(fileName)) {
-        this.invalidFileNames.push(file.name);
+        this.invalidFileNames.push(fileName);
         this.hasValidationErrors = true;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: `El archivo ${file.name} no cumple con el formato de SKU requerido (ejemplo: ABC-123)`
-        });
       }
     });
 
-    // Si hay errores, limpiar la selección
+    if (this.invalidFileNames.length > 0) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: `Los siguientes archivos no tienen un formato de SKU válido: ${this.invalidFileNames.join(
+          ', '
+        )}`
+      });
+    }
+
     if (this.hasValidationErrors) {
-      this.imageUpload.clear();
+      setTimeout(() => {
+        this.imageUpload.clear();
+      });
     }
   }
 
   onImageUploadError(event: any) {
-    if (event.type === 'max-file-limit') {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'No se pueden cargar más de 25 imágenes a la vez',
-      });
-    } else if (event.type === 'max-size') {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: `El archivo ${event.file.name} excede el tamaño máximo permitido de 10 MB`,
-      });
-    } else if (event.type === 'type') {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: `El archivo ${event.file.name} debe ser una imagen en formato PNG o JPEG`,
-      });
-    }
-    this.hasValidationErrors = true;
-    this.imageUpload.clear();
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: `Error al cargar el archivo ${event.file.name}`,
+    });
   }
 
   uploadFile() {
@@ -261,17 +248,17 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'No hay archivos seleccionados para cargar',
+        detail: 'No hay archivos seleccionados para cargar'
       });
       return;
     }
 
     // Verificar si hay errores de validación
-    if (this.hasValidationErrors || this.invalidFileNames.length > 0) {
+    if (this.hasValidationErrors) {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'Hay errores en los archivos seleccionados. Por favor, corrija los errores antes de cargar.',
+        detail: 'Hay errores en los archivos seleccionados. Por favor, corrija los errores antes de cargar.'
       });
       return;
     }
@@ -279,16 +266,16 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
     this.loading = true;
     const formData = new FormData();
     
-    for (let file of fileUpload.files) {
-      formData.append("images", file);
-    }
+    Array.from(fileUpload.files).forEach((file: any) => {
+      formData.append('files', file);
+    });
 
     this.productsService.uploadImages(formData).subscribe({
-      next: () => {
+      next: (response: UploadResult) => {
         this.messageService.add({
           severity: "success",
           summary: "Éxito",
-          detail: "Imágenes cargadas correctamente",
+          detail: `${response.imagenes_cargadas} de ${response.total_imagenes} imágenes cargadas correctamente`
         });
         fileUpload.clear();
         this.loading = false;
@@ -299,10 +286,10 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
         this.messageService.add({
           severity: "error",
           summary: "Error",
-          detail: error.error?.message || "Error al cargar las imágenes",
+          detail: error.error?.message || "Error al cargar las imágenes"
         });
         this.loading = false;
-      },
+      }
     });
   }
 
