@@ -143,8 +143,6 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
   }
 
   onImageSelect(event: any) {
-    this.invalidFileNames = [];
-    this.hasValidationErrors = false;
     const files = Array.from(event.files);
     
     if (files.length > 25) {
@@ -153,14 +151,12 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
         summary: 'Error',
         detail: 'No se pueden cargar más de 25 imágenes a la vez'
       });
-      this.hasValidationErrors = true;
       this.imageUpload.clear();
       return;
     }
 
+    let hasErrors = false;
     files.forEach((file: any) => {
-      const fileName = file.name.split('.')[0]; // Obtener el nombre sin extensión
-      
       // Validar formato del archivo
       if (!file.type.match(/image\/(png|jpeg|jpg)/)) {
         this.messageService.add({
@@ -168,7 +164,7 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
           summary: 'Error',
           detail: `El archivo ${file.name} debe ser una imagen en formato PNG o JPEG`
         });
-        this.hasValidationErrors = true;
+        hasErrors = true;
       }
 
       // Validar tamaño del archivo (10MB)
@@ -178,39 +174,35 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
           summary: 'Error',
           detail: `El archivo ${file.name} excede el tamaño máximo permitido de 10 MB`
         });
-        this.hasValidationErrors = true;
-      }
-
-      // Validar formato de SKU
-      if (!this.isValidSKU(fileName)) {
-        this.invalidFileNames.push(fileName);
-        this.hasValidationErrors = true;
+        hasErrors = true;
       }
     });
 
-    if (this.invalidFileNames.length > 0) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: `Los siguientes archivos no tienen un formato de SKU válido: ${this.invalidFileNames.join(
-          ', '
-        )}`
-      });
-    }
-
-    if (this.hasValidationErrors) {
-      setTimeout(() => {
-        this.imageUpload.clear();
-      });
+    if (hasErrors) {
+      this.imageUpload.clear();
     }
   }
 
   onImageUploadError(event: any) {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: `Error al cargar el archivo ${event.file.name}`,
-    });
+    if (event.type === 'max-file-limit') {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No se pueden cargar más de 25 imágenes a la vez'
+      });
+    } else if (event.type === 'max-size') {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: `El archivo ${event.file.name} excede el tamaño máximo permitido de 10 MB`
+      });
+    } else if (event.type === 'type') {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: `El archivo ${event.file.name} debe ser una imagen en formato PNG o JPEG`
+      });
+    }
   }
 
   uploadFile() {
@@ -253,16 +245,6 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Verificar si hay errores de validación
-    if (this.hasValidationErrors) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Hay errores en los archivos seleccionados. Por favor, corrija los errores antes de cargar.'
-      });
-      return;
-    }
-
     this.loading = true;
     const formData = new FormData();
     
@@ -272,15 +254,26 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
 
     this.productsService.uploadImages(formData).subscribe({
       next: (response: UploadResult) => {
+        let severity = 'success';
+        let detail = `${response.imagenes_cargadas} de ${response.total_imagenes} imágenes cargadas correctamente`;
+        
+        if (response.imagenes_error > 0) {
+          severity = 'warn';
+          detail += `. ${response.imagenes_error} imágenes con errores.`;
+          if (response.errores && response.errores.length > 0) {
+            this.currentFileErrors = response.errores.map(error => ({ error }));
+            detail += ` Click en el ícono de error para ver detalles.`;
+          }
+        }
+
         this.messageService.add({
-          severity: "success",
-          summary: "Éxito",
-          detail: `${response.imagenes_cargadas} de ${response.total_imagenes} imágenes cargadas correctamente`
+          severity,
+          summary: response.imagenes_error > 0 ? 'Carga Parcial' : 'Éxito',
+          detail
         });
+        
         fileUpload.clear();
         this.loading = false;
-        this.invalidFileNames = [];
-        this.hasValidationErrors = false;
       },
       error: (error) => {
         this.messageService.add({
