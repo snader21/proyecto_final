@@ -18,15 +18,25 @@ import { UploadResult } from "../../../interfaces/upload-result.interface";
 const SKU_REGEX = /^[A-Za-z0-9]{3,}-?\d{3,}$/;
 
 interface ImageFile {
+  id_imagen?: string;
   nombre_archivo: string;
-  sku: string;
+  key_object_storage?: string;
+  url?: string;
   estado: string;
   total_imagenes: number;
   imagenes_cargadas: number;
+  errores_procesamiento?: Array<{ error: string }>;
   fecha_carga: Date;
-  url?: string;
   preview_url?: string;
-  error?: string;
+  producto?: {
+    id_producto: string;
+    nombre: string;
+    sku: string;
+  };
+}
+
+interface FileWithName extends File {
+  name: string;
 }
 
 @Component({
@@ -248,29 +258,47 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
     this.loading = true;
     const formData = new FormData();
     
-    Array.from(fileUpload.files).forEach((file: any) => {
+    const files = Array.from(fileUpload.files) as FileWithName[];
+    files.forEach((file) => {
       formData.append('files', file);
     });
 
     this.productsService.uploadImages(formData).subscribe({
       next: (response: UploadResult) => {
-        let severity = 'success';
-        let detail = `${response.imagenes_cargadas} de ${response.total_imagenes} imágenes cargadas correctamente`;
-        
+        // Crear nuevo registro para la tabla
+        const newImageFile: ImageFile = {
+          nombre_archivo: files[0].name,
+          estado: response.imagenes_error > 0 ? 'error' : 'procesado',
+          total_imagenes: response.total_imagenes,
+          imagenes_cargadas: response.imagenes_cargadas,
+          fecha_carga: new Date(),
+          errores_procesamiento: response.errores ? response.errores.map(error => ({ error })) : undefined
+        };
+
+        // Actualizar la lista de archivos
+        this.imageFiles = [newImageFile, ...this.imageFiles];
+
+        // Mostrar mensajes según el resultado
         if (response.imagenes_error > 0) {
-          severity = 'warn';
-          detail += `. ${response.imagenes_error} imágenes con errores.`;
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Errores en la carga',
+            detail: `No se pudieron cargar ${response.imagenes_error} de ${response.total_imagenes} imágenes`
+          });
+          
           if (response.errores && response.errores.length > 0) {
             this.currentFileErrors = response.errores.map(error => ({ error }));
-            detail += ` Click en el ícono de error para ver detalles.`;
+            this.errorDialogVisible = true;
           }
         }
 
-        this.messageService.add({
-          severity,
-          summary: response.imagenes_error > 0 ? 'Carga Parcial' : 'Éxito',
-          detail
-        });
+        if (response.imagenes_cargadas > 0) {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Carga Exitosa',
+            detail: `Se cargaron correctamente ${response.imagenes_cargadas} imágenes`
+          });
+        }
         
         fileUpload.clear();
         this.loading = false;
@@ -335,8 +363,8 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
   }
 
   showImageError(file: ImageFile) {
-    if (file.error) {
-      this.currentFileErrors = [{ error: file.error }];
+    if (file.errores_procesamiento?.length) {
+      this.currentFileErrors = file.errores_procesamiento;
       this.errorDialogVisible = true;
     }
   }

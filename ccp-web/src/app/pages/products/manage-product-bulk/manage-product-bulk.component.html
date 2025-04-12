@@ -149,19 +149,17 @@ SKU, nombre, descripcion, codigo_barras, id_categoria, id_marca, id_unidad_medid
                             <ng-template pTemplate="header">
                                 <tr>
                                     <th style="width: 20%">Nombre</th>
-                                    <th style="width: 15%">SKU</th>
                                     <th style="width: 10%">Estado</th>
                                     <th style="width: 10%">Total</th>
                                     <th style="width: 10%">Cargadas</th>
-                                    <th style="width: 15%">Fecha</th>
-                                    <th style="width: 10%">Vista Previa</th>
-                                    <th style="width: 10%">Acciones</th>
+                                    <th style="width: 20%">Fecha Carga</th>
+                                    <th style="width: 15%">Vista Previa</th>
+                                    <th style="width: 15%">Acciones</th>
                                 </tr>
                             </ng-template>
                             <ng-template pTemplate="body" let-file>
                                 <tr>
                                     <td style="width: 20%">{{file.nombre_archivo}}</td>
-                                    <td style="width: 15%">{{file.sku}}</td>
                                     <td style="width: 10%">
                                         <p-tag
                                             [severity]="getStatusSeverity(file.estado)"
@@ -170,11 +168,11 @@ SKU, nombre, descripcion, codigo_barras, id_categoria, id_marca, id_unidad_medid
                                     </td>
                                     <td style="width: 10%">{{file.total_imagenes}}</td>
                                     <td style="width: 10%">{{file.imagenes_cargadas}}</td>
-                                    <td style="width: 15%">{{file.fecha_carga | date:'short'}}</td>
-                                    <td style="width: 10%">
+                                    <td style="width: 20%">{{file.fecha_carga | date:'short'}}</td>
+                                    <td style="width: 15%">
                                         <img [src]="file.preview_url" *ngIf="file.preview_url" style="max-height: 50px;" />
                                     </td>
-                                    <td style="width: 10%">
+                                    <td style="width: 15%">
                                         <div class="flex gap-2">
                                             <p-button
                                                 icon="pi pi-eye"
@@ -185,7 +183,7 @@ SKU, nombre, descripcion, codigo_barras, id_categoria, id_marca, id_unidad_medid
                                                 pTooltip="Ver imagen">
                                             </p-button>
                                             <p-button
-                                                *ngIf="file.estado === 'error'"
+                                                *ngIf="file.estado === 'error' && file.errores_procesamiento?.length"
                                                 icon="pi pi-exclamation-circle"
                                                 [rounded]="true"
                                                 [text]="true"
