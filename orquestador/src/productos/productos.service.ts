@@ -1,13 +1,16 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { map } from 'rxjs/operators';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
-import FormData from 'form-data';
+import * as FormData from 'form-data';
+import { AxiosError } from 'axios';
 import { CreateMovimientoInventarioDto } from './dto/create-movimiento-inventario.dto';
 import { MovimientoInventarioDto } from './dto/movimiento-inventario.dto';
 import { QueryInventarioDto } from './dto/query-inventario.dto';
 import { ProductoConInventarioDto } from './dto/producto-con-inventario.dto';
+import { IUploadResult } from './interfaces/upload-result.interface';
+import { UploadedFile } from './interfaces/uploaded-file.interface';
 
 export interface IRespuestaProducto {
   id_producto: string;
@@ -26,6 +29,7 @@ export interface IRespuestaProducto {
 export class ProductosService {
   private readonly apiProductos =
     this.configService.get<string>('URL_PRODUCTOS');
+
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
@@ -104,8 +108,6 @@ export class ProductosService {
   async saveProduct(product: any, files?: any[]) {
     const apiEndPoint = `${this.apiProductos}/productos`;
 
-    // Create form data with proper headers for multipart/form-data
-    const FormData = require('form-data');
     const form = new FormData();
     form.append('product', JSON.stringify(product));
 
@@ -129,7 +131,6 @@ export class ProductosService {
 
   async uploadCSV(file: any): Promise<{ url: string }> {
     const apiEndPoint = `${this.apiProductos}/productos/upload-csv`;
-    const FormData = require('form-data');
     const form = new FormData();
 
     form.append('file', file.buffer, {
@@ -167,21 +168,20 @@ export class ProductosService {
     const form = new FormData();
 
     files.forEach((file) => {
-      form.append('images', file.buffer, {
+      form.append('files', file.buffer, {
         filename: file.originalname,
         contentType: file.mimetype,
       });
     });
 
-    return firstValueFrom(
-      this.httpService
-        .post(apiEndPoint, form, {
-          headers: {
-            ...form.getHeaders(),
-          },
-        })
-        .pipe(map((respuesta) => respuesta.data)),
-    );
+    const response$ = this.httpService.post<IUploadResult>(apiEndPoint, form, {
+      headers: {
+        ...form.getHeaders(),
+      },
+    });
+
+    const response = await firstValueFrom(response$);
+    return response.data;
   }
 
   async getImageFiles() {
