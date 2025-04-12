@@ -1,6 +1,6 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { firstValueFrom, Observable } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { AxiosError } from 'axios';
@@ -9,22 +9,34 @@ import { MovimientoInventarioDto } from './dto/movimiento-inventario.dto';
 import { QueryInventarioDto } from './dto/query-inventario.dto';
 import { ProductoConInventarioDto } from './dto/producto-con-inventario.dto';
 
+export interface IRespuestaProducto {
+  id_producto: string;
+  nombre: string;
+  descripcion: string;
+  sku: string;
+  precio: number;
+  alto: number;
+  largo: number;
+  ancho: number;
+  peso: number;
+  cantidad: number;
+}
+
 @Injectable()
 export class ProductosService {
   private readonly apiProductos =
     this.configService.get<string>('URL_PRODUCTOS');
-
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {}
 
-  obtenerProductosDePedidos(id: string): Observable<any[]> {
+  obtenerProductosDePedidos(id: string): Observable<IRespuestaProducto[]> {
     const api = this.configService.get<string>('URL_PRODUCTOS');
     const apiEndPoint = `${api}/productos/${id}`;
 
     return this.httpService
-      .get<any[]>(apiEndPoint)
+      .get<IRespuestaProducto[]>(apiEndPoint)
       .pipe(map((respuesta) => respuesta.data));
   }
 
@@ -151,17 +163,24 @@ export class ProductosService {
   }
 
   async uploadImages(files: any[]) {
+    console.log('Iniciando uploadImages con:', files.length, 'archivos');
     const apiEndPoint = `${this.apiProductos}/productos/upload-images`;
     const FormData = require('form-data');
     const form = new FormData();
 
-    files.forEach((file) => {
-      form.append('images', file.buffer, {
+    files.forEach((file, index) => {
+      console.log(`Procesando archivo ${index + 1}:`, {
+        name: file.originalname,
+        type: file.mimetype,
+        size: file.size
+      });
+      form.append('files', file.buffer, {
         filename: file.originalname,
         contentType: file.mimetype,
       });
     });
 
+    console.log('Enviando petición a:', apiEndPoint);
     return firstValueFrom(
       this.httpService
         .post(apiEndPoint, form, {
@@ -169,8 +188,18 @@ export class ProductosService {
             ...form.getHeaders(),
           },
         })
-        .pipe(map((respuesta) => respuesta.data)),
-    );
+        .pipe(
+          tap(response => console.log('Respuesta del servidor:', response.data)),
+          map((respuesta) => respuesta.data)
+        ),
+    ).catch(error => {
+      console.error('Error en uploadImages:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        headers: error.response?.headers
+      });
+      throw error;
+    });
   }
 
   async getImageFiles() {
