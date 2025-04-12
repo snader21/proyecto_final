@@ -14,8 +14,8 @@ export class SidebarComponent  implements OnInit {
   public appPages = [
     { title: 'Home', url: '/home', icon: 'home' },
     { title: 'Clientes', url: '/clientes', icon: 'people' },
-    { title: 'Rutas', url: '/folder/outbox', icon: 'map' },
-    { title: 'Pedidos', url: '/folder/favorites', icon: 'cart' },
+    { title: 'Rutas', url: '/rutas', icon: 'map' },
+    { title: 'Pedidos', url: '/pedidos', icon: 'cart' },
   ];
   public labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
   constructor(private readonly router: Router, private readonly authService: AuthService, private readonly alertController: AlertController) { }
