@@ -114,11 +114,15 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
   }
 
   private loadImageFiles() {
+    console.log('Iniciando loadImageFiles...');
     const sub = this.productsService.getImageFiles().subscribe({
       next: (files) => {
+        console.log('loadImageFiles - Imágenes recibidas:', files);
         this.imageFiles = files;
+        console.log('loadImageFiles - Estado actualizado:', this.imageFiles);
       },
-      error: () => {
+      error: (error) => {
+        console.error('loadImageFiles - Error:', error);
         this.messageService.add({
           severity: "error",
           summary: "Error",
@@ -254,18 +258,7 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
 
     const sub = this.productsService.uploadImages(formData).subscribe({
       next: (response: UploadResult) => {
-        // Crear nuevo registro para la tabla
-        const newImageFile: ImageFile = {
-          nombre_archivo: files[0].name,
-          estado: response.imagenes_error > 0 ? 'error' : 'procesado',
-          total_imagenes: response.total_imagenes,
-          imagenes_cargadas: response.imagenes_cargadas,
-          fecha_carga: new Date(),
-          errores_procesamiento: response.errores ? response.errores.map(error => ({ error })) : undefined
-        };
-
-        // Actualizar la lista de archivos
-        this.imageFiles = [newImageFile, ...this.imageFiles];
+        console.log('Upload response:', response);
 
         // Mostrar mensaje según el resultado
         this.messageService.add({
@@ -276,11 +269,30 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
             : `Se cargaron correctamente ${response.imagenes_cargadas} imágenes`
         });
 
+        // Limpiar el formulario
         fileUpload.clear();
-        this.loading = false;
-        this.loadImageFiles();
+        
+        // Recargar la lista de imágenes desde el servidor
+        const refreshSub = this.productsService.getImageFiles().subscribe({
+          next: (files) => {
+            console.log('Nuevas imágenes recibidas:', files);
+            this.imageFiles = files;
+            this.loading = false;
+          },
+          error: (error) => {
+            console.error('Error al recargar imágenes:', error);
+            this.messageService.add({
+              severity: "error",
+              summary: "Error",
+              detail: "Error al actualizar la lista de imágenes",
+            });
+            this.loading = false;
+          }
+        });
+        this.subscriptions.add(refreshSub);
       },
       error: (error) => {
+        console.error('Error en la carga de imágenes:', error);
         this.messageService.add({
           severity: "error",
           summary: "Error",
