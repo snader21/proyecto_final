@@ -1,14 +1,10 @@
 import { HttpService } from '@nestjs/axios';
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { map } from 'rxjs/operators';
-import { async, firstValueFrom, Observable } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
+import FormData from 'form-data';
 import { CreateMovimientoInventarioDto } from './dto/create-movimiento-inventario.dto';
-import { AxiosError } from 'axios';
 import { MovimientoInventarioDto } from './dto/movimiento-inventario.dto';
 import { QueryInventarioDto } from './dto/query-inventario.dto';
 import { ProductoConInventarioDto } from './dto/producto-con-inventario.dto';
@@ -164,5 +160,36 @@ export class ProductosService {
     return this.httpService
       .get<any[]>(apiEndPoint)
       .pipe(map((respuesta) => respuesta.data));
+  }
+
+  async uploadImages(files: any[]) {
+    const apiEndPoint = `${this.apiProductos}/productos/upload-images`;
+    const form = new FormData();
+
+    files.forEach((file) => {
+      form.append('images', file.buffer, {
+        filename: file.originalname,
+        contentType: file.mimetype,
+      });
+    });
+
+    return firstValueFrom(
+      this.httpService
+        .post(apiEndPoint, form, {
+          headers: {
+            ...form.getHeaders(),
+          },
+        })
+        .pipe(map((respuesta) => respuesta.data)),
+    );
+  }
+
+  async getImageFiles() {
+    const apiEndPoint = `${this.apiProductos}/productos/archivos-imagenes`;
+    return firstValueFrom(
+      this.httpService
+        .get(apiEndPoint)
+        .pipe(map((respuesta) => respuesta.data)),
+    );
   }
 }

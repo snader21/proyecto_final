@@ -81,4 +81,15 @@ export class ProductosController {
   async getCSVFiles() {
     return this.productosService.getCSVFiles();
   }
+
+  @Post('upload-images')
+  @UseInterceptors(FilesInterceptor('images'))
+  async uploadImages(@UploadedFiles() files: any[]) {
+    return this.productosService.uploadImages(files);
+  }
+
+  @Get('archivos-imagenes')
+  async getImageFiles() {
+    return this.productosService.getImageFiles();
+  }
 }
