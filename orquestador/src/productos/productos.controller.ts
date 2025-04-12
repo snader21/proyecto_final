@@ -89,7 +89,9 @@ export class ProductosController {
   @UseInterceptors(FilesInterceptor('files', 25))
   async uploadImages(@UploadedFiles() files: any[]): Promise<IUploadResult> {
     // Asegurarse de que files es un array
-    if (!Array.isArray(files)) {
+    if (!files) {
+      files = [];
+    } else if (!Array.isArray(files)) {
       files = [files];
     }
     return this.productosService.uploadImages(files);

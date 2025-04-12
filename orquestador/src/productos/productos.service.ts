@@ -153,15 +153,19 @@ export class ProductosService {
     const form = new FormData();
 
     // Asegurarse de que files es un array
-    if (!Array.isArray(files)) {
+    if (!files) {
+      files = [];
+    } else if (!Array.isArray(files)) {
       files = [files];
     }
 
     files.forEach((file) => {
-      form.append('files', file.buffer, {
-        filename: file.originalname,
-        contentType: file.mimetype,
-      });
+      if (file) {
+        form.append('files', file.buffer, {
+          filename: file.originalname,
+          contentType: file.mimetype,
+        });
+      }
     });
 
     const response$ = this.httpService.post<IUploadResult>(apiEndPoint, form, {
