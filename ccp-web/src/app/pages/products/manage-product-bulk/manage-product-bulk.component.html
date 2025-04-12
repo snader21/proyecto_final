@@ -93,6 +93,15 @@ SKU, nombre, descripcion, codigo_barras, id_categoria, id_marca, id_unidad_medid
                                                 (onClick)="showErrorDetails(file)"
                                                 pTooltip="Ver errores">
                                             </p-button>
+                                            <p-button
+                                                *ngIf="file.errores_procesamiento?.length"
+                                                icon="pi pi-list"
+                                                [rounded]="true"
+                                                [text]="true"
+                                                severity="info"
+                                                (onClick)="showErrorDetails(file)"
+                                                pTooltip="Ver resultados de la carga">
+                                            </p-button>
                                         </div>
                                     </td>
                                 </tr>
@@ -183,13 +192,13 @@ SKU, nombre, descripcion, codigo_barras, id_categoria, id_marca, id_unidad_medid
                                                 pTooltip="Ver imagen">
                                             </p-button>
                                             <p-button
-                                                *ngIf="file.estado === 'error' && file.errores_procesamiento?.length"
-                                                icon="pi pi-exclamation-circle"
+                                                *ngIf="file.errores_procesamiento?.length"
+                                                icon="pi pi-list"
                                                 [rounded]="true"
                                                 [text]="true"
-                                                severity="danger"
-                                                (onClick)="showImageError(file)"
-                                                pTooltip="Ver error">
+                                                [severity]="file.estado === 'error' ? 'danger' : 'info'"
+                                                (onClick)="showProcessingResults(file)"
+                                                pTooltip="Ver resultados del procesamiento">
                                             </p-button>
                                         </div>
                                     </td>
@@ -204,21 +213,19 @@ SKU, nombre, descripcion, codigo_barras, id_categoria, id_marca, id_unidad_medid
 
     <p-dialog
         [(visible)]="errorDialogVisible"
-        header="Errores de Procesamiento"
+        header="Resultados del Procesamiento"
         [modal]="true"
         [maximizable]="true"
         [style]="{ width: '600px' }">
         <p-table [value]="currentFileErrors" [scrollable]="true" [tableStyle]="{ 'min-width': '100%' }">
             <ng-template pTemplate="header">
                 <tr>
-                    <th style="width: 30%">SKU</th>
-                    <th style="width: 70%">Error</th>
+                    <th style="width: 100%">Resultado</th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-error>
                 <tr>
-                    <td style="width: 30%">{{error.row?.sku || 'N/A'}}</td>
-                    <td style="width: 70%" class="text-red-500">{{error.error}}</td>
+                    <td style="width: 100%" [class.text-red-500]="selectedFile?.estado === 'error'">{{error.error}}</td>
                 </tr>
             </ng-template>
         </p-table>

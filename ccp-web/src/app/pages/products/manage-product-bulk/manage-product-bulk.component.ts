@@ -10,8 +10,7 @@ import { TooltipModule } from "primeng/tooltip";
 import { ModalService } from "../../../services/productos/modal.service";
 import { ProductsService } from "../../../services/productos/products.service";
 import { MessageService } from "primeng/api";
-import { interval, Subscription } from "rxjs";
-import { startWith, switchMap } from "rxjs/operators";
+import { Subscription } from "rxjs";
 import { UploadResult } from "../../../interfaces/upload-result.interface";
 
 // Regex para validar el formato del SKU (ejemplo: ABC-123, ABC123, ABC_123)
@@ -71,75 +70,63 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
   invalidFileNames: string[] = [];
   hasValidationErrors = false;
   loading = false;
-  private updateSubscription?: Subscription;
-  private imageUpdateSubscription?: Subscription;
+  selectedFile: ImageFile | null = null;
+  private subscriptions = new Subscription();
 
   constructor(
     private modalService: ModalService,
     private productsService: ProductsService,
     private messageService: MessageService
   ) {
-    this.modalService.bulkModalState$.subscribe((state) => {
+    const modalSub = this.modalService.bulkModalState$.subscribe((state) => {
       this.visible = state;
       if (state) {
-        this.startAutoUpdate();
-        this.startImageAutoUpdate();
+        this.loadCSVFiles();
+        this.loadImageFiles();
       }
     });
+    this.subscriptions.add(modalSub);
   }
 
   ngOnInit() {
-    this.startAutoUpdate();
-    this.startImageAutoUpdate();
+    this.loadCSVFiles();
+    this.loadImageFiles();
   }
 
   ngOnDestroy() {
-    if (this.updateSubscription) {
-      this.updateSubscription.unsubscribe();
-    }
-    if (this.imageUpdateSubscription) {
-      this.imageUpdateSubscription.unsubscribe();
-    }
+    this.subscriptions.unsubscribe();
   }
 
-  private startAutoUpdate() {
-    this.updateSubscription = interval(1000)
-      .pipe(
-        startWith(0),
-        switchMap(() => this.productsService.getCSVFiles())
-      )
-      .subscribe({
-        next: (files) => {
-          this.csvFiles = files;
-        },
-        error: () => {
-          this.messageService.add({
-            severity: "error",
-            summary: "Error",
-            detail: "Error al actualizar la lista de archivos",
-          });
-        },
-      });
+  private loadCSVFiles() {
+    const sub = this.productsService.getCSVFiles().subscribe({
+      next: (files) => {
+        this.csvFiles = files;
+      },
+      error: () => {
+        this.messageService.add({
+          severity: "error",
+          summary: "Error",
+          detail: "Error al cargar la lista de archivos",
+        });
+      },
+    });
+    this.subscriptions.add(sub);
   }
 
-  private startImageAutoUpdate() {
-    this.imageUpdateSubscription = interval(1000)
-      .pipe(
-        startWith(0),
-        switchMap(() => this.productsService.getImageFiles())
-      )
-      .subscribe({
-        next: (files) => {
-          this.imageFiles = files;
-        },
-        error: () => {
-          this.messageService.add({
-            severity: "error",
-            summary: "Error",
-            detail: "Error al actualizar la lista de imágenes",
-          });
-        },
-      });
+  private loadImageFiles() {
+    const sub = this.productsService.getImageFiles().subscribe({
+      next: (files) => {
+        this.imageFiles = files;
+      },
+      error: () => {
+        this.messageService.add({
+          severity: "error",
+          summary: "Error",
+          detail: "Error al cargar la lista de imágenes",
+        });
+      },
+    });
+    this.subscriptions.add(sub);
   }
 
   closeModal() {
@@ -154,7 +141,7 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
 
   onImageSelect(event: any) {
     const files = Array.from(event.files);
-    
+
     if (files.length > 25) {
       this.messageService.add({
         severity: 'error',
@@ -221,7 +208,7 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
       const formData = new FormData();
       formData.append("file", this.file);
 
-      this.productsService.uploadCSV(formData).subscribe({
+      const sub = this.productsService.uploadCSV(formData).subscribe({
         next: () => {
           this.messageService.add({
             severity: "success",
@@ -231,6 +218,7 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
           this.fileUpload.clear();
           this.file = null;
           this.loading = false;
+          this.loadCSVFiles();
         },
         error: () => {
           this.messageService.add({
@@ -241,6 +229,7 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
           this.loading = false;
         },
       });
+      this.subscriptions.add(sub);
     }
   }
 
@@ -257,13 +246,13 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
 
     this.loading = true;
     const formData = new FormData();
-    
+
     const files = Array.from(fileUpload.files) as FileWithName[];
     files.forEach((file) => {
       formData.append('files', file);
     });
 
-    this.productsService.uploadImages(formData).subscribe({
+    const sub = this.productsService.uploadImages(formData).subscribe({
       next: (response: UploadResult) => {
         // Crear nuevo registro para la tabla
         const newImageFile: ImageFile = {
@@ -278,30 +267,18 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
         // Actualizar la lista de archivos
         this.imageFiles = [newImageFile, ...this.imageFiles];
 
-        // Mostrar mensajes según el resultado
-        if (response.imagenes_error > 0) {
-          this.messageService.add({
-            severity: 'warn',
-            summary: 'Errores en la carga',
-            detail: `No se pudieron cargar ${response.imagenes_error} de ${response.total_imagenes} imágenes`
-          });
-          
-          if (response.errores && response.errores.length > 0) {
-            this.currentFileErrors = response.errores.map(error => ({ error }));
-            this.errorDialogVisible = true;
-          }
-        }
+        // Mostrar mensaje según el resultado
+        this.messageService.add({
+          severity: response.imagenes_error > 0 ? 'warn' : 'success',
+          summary: response.imagenes_error > 0 ? 'Carga con Errores' : 'Carga Exitosa',
+          detail: response.imagenes_error > 0 
+            ? `No se pudieron cargar ${response.imagenes_error} de ${response.total_imagenes} imágenes` 
+            : `Se cargaron correctamente ${response.imagenes_cargadas} imágenes`
+        });
 
-        if (response.imagenes_cargadas > 0) {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Carga Exitosa',
-            detail: `Se cargaron correctamente ${response.imagenes_cargadas} imágenes`
-          });
-        }
-        
         fileUpload.clear();
         this.loading = false;
+        this.loadImageFiles();
       },
       error: (error) => {
         this.messageService.add({
@@ -312,6 +289,26 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
         this.loading = false;
       }
     });
+    this.subscriptions.add(sub);
+  }
+
+  showProcessingResults(file: ImageFile) {
+    if (file.errores_procesamiento?.length) {
+      this.currentFileErrors = file.errores_procesamiento;
+      this.selectedFile = file; // Store the selected file for the dialog
+      this.errorDialogVisible = true;
+    }
+  }
+
+  viewImage(file: ImageFile) {
+    if (file.url) {
+      this.selectedImageUrl = file.url;
+      this.imagePreviewVisible = true;
+    }
+  }
+
+  downloadFile(file: any) {
+    window.open(file.url, "_blank");
   }
 
   private isValidSKU(fileName: string): boolean {
@@ -360,23 +357,5 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
   showErrorDetails(file: any) {
     this.currentFileErrors = file.errores_procesamiento;
     this.errorDialogVisible = true;
-  }
-
-  showImageError(file: ImageFile) {
-    if (file.errores_procesamiento?.length) {
-      this.currentFileErrors = file.errores_procesamiento;
-      this.errorDialogVisible = true;
-    }
-  }
-
-  viewImage(file: ImageFile) {
-    if (file.url) {
-      this.selectedImageUrl = file.url;
-      this.imagePreviewVisible = true;
-    }
-  }
-
-  downloadFile(file: any) {
-    window.open(file.url, "_blank");
   }
 }
