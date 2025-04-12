@@ -1,14 +1,10 @@
 import { HttpService } from '@nestjs/axios';
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { map } from 'rxjs/operators';
-import { async, firstValueFrom, Observable } from 'rxjs';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { map, tap } from 'rxjs/operators';
+import { firstValueFrom, Observable } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
-import { CreateMovimientoInventarioDto } from './dto/create-movimiento-inventario.dto';
 import { AxiosError } from 'axios';
+import { CreateMovimientoInventarioDto } from './dto/create-movimiento-inventario.dto';
 import { MovimientoInventarioDto } from './dto/movimiento-inventario.dto';
 import { QueryInventarioDto } from './dto/query-inventario.dto';
 import { ProductoConInventarioDto } from './dto/producto-con-inventario.dto';
@@ -164,5 +160,54 @@ export class ProductosService {
     return this.httpService
       .get<any[]>(apiEndPoint)
       .pipe(map((respuesta) => respuesta.data));
+  }
+
+  async uploadImages(files: any[]) {
+    console.log('Iniciando uploadImages con:', files.length, 'archivos');
+    const apiEndPoint = `${this.apiProductos}/productos/upload-images`;
+    const FormData = require('form-data');
+    const form = new FormData();
+
+    files.forEach((file, index) => {
+      console.log(`Procesando archivo ${index + 1}:`, {
+        name: file.originalname,
+        type: file.mimetype,
+        size: file.size
+      });
+      form.append('files', file.buffer, {
+        filename: file.originalname,
+        contentType: file.mimetype,
+      });
+    });
+
+    console.log('Enviando petición a:', apiEndPoint);
+    return firstValueFrom(
+      this.httpService
+        .post(apiEndPoint, form, {
+          headers: {
+            ...form.getHeaders(),
+          },
+        })
+        .pipe(
+          tap(response => console.log('Respuesta del servidor:', response.data)),
+          map((respuesta) => respuesta.data)
+        ),
+    ).catch(error => {
+      console.error('Error en uploadImages:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        headers: error.response?.headers
+      });
+      throw error;
+    });
+  }
+
+  async getImageFiles() {
+    const apiEndPoint = `${this.apiProductos}/productos/archivos-imagenes`;
+    return firstValueFrom(
+      this.httpService
+        .get(apiEndPoint)
+        .pipe(map((respuesta) => respuesta.data)),
+    );
   }
 }

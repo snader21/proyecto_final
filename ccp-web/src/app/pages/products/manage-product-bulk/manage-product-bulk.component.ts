@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { DialogModule } from "primeng/dialog";
-import { TabsModule } from "primeng/tabs";
+import { TabViewModule } from "primeng/tabview";
 import { FileUploadModule } from "primeng/fileupload";
 import { TableModule } from "primeng/table";
 import { ButtonModule } from "primeng/button";
@@ -12,6 +12,32 @@ import { ProductsService } from "../../../services/productos/products.service";
 import { MessageService } from "primeng/api";
 import { interval, Subscription } from "rxjs";
 import { startWith, switchMap } from "rxjs/operators";
+import { UploadResult } from "../../../interfaces/upload-result.interface";
+
+// Regex para validar el formato del SKU (ejemplo: ABC-123, ABC123, ABC_123)
+const SKU_REGEX = /^[A-Za-z0-9]{3,}-?\d{3,}$/;
+
+interface ImageFile {
+  id_imagen?: string;
+  nombre_archivo: string;
+  key_object_storage?: string;
+  url?: string;
+  estado: string;
+  total_imagenes: number;
+  imagenes_cargadas: number;
+  errores_procesamiento?: Array<{ error: string }>;
+  fecha_carga: Date;
+  preview_url?: string;
+  producto?: {
+    id_producto: string;
+    nombre: string;
+    sku: string;
+  };
+}
+
+interface FileWithName extends File {
+  name: string;
+}
 
 @Component({
   selector: "app-manage-product-bulk",
@@ -19,7 +45,7 @@ import { startWith, switchMap } from "rxjs/operators";
   imports: [
     CommonModule,
     DialogModule,
-    TabsModule,
+    TabViewModule,
     FileUploadModule,
     TableModule,
     ButtonModule,
@@ -31,15 +57,22 @@ import { startWith, switchMap } from "rxjs/operators";
 })
 export class ManageProductBulkComponent implements OnInit, OnDestroy {
   @ViewChild("fileUpload") fileUpload: any;
+  @ViewChild("imageUpload") imageUpload: any;
 
   visible = false;
   errorDialogVisible = false;
+  imagePreviewVisible = false;
   file: File | null = null;
   uploadStatus: { success: boolean; message: string } | null = null;
   csvFiles: any[] = [];
+  imageFiles: ImageFile[] = [];
   currentFileErrors: any[] = [];
+  selectedImageUrl: string | null = null;
+  invalidFileNames: string[] = [];
+  hasValidationErrors = false;
   loading = false;
   private updateSubscription?: Subscription;
+  private imageUpdateSubscription?: Subscription;
 
   constructor(
     private modalService: ModalService,
@@ -50,17 +83,22 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
       this.visible = state;
       if (state) {
         this.startAutoUpdate();
+        this.startImageAutoUpdate();
       }
     });
   }
 
   ngOnInit() {
     this.startAutoUpdate();
+    this.startImageAutoUpdate();
   }
 
   ngOnDestroy() {
     if (this.updateSubscription) {
       this.updateSubscription.unsubscribe();
+    }
+    if (this.imageUpdateSubscription) {
+      this.imageUpdateSubscription.unsubscribe();
     }
   }
 
@@ -84,6 +122,26 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
       });
   }
 
+  private startImageAutoUpdate() {
+    this.imageUpdateSubscription = interval(1000)
+      .pipe(
+        startWith(0),
+        switchMap(() => this.productsService.getImageFiles())
+      )
+      .subscribe({
+        next: (files) => {
+          this.imageFiles = files;
+        },
+        error: () => {
+          this.messageService.add({
+            severity: "error",
+            summary: "Error",
+            detail: "Error al actualizar la lista de imágenes",
+          });
+        },
+      });
+  }
+
   closeModal() {
     this.modalService.closeBulkModal();
   }
@@ -91,6 +149,69 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
   onFileSelect(event: any) {
     if (event.files && event.files.length > 0) {
       this.file = event.files[0];
+    }
+  }
+
+  onImageSelect(event: any) {
+    const files = Array.from(event.files);
+    
+    if (files.length > 25) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No se pueden cargar más de 25 imágenes a la vez'
+      });
+      this.imageUpload.clear();
+      return;
+    }
+
+    let hasErrors = false;
+    files.forEach((file: any) => {
+      // Validar formato del archivo
+      if (!file.type.match(/image\/(png|jpeg|jpg)/)) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: `El archivo ${file.name} debe ser una imagen en formato PNG o JPEG`
+        });
+        hasErrors = true;
+      }
+
+      // Validar tamaño del archivo (10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: `El archivo ${file.name} excede el tamaño máximo permitido de 10 MB`
+        });
+        hasErrors = true;
+      }
+    });
+
+    if (hasErrors) {
+      this.imageUpload.clear();
+    }
+  }
+
+  onImageUploadError(event: any) {
+    if (event.type === 'max-file-limit') {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No se pueden cargar más de 25 imágenes a la vez'
+      });
+    } else if (event.type === 'max-size') {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: `El archivo ${event.file.name} excede el tamaño máximo permitido de 10 MB`
+      });
+    } else if (event.type === 'type') {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: `El archivo ${event.file.name} debe ser una imagen en formato PNG o JPEG`
+      });
     }
   }
 
@@ -121,6 +242,81 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
         },
       });
     }
+  }
+
+  uploadImages() {
+    const fileUpload = this.imageUpload;
+    if (!fileUpload || !fileUpload.files || fileUpload.files.length === 0) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No hay archivos seleccionados para cargar'
+      });
+      return;
+    }
+
+    this.loading = true;
+    const formData = new FormData();
+    
+    const files = Array.from(fileUpload.files) as FileWithName[];
+    files.forEach((file) => {
+      formData.append('files', file);
+    });
+
+    this.productsService.uploadImages(formData).subscribe({
+      next: (response: UploadResult) => {
+        // Crear nuevo registro para la tabla
+        const newImageFile: ImageFile = {
+          nombre_archivo: files[0].name,
+          estado: response.imagenes_error > 0 ? 'error' : 'procesado',
+          total_imagenes: response.total_imagenes,
+          imagenes_cargadas: response.imagenes_cargadas,
+          fecha_carga: new Date(),
+          errores_procesamiento: response.errores ? response.errores.map(error => ({ error })) : undefined
+        };
+
+        // Actualizar la lista de archivos
+        this.imageFiles = [newImageFile, ...this.imageFiles];
+
+        // Mostrar mensajes según el resultado
+        if (response.imagenes_error > 0) {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Errores en la carga',
+            detail: `No se pudieron cargar ${response.imagenes_error} de ${response.total_imagenes} imágenes`
+          });
+          
+          if (response.errores && response.errores.length > 0) {
+            this.currentFileErrors = response.errores.map(error => ({ error }));
+            this.errorDialogVisible = true;
+          }
+        }
+
+        if (response.imagenes_cargadas > 0) {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Carga Exitosa',
+            detail: `Se cargaron correctamente ${response.imagenes_cargadas} imágenes`
+          });
+        }
+        
+        fileUpload.clear();
+        this.loading = false;
+      },
+      error: (error) => {
+        this.messageService.add({
+          severity: "error",
+          summary: "Error",
+          detail: error.error?.message || "Error al cargar las imágenes"
+        });
+        this.loading = false;
+      }
+    });
+  }
+
+  private isValidSKU(fileName: string): boolean {
+    // Validar que el nombre del archivo siga el formato de SKU
+    return SKU_REGEX.test(fileName);
   }
 
   getStatusSeverity(
@@ -164,6 +360,20 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
   showErrorDetails(file: any) {
     this.currentFileErrors = file.errores_procesamiento;
     this.errorDialogVisible = true;
+  }
+
+  showImageError(file: ImageFile) {
+    if (file.errores_procesamiento?.length) {
+      this.currentFileErrors = file.errores_procesamiento;
+      this.errorDialogVisible = true;
+    }
+  }
+
+  viewImage(file: ImageFile) {
+    if (file.url) {
+      this.selectedImageUrl = file.url;
+      this.imagePreviewVisible = true;
+    }
   }
 
   downloadFile(file: any) {

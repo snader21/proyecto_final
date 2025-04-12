@@ -11,6 +11,7 @@ import {
   CreateProduct,
   MovimientoInventario,
 } from "../../interfaces/product.interfaces";
+import { UploadResult } from "../../interfaces/upload-result.interface";
 
 @Injectable({
   providedIn: "root",
@@ -56,8 +57,19 @@ export class ProductsService {
     );
   }
 
+  uploadImages(formData: FormData): Observable<UploadResult> {
+    return this.http.post<UploadResult>(
+      `${this.apiUrl}/productos/upload-images`,
+      formData
+    );
+  }
+
   getCSVFiles(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/productos/archivos-csv`);
+  }
+
+  getImageFiles(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/productos/archivos-imagenes`);
   }
 
   getUbicaciones(): Observable<any[]> {

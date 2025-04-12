@@ -1,11 +1,11 @@
 import {
-  Body,
   Controller,
   Get,
-  Param,
   Post,
-  UploadedFiles,
+  Body,
   UseInterceptors,
+  UploadedFiles,
+  Param,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { UploadedFile } from './interfaces/uploaded-file.interface';
@@ -15,6 +15,7 @@ import { CategoriaEntity } from './entities/categoria.entity';
 import { MarcaEntity } from './entities/marca.entity';
 import { UnidadMedidaEntity } from './entities/unidad-medida.entity';
 import { ProductoEntity } from './entities/producto.entity';
+import { ResultadoCargaImagenes } from './interfaces/resultado-carga-imagenes.interface';
 
 @Controller('productos')
 export class ProductosController {
@@ -68,5 +69,13 @@ export class ProductosController {
     @UploadedFiles() files: UploadedFile[],
   ): Promise<{ url: string }> {
     return this.productosService.guardarArchivoCSV(files[0]);
+  }
+
+  @Post('upload-images')
+  @UseInterceptors(FilesInterceptor('files', 25))
+  async guardarImagenesProductos(
+    @UploadedFiles() files: UploadedFile[],
+  ): Promise<ResultadoCargaImagenes> {
+    return await this.productosService.guardarImagenesProductos(files);
   }
 }

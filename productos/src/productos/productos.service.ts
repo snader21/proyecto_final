@@ -15,6 +15,7 @@ import { UbicacionEntity } from '../ubicaciones/entities/ubicacion.entity';
 import { ImagenProductoEntity } from './entities/imagen-producto.entity';
 import { MovimientoInventarioEntity } from '../movimientos-inventario/entities/movimiento-inventario.entity';
 import { PubSubService } from '../common/services/pubsub.service';
+import { ResultadoCargaImagenes } from './interfaces/resultado-carga-imagenes.interface';
 
 @Injectable()
 export class ProductosService implements OnModuleInit {
@@ -436,5 +437,80 @@ export class ProductosService implements OnModuleInit {
         },
       },
     });
+  }
+
+  async guardarImagenesProductos(files: UploadedFile[]): Promise<ResultadoCargaImagenes> {
+    const resultado: ResultadoCargaImagenes = {
+      total_imagenes: files.length,
+      imagenes_cargadas: 0,
+      imagenes_error: 0,
+      errores: [],
+    };
+
+    // Validar número máximo de archivos
+    if (files.length > 25) {
+      resultado.errores.push('No se pueden cargar más de 25 imágenes a la vez');
+      resultado.imagenes_error = files.length;
+      return resultado;
+    }
+
+    for (const file of files) {
+      try {
+        // Obtener el SKU del nombre del archivo
+        const sku = file.originalname.split('.')[0];
+        const producto = await this.productoRepository.findOne({
+          where: { sku },
+          select: {
+            id_producto: true,
+            nombre: true,
+            sku: true,
+          },
+        });
+
+        if (!producto) {
+          resultado.imagenes_error++;
+          resultado.errores.push(`No existe un producto con el SKU ${sku}`);
+          continue;
+        }
+
+        // Validar tamaño del archivo (10MB)
+        if (file.size > 10 * 1024 * 1024) {
+          resultado.imagenes_error++;
+          resultado.errores.push(
+            `La imagen ${file.originalname} supera el tamaño máximo de 10MB`,
+          );
+          continue;
+        }
+
+        // Validar tipo de archivo
+        if (!['image/jpeg', 'image/png'].includes(file.mimetype)) {
+          resultado.imagenes_error++;
+          resultado.errores.push(
+            `La imagen ${file.originalname} no está en formato PNG o JPEG`,
+          );
+          continue;
+        }
+
+        // Subir al bucket
+        const fileName = `imagenes/${producto.id_producto}/${file.originalname}`;
+        const url = await this.fileGCP.save(file, fileName);
+
+        // Guardar en base de datos
+        await this.imagenProductoRepository.save({
+          key_object_storage: fileName,
+          url,
+          producto,
+        });
+
+        resultado.imagenes_cargadas++;
+      } catch (error) {
+        resultado.imagenes_error++;
+        resultado.errores.push(
+          `Error al procesar la imagen ${file.originalname}: ${error instanceof Error ? error.message : 'Error desconocido'}`,
+        );
+      }
+    }
+
+    return resultado;
   }
 }

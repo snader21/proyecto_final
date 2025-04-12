@@ -6,6 +6,7 @@ import {
   UploadedFiles,
   UseInterceptors,
   Query,
+  Param,
 } from '@nestjs/common';
 import { ProductosService } from './productos.service';
 import { CreateMovimientoInventarioDto } from './dto/create-movimiento-inventario.dto';
@@ -80,5 +81,22 @@ export class ProductosController {
   @Get('archivos-csv')
   async getCSVFiles() {
     return this.productosService.getCSVFiles();
+  }
+
+  @Post('upload-images')
+  @UseInterceptors(FilesInterceptor('files', 25))
+  async uploadImages(@UploadedFiles() files: any[]): Promise<any> {
+    // Asegurarse de que files es un array
+    if (!files) {
+      files = [];
+    } else if (!Array.isArray(files)) {
+      files = [files];
+    }
+    return this.productosService.uploadImages(files);
+  }
+
+  @Get('archivos-imagenes')
+  async getImageFiles() {
+    return this.productosService.getImageFiles();
   }
 }

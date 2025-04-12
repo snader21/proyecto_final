@@ -11,13 +11,18 @@ import {
 import { from, of } from 'rxjs';
 import { ProveedorAiService } from '../proveedor-ai/proveedor-ai.service';
 import { generarPromptOptimizacionRutas } from './calculo-ruta.promt';
-import {
-  IRespuestaProducto,
-  ProductosService,
-} from '../productos/productos.service';
+import { ProductosService } from '../productos/productos.service';
 import { IRespuestaPedido, PedidosService } from '../pedidos/pedidos.service';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
+
+interface IRespuestaProducto {
+  id_producto: string;
+  alto: number;
+  largo: number;
+  ancho: number;
+  cantidad: number;
+}
 
 export interface IPoint {
   lat: number;
