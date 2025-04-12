@@ -1,0 +1,66 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/clientes-detalle/1"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Registro visita</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="ion-padding">
+    <ion-grid>
+      <ion-row class="ion-align-items-center">
+        <ion-avatar>
+          <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="nombre">
+        </ion-avatar>
+        <ion-col size="9">
+          <div class="ion-text-wrap">
+            <h2 style="margin: 0;">{{cliente?.nombre}}</h2>
+            <p style="margin: 0; color: var(--ion-color-medium);">Cliente</p>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+  <form [formGroup]="visitaForm" (ngSubmit)="onSubmit()" class="ion-padding">
+    <ion-item>
+      <ion-label position="stacked">Fecha</ion-label>
+      <ion-input type="date" formControlName="fecha"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Hora</ion-label>
+      <ion-input type="time" formControlName="hora"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Observaciones</ion-label>
+      <ion-textarea formControlName="observaciones" rows="4"></ion-textarea>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>¿Realizar pedido?</ion-label>
+      <ion-toggle formControlName="realizarPedido" size="small"></ion-toggle>
+    </ion-item>
+
+    <div class="ion-padding-top">
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <ion-button expand="block" (click)="grabarVideo()" color="primary" size="small">
+              <ion-icon slot="start" name="videocam-outline"></ion-icon>
+              Grabar video
+            </ion-button>
+          </ion-col>
+          <ion-col>
+            <ion-button expand="block" (click)="subirVideo()" color="primary" size="small">
+              <ion-icon slot="start" name="cloud-upload-outline" type="submit"></ion-icon>
+              Subir video
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+  </form>
+</ion-content>

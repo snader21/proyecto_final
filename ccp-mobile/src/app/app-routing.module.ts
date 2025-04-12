@@ -18,6 +18,27 @@ const routes: Routes = [
     path: 'home',
     loadChildren: () => import('./pages/home/home.module').then(m => m.HomePageModule),
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'clientes',
+    loadChildren: () => import('./pages/clientes/clientes.module').then( m => m.ClientesPageModule),
+    canActivate: [NoAuthGuard]
+  },
+  {
+    path: 'clientes-detalle/:id',
+    loadChildren: () => import('./pages/clientes-detalle/clientes-detalle.module').then( m => m.ClientesDetallePageModule)
+  },
+  {
+    path: 'clientes-visita',
+    loadChildren: () => import('./pages/clientes-visita/clientes-visita.module').then( m => m.ClientesVisitaPageModule)
+  },
+  {
+    path: 'pedidos',
+    loadChildren: () => import('./pages/pedidos/pedidos.module').then( m => m.PedidosPageModule)
+  },
+  {
+    path: 'pedidos-registro',
+    loadChildren: () => import('./pages/pedidos-registro/pedidos-registro.module').then( m => m.PedidosRegistroPageModule)
   }
 ];
 
