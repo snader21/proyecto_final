@@ -439,7 +439,7 @@ export class ProductosService implements OnModuleInit {
     });
   }
 
-  async GuardarImagenesProductos(files: UploadedFile[]): Promise<ResultadoCargaImagenes> {
+  async guardarImagenesProductos(files: UploadedFile[]): Promise<ResultadoCargaImagenes> {
     const resultado: ResultadoCargaImagenes = {
       total_imagenes: files.length,
       imagenes_cargadas: 0,

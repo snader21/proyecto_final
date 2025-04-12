@@ -73,9 +73,9 @@ export class ProductosController {
 
   @Post('upload-images')
   @UseInterceptors(FilesInterceptor('files', 25))
-  async uploadImages(
+  async guardarImagenesProductos(
     @UploadedFiles() files: UploadedFile[],
   ): Promise<ResultadoCargaImagenes> {
-    return await this.productosService.GuardarImagenesProductos(files);
+    return await this.productosService.guardarImagenesProductos(files);
   }
 }
