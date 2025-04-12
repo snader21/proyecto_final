@@ -3,13 +3,11 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { map } from 'rxjs/operators';
 import { firstValueFrom, Observable } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
-import * as FormData from 'form-data';
 import { AxiosError } from 'axios';
 import { CreateMovimientoInventarioDto } from './dto/create-movimiento-inventario.dto';
 import { MovimientoInventarioDto } from './dto/movimiento-inventario.dto';
 import { QueryInventarioDto } from './dto/query-inventario.dto';
 import { ProductoConInventarioDto } from './dto/producto-con-inventario.dto';
-import { IUploadResult } from './interfaces/upload-result.interface';
 
 @Injectable()
 export class ProductosService {
@@ -93,6 +91,9 @@ export class ProductosService {
 
   async saveProduct(product: any, files?: any[]) {
     const apiEndPoint = `${this.apiProductos}/productos`;
+
+    // Create form data with proper headers for multipart/form-data
+    const FormData = require('form-data');
     const form = new FormData();
     form.append('product', JSON.stringify(product));
 
@@ -116,6 +117,7 @@ export class ProductosService {
 
   async uploadCSV(file: any): Promise<{ url: string }> {
     const apiEndPoint = `${this.apiProductos}/productos/upload-csv`;
+    const FormData = require('form-data');
     const form = new FormData();
 
     form.append('file', file.buffer, {
@@ -148,34 +150,27 @@ export class ProductosService {
       .pipe(map((respuesta) => respuesta.data));
   }
 
-  async uploadImages(files: any[]): Promise<IUploadResult> {
+  async uploadImages(files: any[]) {
     const apiEndPoint = `${this.apiProductos}/productos/upload-images`;
+    const FormData = require('form-data');
     const form = new FormData();
 
-    // Asegurarse de que files es un array
-    if (!files) {
-      files = [];
-    } else if (!Array.isArray(files)) {
-      files = [files];
-    }
-
     files.forEach((file) => {
-      if (file) {
-        form.append('files', file.buffer, {
-          filename: file.originalname,
-          contentType: file.mimetype,
-        });
-      }
+      form.append('images', file.buffer, {
+        filename: file.originalname,
+        contentType: file.mimetype,
+      });
     });
 
-    const response$ = this.httpService.post<IUploadResult>(apiEndPoint, form, {
-      headers: {
-        ...form.getHeaders(),
-      },
-    });
-
-    const response = await firstValueFrom(response$);
-    return response.data;
+    return firstValueFrom(
+      this.httpService
+        .post(apiEndPoint, form, {
+          headers: {
+            ...form.getHeaders(),
+          },
+        })
+        .pipe(map((respuesta) => respuesta.data)),
+    );
   }
 
   async getImageFiles() {
