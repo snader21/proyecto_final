@@ -10,20 +10,6 @@ import { MovimientoInventarioDto } from './dto/movimiento-inventario.dto';
 import { QueryInventarioDto } from './dto/query-inventario.dto';
 import { ProductoConInventarioDto } from './dto/producto-con-inventario.dto';
 import { IUploadResult } from './interfaces/upload-result.interface';
-import { UploadedFile } from './interfaces/uploaded-file.interface';
-
-export interface IRespuestaProducto {
-  id_producto: string;
-  nombre: string;
-  descripcion: string;
-  sku: string;
-  precio: number;
-  alto: number;
-  largo: number;
-  ancho: number;
-  peso: number;
-  cantidad: number;
-}
 
 @Injectable()
 export class ProductosService {
@@ -35,12 +21,12 @@ export class ProductosService {
     private readonly configService: ConfigService,
   ) {}
 
-  obtenerProductosDePedidos(id: string): Observable<IRespuestaProducto[]> {
+  obtenerProductosDePedidos(id: string): Observable<any[]> {
     const api = this.configService.get<string>('URL_PRODUCTOS');
     const apiEndPoint = `${api}/productos/${id}`;
 
     return this.httpService
-      .get<IRespuestaProducto[]>(apiEndPoint)
+      .get<any[]>(apiEndPoint)
       .pipe(map((respuesta) => respuesta.data));
   }
 
@@ -107,7 +93,6 @@ export class ProductosService {
 
   async saveProduct(product: any, files?: any[]) {
     const apiEndPoint = `${this.apiProductos}/productos`;
-
     const form = new FormData();
     form.append('product', JSON.stringify(product));
 
@@ -163,9 +148,14 @@ export class ProductosService {
       .pipe(map((respuesta) => respuesta.data));
   }
 
-  async uploadImages(files: any[]) {
+  async uploadImages(files: any[]): Promise<IUploadResult> {
     const apiEndPoint = `${this.apiProductos}/productos/upload-images`;
     const form = new FormData();
+
+    // Asegurarse de que files es un array
+    if (!Array.isArray(files)) {
+      files = [files];
+    }
 
     files.forEach((file) => {
       form.append('files', file.buffer, {

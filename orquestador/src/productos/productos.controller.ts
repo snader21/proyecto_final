@@ -6,6 +6,7 @@ import {
   UploadedFiles,
   UseInterceptors,
   Query,
+  Param,
 } from '@nestjs/common';
 import { ProductosService } from './productos.service';
 import { CreateMovimientoInventarioDto } from './dto/create-movimiento-inventario.dto';
@@ -85,8 +86,12 @@ export class ProductosController {
   }
 
   @Post('upload-images')
-  @UseInterceptors(FilesInterceptor('images', 25))
-  async uploadImages(@UploadedFiles() files: UploadedFile[]): Promise<IUploadResult> {
+  @UseInterceptors(FilesInterceptor('files', 25))
+  async uploadImages(@UploadedFiles() files: any[]): Promise<IUploadResult> {
+    // Asegurarse de que files es un array
+    if (!Array.isArray(files)) {
+      files = [files];
+    }
     return this.productosService.uploadImages(files);
   }
 
