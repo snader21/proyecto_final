@@ -10,7 +10,7 @@ import { TooltipModule } from "primeng/tooltip";
 import { ModalService } from "../../../services/productos/modal.service";
 import { ProductsService } from "../../../services/productos/products.service";
 import { MessageService } from "primeng/api";
-import { Subscription } from "rxjs";
+import { Subscription, interval } from "rxjs";
 import { UploadResult } from "../../../interfaces/upload-result.interface";
 import { finalize } from "rxjs/operators";
 
@@ -79,9 +79,14 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
   ) {
     const modalSub = this.modalService.bulkModalState$.subscribe((state) => {
       this.visible = state;
+      if (state) {
+        // Cuando el modal se abre, iniciar el polling
+        this.startPolling();
+      }
       if (!state) {
-        // Cuando el modal se cierra, emitir el evento
+        // Cuando el modal se cierra, emitir el evento y detener el polling
         this.modalClosed.emit();
+        this.stopPolling();
       }
     });
     this.subscriptions.add(modalSub);
@@ -353,5 +358,30 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
   showErrorDetails(file: any) {
     this.currentFileErrors = file.errores_procesamiento;
     this.errorDialogVisible = true;
+  }
+
+  private startPolling() {
+    const polling = interval(1000).subscribe(() => {
+      this.loadCSVFiles();
+    });
+    this.subscriptions.add(polling);
+  }
+
+  private stopPolling() {
+    this.subscriptions.unsubscribe();
+    // Recrear la subscripción para futuros eventos
+    this.subscriptions = new Subscription();
+    // Volver a suscribirse al estado del modal
+    const modalSub = this.modalService.bulkModalState$.subscribe((state) => {
+      this.visible = state;
+      if (state) {
+        this.startPolling();
+      }
+      if (!state) {
+        this.modalClosed.emit();
+        this.stopPolling();
+      }
+    });
+    this.subscriptions.add(modalSub);
   }
 }
