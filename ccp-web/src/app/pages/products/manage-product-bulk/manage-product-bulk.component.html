@@ -200,25 +200,35 @@ SKU, nombre, descripcion, codigo_barras, id_categoria, id_marca, id_unidad_medid
         [style]="{width: '90vw', maxWidth: '600px'}"
         [breakpoints]="{'960px': '75vw', '640px': '100vw'}"
         [draggable]="false"
-        [resizable]="false">
-        <p-table
-            [value]="currentFileErrors"
-            [scrollable]="true"
-            scrollHeight="400px"
-            styleClass="p-datatable-sm"
-            [tableStyle]="{'min-width': '100%'}">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th>Mensaje</th>
-                    <th>Fila</th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-error>
-                <tr>
-                    <td>{{error.mensaje}}</td>
-                    <td>{{error.fila}}</td>
-                </tr>
-            </ng-template>
-        </p-table>
+        [resizable]="false"
+        (onHide)="closeErrorDialog()">
+        <div class="grid">
+            <div class="col-12">
+                <p-table
+                    [value]="currentFileErrors"
+                    [scrollable]="true"
+                    scrollHeight="400px"
+                    styleClass="p-datatable-sm"
+                    [tableStyle]="{'min-width': '100%'}">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Mensaje</th>
+                            <th style="width: 100px">Fila</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-error>
+                        <tr>
+                            <td>{{error.mensaje}}</td>
+                            <td class="text-center">{{error.fila}}</td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage">
+                        <tr>
+                            <td colspan="2" class="text-center">No hay errores para mostrar</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
     </p-dialog>
 </div>

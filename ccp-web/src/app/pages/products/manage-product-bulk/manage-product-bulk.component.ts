@@ -67,12 +67,12 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
   uploadStatus: { success: boolean; message: string } | null = null;
   csvFiles: any[] = [];
   imageFiles: ImageFile[] = [];
+  currentFile: any = null;
   currentFileErrors: any[] = [];
   invalidFileNames: string[] = [];
   hasValidationErrors = false;
   loading = false;
   selectedFile: ImageFile | null = null;
-  currentFile: any = null;
   private subscriptions = new Subscription();
   activeTabIndex = 0;
 
@@ -300,12 +300,44 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
     this.subscriptions.add(uploadSub);
   }
 
-  showProcessingResults(file: ImageFile) {
-    if (file.errores_procesamiento?.length) {
-      this.currentFileErrors = file.errores_procesamiento;
-      this.selectedFile = file; // Store the selected file for the dialog
-      this.errorDialogVisible = true;
-    }
+  showErrorDetails(file: any) {
+    this.currentFile = file;
+    this.currentFileErrors = file.errores_procesamiento?.map((error: any) => {
+      if (typeof error === 'string') {
+        return {
+          mensaje: error,
+          fila: 'N/A'
+        };
+      }
+      return {
+        mensaje: error.error || error.mensaje || 'Error desconocido',
+        fila: error.fila || error.linea || 'N/A'
+      };
+    }) || [];
+    this.errorDialogVisible = true;
+  }
+
+  showProcessingResults(file: any) {
+    this.currentFile = file;
+    this.currentFileErrors = file.errores_procesamiento?.map((error: any) => {
+      if (typeof error === 'string') {
+        return {
+          mensaje: error,
+          fila: 'N/A'
+        };
+      }
+      return {
+        mensaje: error.error || error.mensaje || 'Error desconocido',
+        fila: error.fila || error.linea || 'N/A'
+      };
+    }) || [];
+    this.errorDialogVisible = true;
+  }
+
+  closeErrorDialog() {
+    this.errorDialogVisible = false;
+    this.currentFile = null;
+    this.currentFileErrors = [];
   }
 
   downloadFile(file: any) {
@@ -353,11 +385,6 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
         }
       </div>
     `;
-  }
-
-  showErrorDetails(file: any) {
-    this.currentFileErrors = file.errores_procesamiento;
-    this.errorDialogVisible = true;
   }
 
   onTabChange(event: any) {
