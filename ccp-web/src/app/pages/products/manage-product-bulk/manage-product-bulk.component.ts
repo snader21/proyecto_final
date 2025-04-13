@@ -12,6 +12,7 @@ import { ProductsService } from "../../../services/productos/products.service";
 import { MessageService } from "primeng/api";
 import { Subscription } from "rxjs";
 import { UploadResult } from "../../../interfaces/upload-result.interface";
+import { finalize } from "rxjs/operators";
 
 // Regex para validar el formato del SKU (ejemplo: ABC-123, ABC123, ABC_123)
 const SKU_REGEX = /^[A-Za-z0-9]{3,}-?\d{3,}$/;
@@ -80,21 +81,19 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
   ) {
     const modalSub = this.modalService.bulkModalState$.subscribe((state) => {
       this.visible = state;
-      if (state) {
-        this.loadCSVFiles();
-        this.loadImageFiles();
-      }
     });
     this.subscriptions.add(modalSub);
   }
 
   ngOnInit() {
     this.loadCSVFiles();
-    this.loadImageFiles();
   }
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
+    if (this.imageUpload) {
+      this.imageUpload.clear();
+    }
   }
 
   private loadCSVFiles() {
@@ -107,26 +106,6 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
           severity: "error",
           summary: "Error",
           detail: "Error al cargar la lista de archivos",
-        });
-      },
-    });
-    this.subscriptions.add(sub);
-  }
-
-  private loadImageFiles() {
-    console.log('Iniciando loadImageFiles...');
-    const sub = this.productsService.getImageFiles().subscribe({
-      next: (files) => {
-        console.log('loadImageFiles - Imágenes recibidas:', files);
-        this.imageFiles = files;
-        console.log('loadImageFiles - Estado actualizado:', this.imageFiles);
-      },
-      error: (error) => {
-        console.error('loadImageFiles - Error:', error);
-        this.messageService.add({
-          severity: "error",
-          summary: "Error",
-          detail: "Error al cargar la lista de imágenes",
         });
       },
     });
@@ -256,52 +235,50 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
       formData.append('files', file);
     });
 
-    const sub = this.productsService.uploadImages(formData).subscribe({
-      next: (response: UploadResult) => {
-        console.log('Upload response:', response);
+    const uploadSub = this.productsService.uploadImages(formData)
+      .pipe(
+        finalize(() => {
+          fileUpload.clear();
+          this.loading = false;
+        })
+      )
+      .subscribe({
+        next: (response: UploadResult) => {
+          console.log('Upload response:', response);
 
-        // Mostrar mensaje según el resultado
-        this.messageService.add({
-          severity: response.imagenes_error > 0 ? 'warn' : 'success',
-          summary: response.imagenes_error > 0 ? 'Carga con Errores' : 'Carga Exitosa',
-          detail: response.imagenes_error > 0 
-            ? `No se pudieron cargar ${response.imagenes_error} de ${response.total_imagenes} imágenes` 
-            : `Se cargaron correctamente ${response.imagenes_cargadas} imágenes`
-        });
+          // Crear nuevo registro para la tabla
+          const newImageFile: ImageFile = {
+            nombre_archivo: files[0].name,
+            estado: response.imagenes_error > 0 ? 'error' : 'procesado',
+            total_imagenes: response.total_imagenes,
+            imagenes_cargadas: response.imagenes_cargadas,
+            fecha_carga: new Date(),
+            errores_procesamiento: response.errores ? response.errores.map(error => ({ error })) : undefined
+          };
 
-        // Limpiar el formulario
-        fileUpload.clear();
-        
-        // Recargar la lista de imágenes desde el servidor
-        const refreshSub = this.productsService.getImageFiles().subscribe({
-          next: (files) => {
-            console.log('Nuevas imágenes recibidas:', files);
-            this.imageFiles = files;
-            this.loading = false;
-          },
-          error: (error) => {
-            console.error('Error al recargar imágenes:', error);
-            this.messageService.add({
-              severity: "error",
-              summary: "Error",
-              detail: "Error al actualizar la lista de imágenes",
-            });
-            this.loading = false;
-          }
-        });
-        this.subscriptions.add(refreshSub);
-      },
-      error: (error) => {
-        console.error('Error en la carga de imágenes:', error);
-        this.messageService.add({
-          severity: "error",
-          summary: "Error",
-          detail: error.error?.message || "Error al cargar las imágenes"
-        });
-        this.loading = false;
-      }
-    });
-    this.subscriptions.add(sub);
+          // Actualizar la lista de archivos
+          this.imageFiles = [newImageFile, ...this.imageFiles];
+
+          // Mostrar mensaje según el resultado
+          this.messageService.add({
+            severity: response.imagenes_error > 0 ? 'warn' : 'success',
+            summary: response.imagenes_error > 0 ? 'Carga con Errores' : 'Carga Exitosa',
+            detail: response.imagenes_error > 0 
+              ? `No se pudieron cargar ${response.imagenes_error} de ${response.total_imagenes} imágenes` 
+              : `Se cargaron correctamente ${response.imagenes_cargadas} imágenes`
+          });
+        },
+        error: (error) => {
+          console.error('Error en la carga de imágenes:', error);
+          this.messageService.add({
+            severity: "error",
+            summary: "Error",
+            detail: error.error?.message || "Error al cargar las imágenes"
+          });
+        }
+      });
+    
+    this.subscriptions.add(uploadSub);
   }
 
   showProcessingResults(file: ImageFile) {
