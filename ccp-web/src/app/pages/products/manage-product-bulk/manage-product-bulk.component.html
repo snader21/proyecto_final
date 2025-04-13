@@ -86,21 +86,12 @@ SKU, nombre, descripcion, codigo_barras, id_categoria, id_marca, id_unidad_medid
                                             </p-button>
                                             <p-button
                                                 *ngIf="file.estado === 'error' && file.errores_procesamiento?.length"
-                                                icon="pi pi-exclamation-circle"
+                                                icon="pi pi-list"
                                                 [rounded]="true"
                                                 [text]="true"
                                                 severity="danger"
                                                 (onClick)="showErrorDetails(file)"
                                                 pTooltip="Ver errores">
-                                            </p-button>
-                                            <p-button
-                                                *ngIf="file.errores_procesamiento?.length"
-                                                icon="pi pi-list"
-                                                [rounded]="true"
-                                                [text]="true"
-                                                severity="info"
-                                                (onClick)="showErrorDetails(file)"
-                                                pTooltip="Ver resultados de la carga">
                                             </p-button>
                                         </div>
                                     </td>
