@@ -27,7 +27,6 @@ interface ImageFile {
   imagenes_cargadas: number;
   errores_procesamiento?: Array<{ error: string }>;
   fecha_carga: Date;
-  preview_url?: string;
   producto?: {
     id_producto: string;
     nombre: string;
@@ -61,13 +60,11 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
 
   visible = false;
   errorDialogVisible = false;
-  imagePreviewVisible = false;
   file: File | null = null;
   uploadStatus: { success: boolean; message: string } | null = null;
   csvFiles: any[] = [];
   imageFiles: ImageFile[] = [];
   currentFileErrors: any[] = [];
-  selectedImageUrl: string | null = null;
   invalidFileNames: string[] = [];
   hasValidationErrors = false;
   loading = false;
@@ -286,13 +283,6 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
       this.currentFileErrors = file.errores_procesamiento;
       this.selectedFile = file; // Store the selected file for the dialog
       this.errorDialogVisible = true;
-    }
-  }
-
-  viewImage(file: ImageFile) {
-    if (file.url) {
-      this.selectedImageUrl = file.url;
-      this.imagePreviewVisible = true;
     }
   }
 
