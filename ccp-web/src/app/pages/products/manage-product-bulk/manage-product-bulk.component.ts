@@ -7,10 +7,11 @@ import { TableModule } from "primeng/table";
 import { ButtonModule } from "primeng/button";
 import { TagModule } from "primeng/tag";
 import { TooltipModule } from "primeng/tooltip";
+import { RippleModule } from 'primeng/ripple';
 import { ModalService } from "../../../services/productos/modal.service";
 import { ProductsService } from "../../../services/productos/products.service";
 import { MessageService } from "primeng/api";
-import { Subscription, interval } from "rxjs";
+import { Subscription } from "rxjs";
 import { UploadResult } from "../../../interfaces/upload-result.interface";
 import { finalize } from "rxjs/operators";
 
@@ -40,6 +41,8 @@ interface FileWithName extends File {
 
 @Component({
   selector: "app-manage-product-bulk",
+  templateUrl: "./manage-product-bulk.component.html",
+  styleUrls: ["./manage-product-bulk.component.scss"],
   standalone: true,
   imports: [
     CommonModule,
@@ -50,9 +53,8 @@ interface FileWithName extends File {
     ButtonModule,
     TagModule,
     TooltipModule,
+    RippleModule
   ],
-  templateUrl: "./manage-product-bulk.component.html",
-  styleUrls: ["./manage-product-bulk.component.scss"],
 })
 export class ManageProductBulkComponent implements OnInit, OnDestroy {
   @ViewChild("fileUpload") fileUpload: any;
@@ -70,7 +72,9 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
   hasValidationErrors = false;
   loading = false;
   selectedFile: ImageFile | null = null;
+  currentFile: any = null;
   private subscriptions = new Subscription();
+  activeTabIndex = 0;
 
   constructor(
     private modalService: ModalService,
@@ -80,20 +84,16 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
     const modalSub = this.modalService.bulkModalState$.subscribe((state) => {
       this.visible = state;
       if (state) {
-        // Cuando el modal se abre, iniciar el polling
-        this.startPolling();
+        this.loadCSVFiles();
       }
       if (!state) {
-        // Cuando el modal se cierra, emitir el evento y detener el polling
         this.modalClosed.emit();
-        this.stopPolling();
       }
     });
     this.subscriptions.add(modalSub);
   }
 
   ngOnInit() {
-    this.loadCSVFiles();
   }
 
   ngOnDestroy() {
@@ -360,28 +360,7 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
     this.errorDialogVisible = true;
   }
 
-  private startPolling() {
-    const polling = interval(1000).subscribe(() => {
-      this.loadCSVFiles();
-    });
-    this.subscriptions.add(polling);
-  }
-
-  private stopPolling() {
-    this.subscriptions.unsubscribe();
-    // Recrear la subscripción para futuros eventos
-    this.subscriptions = new Subscription();
-    // Volver a suscribirse al estado del modal
-    const modalSub = this.modalService.bulkModalState$.subscribe((state) => {
-      this.visible = state;
-      if (state) {
-        this.startPolling();
-      }
-      if (!state) {
-        this.modalClosed.emit();
-        this.stopPolling();
-      }
-    });
-    this.subscriptions.add(modalSub);
+  onTabChange(event: any) {
+    this.activeTabIndex = event.index;
   }
 }
