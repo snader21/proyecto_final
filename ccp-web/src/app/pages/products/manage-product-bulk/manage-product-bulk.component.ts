@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from "@angular/core";
+import { Component, OnInit, OnDestroy, ViewChild, Output, EventEmitter } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { DialogModule } from "primeng/dialog";
 import { TabViewModule } from "primeng/tabview";
@@ -57,6 +57,7 @@ interface FileWithName extends File {
 export class ManageProductBulkComponent implements OnInit, OnDestroy {
   @ViewChild("fileUpload") fileUpload: any;
   @ViewChild("imageUpload") imageUpload: any;
+  @Output() modalClosed = new EventEmitter<void>();
 
   visible = false;
   errorDialogVisible = false;
@@ -78,6 +79,10 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
   ) {
     const modalSub = this.modalService.bulkModalState$.subscribe((state) => {
       this.visible = state;
+      if (!state) {
+        // Cuando el modal se cierra, emitir el evento
+        this.modalClosed.emit();
+      }
     });
     this.subscriptions.add(modalSub);
   }
