@@ -243,10 +243,20 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
         next: (response: UploadResult) => {
           console.log('Upload response:', response);
 
+          // Determinar el estado basado en las imágenes cargadas
+          let estado: string;
+          if (response.total_imagenes === response.imagenes_error) {
+            estado = 'error';
+          } else if (response.total_imagenes !== response.imagenes_cargadas) {
+            estado = 'parcial';
+          } else {
+            estado = 'procesado';
+          }
+
           // Crear nuevo registro para la tabla
           const newImageFile: ImageFile = {
             nombre_archivo: files[0].name,
-            estado: response.imagenes_error > 0 ? 'error' : 'procesado',
+            estado: estado,
             total_imagenes: response.total_imagenes,
             imagenes_cargadas: response.imagenes_cargadas,
             fecha_carga: new Date(),
@@ -259,10 +269,12 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
           // Mostrar mensaje según el resultado
           this.messageService.add({
             severity: response.imagenes_error > 0 ? 'warn' : 'success',
-            summary: response.imagenes_error > 0 ? 'Carga con Errores' : 'Carga Exitosa',
-            detail: response.imagenes_error > 0 
-              ? `No se pudieron cargar ${response.imagenes_error} de ${response.total_imagenes} imágenes` 
-              : `Se cargaron correctamente ${response.imagenes_cargadas} imágenes`
+            summary: estado === 'parcial' ? 'Carga Parcial' : (response.imagenes_error > 0 ? 'Carga con Errores' : 'Carga Exitosa'),
+            detail: response.imagenes_error > 0
+              ? `No se pudieron cargar ${response.imagenes_error} de ${response.total_imagenes} imágenes`
+              : estado === 'parcial'
+                ? `Se cargaron ${response.imagenes_cargadas} de ${response.total_imagenes} imágenes`
+                : `Se cargaron correctamente ${response.imagenes_cargadas} imágenes`
           });
         },
         error: (error) => {
@@ -274,7 +286,7 @@ export class ManageProductBulkComponent implements OnInit, OnDestroy {
           });
         }
       });
-    
+
     this.subscriptions.add(uploadSub);
   }
 
