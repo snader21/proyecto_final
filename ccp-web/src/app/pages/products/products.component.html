@@ -84,5 +84,5 @@
     </p-table>
 </p-card>
 <app-manage-product />
-<app-manage-product-bulk />
+<app-manage-product-bulk (modalClosed)="loadProducts()"></app-manage-product-bulk>
 <app-gestionar-inventario [(visible)]="showInventoryDialog" [product]="selectedProduct" />
