@@ -74,8 +74,7 @@ export interface Ubicacion {
   descripcion: string;
 }
 
-export interface MovimientoInventario {
-  tipoMovimiento: string;
+export interface EntradaInventario {
   idProducto: string;
   idUbicacion: string;
   cantidad: number;

@@ -6,21 +6,19 @@ import { of, throwError } from 'rxjs';
 import { AxiosResponse, AxiosError } from 'axios';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { faker } from '@faker-js/faker';
-import { CreateMovimientoInventarioDto } from './dto/create-movimiento-inventario.dto';
+import { CreateEntradaInventarioDto } from './dto/create-entrada-inventario.dto';
 
 describe('ProductosService - crearMovimientoInventario', () => {
   let service: ProductosService;
   let httpService: HttpService;
 
   const mockUrl = faker.internet.url();
-  const mockDto: CreateMovimientoInventarioDto = {
+  const mockDto: CreateEntradaInventarioDto = {
     idProducto: faker.string.uuid(),
     idUbicacion: faker.string.uuid(),
     cantidad: faker.number.int({ min: 1, max: 100 }),
-    tipoMovimiento: 'Entrada',
     idUsuario: faker.string.uuid(),
     fechaRegistro: new Date().toISOString(),
-    idPedido: undefined,
   };
 
   const mockHttpService = {
@@ -50,7 +48,7 @@ describe('ProductosService - crearMovimientoInventario', () => {
       of({ data: mockDto } as AxiosResponse),
     );
 
-    const result = await service.crearMovimientoInventario(mockDto);
+    const result = await service.crearEntradaInventario(mockDto);
     expect(result).toEqual(mockDto);
     expect(mockHttpService.post).toHaveBeenCalled();
   });
@@ -65,7 +63,7 @@ describe('ProductosService - crearMovimientoInventario', () => {
 
     mockHttpService.post.mockReturnValueOnce(throwError(() => axiosError));
 
-    await expect(service.crearMovimientoInventario(mockDto)).rejects.toThrow(
+    await expect(service.crearEntradaInventario(mockDto)).rejects.toThrow(
       NotFoundException,
     );
   });
@@ -80,7 +78,7 @@ describe('ProductosService - crearMovimientoInventario', () => {
 
     mockHttpService.post.mockReturnValueOnce(throwError(() => axiosError));
 
-    await expect(service.crearMovimientoInventario(mockDto)).rejects.toThrow(
+    await expect(service.crearEntradaInventario(mockDto)).rejects.toThrow(
       BadRequestException,
     );
   });

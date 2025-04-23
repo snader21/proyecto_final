@@ -1,8 +1,7 @@
-
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { DialogModule } from "primeng/dialog";
 import {
-  MovimientoInventario,
+  EntradaInventario,
   Product,
 } from "../../../interfaces/product.interfaces";
 import {
@@ -141,7 +140,6 @@ export class GestionarInventarioComponent implements OnInit {
       cantidad: parseInt(this.form.value.cantidad),
       idUbicacion: this.form.value.ubicacion,
       fechaRegistro: this.form.value.fechaRegistro,
-      tipoMovimiento: "Entrada",
       idUsuario: usuario?.id,
     };
     try {

@@ -1,4 +1,5 @@
 export enum TipoMovimientoEnum {
   ENTRADA = 'Entrada',
-  SALIDA = 'Salida',
+  PRE_RESERVA = 'Pre-Reserva',
+  RESERVA_CONFIRMADA = 'Reserva Confirmada',
 }

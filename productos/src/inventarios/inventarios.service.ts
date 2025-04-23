@@ -25,6 +25,7 @@ export class InventariosService {
       .andWhere('inventario.cantidad_disponible > 0')
       .select([
         'producto.id_producto',
+        'producto.precio',
         'producto.nombre',
         'inventario.cantidad_disponible',
       ])

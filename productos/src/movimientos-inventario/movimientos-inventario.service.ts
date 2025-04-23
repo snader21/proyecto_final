@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateMovimientoInventarioDto } from './dto/create-movimiento-invenario.dto';
+import { CreateEntradaInventarioDto } from './dto/create-entrada-invenario.dto';
 import { MovimientoInventarioEntity } from './entities/movimiento-inventario.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
@@ -7,6 +7,7 @@ import { InventariosService } from '../inventarios/inventarios.service';
 import { ProductosService } from '../productos/productos.service';
 import { UbicacionesService } from '../ubicaciones/ubicaciones.service';
 import { TipoMovimientoEnum } from './enums/tipo-movimiento.enum';
+import { CreatePreReservaInventarioDto } from './dto/create-pre-reserva-inventario.dto';
 @Injectable()
 export class MovimientosInventarioService {
   constructor(
@@ -17,32 +18,14 @@ export class MovimientosInventarioService {
     private readonly ubicacionService: UbicacionesService,
     private readonly dataSource: DataSource,
   ) {}
-  async crearMovimientoInventario(
-    movimientoInventario: CreateMovimientoInventarioDto,
+  async generarEntradaInventario(
+    crearEntradaInventario: CreateEntradaInventarioDto,
   ) {
-    if (
-      movimientoInventario.idPedido &&
-      movimientoInventario.tipoMovimiento === TipoMovimientoEnum.ENTRADA
-    ) {
-      throw new BadRequestException(
-        'Para movimientos de tipo entrada no debe enviarse un número de pedido',
-      );
-    }
-
-    if (
-      !movimientoInventario.idPedido &&
-      movimientoInventario.tipoMovimiento === TipoMovimientoEnum.SALIDA
-    ) {
-      throw new BadRequestException(
-        'Para movimientos de tipo salida debe enviarse un número de pedido',
-      );
-    }
-
     const ubicacion = await this.ubicacionService.obtenerUbicacion(
-      movimientoInventario.idUbicacion,
+      crearEntradaInventario.idUbicacion,
     );
     const producto = await this.productoService.obtenerProducto(
-      movimientoInventario.idProducto,
+      crearEntradaInventario.idProducto,
     );
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -51,11 +34,10 @@ export class MovimientosInventarioService {
 
     try {
       const movimientoInventarioCreado = this.repositorio.create({
-        ...movimientoInventario,
-        tipo_movimiento: movimientoInventario.tipoMovimiento,
-        id_pedido: movimientoInventario.idPedido,
-        id_usuario: movimientoInventario.idUsuario,
-        fecha_registro: movimientoInventario.fechaRegistro,
+        ...crearEntradaInventario,
+        tipo_movimiento: TipoMovimientoEnum.ENTRADA,
+        id_usuario: crearEntradaInventario.idUsuario,
+        fecha_registro: crearEntradaInventario.fechaRegistro,
         ubicacion: ubicacion,
         producto: producto,
       });
@@ -66,10 +48,10 @@ export class MovimientosInventarioService {
       );
 
       await this.inventarioService.actualizarInventarioDeProducto(
-        movimientoInventario.idProducto,
-        movimientoInventario.tipoMovimiento,
+        crearEntradaInventario.idProducto,
+        TipoMovimientoEnum.ENTRADA,
         ubicacion,
-        movimientoInventario.cantidad,
+        crearEntradaInventario.cantidad,
         queryRunner.manager,
       );
 
@@ -84,5 +66,15 @@ export class MovimientosInventarioService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async generarPreReservaInventario(
+    crearPreReservaInventario: CreatePreReservaInventarioDto,
+  ) {
+    // Revisar que no exista una pre-reserva con el mismo producto y mismo pedido. Si existe, lanzar error
+    // Obtener cantidad de productos en inventario por ubicacion (para pre-reservar por ubicacion)
+    // Si no existe stock para cubrir la pre-reserva, lanzar error
+    // Si existe stock, crear la pre-reserva
+    // Actualizar inventario
   }
 }
