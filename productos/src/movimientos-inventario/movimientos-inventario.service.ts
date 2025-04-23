@@ -183,17 +183,17 @@ export class MovimientosInventarioService
     }
   }
   async confirmarPreReservaInventario(idPedido: string) {
-    const result = await this.repositorio.update(
+    const resultado = await this.repositorio.update(
       { id_pedido: idPedido },
       { tipo_movimiento: TipoMovimientoEnum.RESERVA_CONFIRMADA },
     );
 
-    if (result.affected === 0) {
+    if (resultado.affected === 0) {
       console.warn(`No se encontró pre-reserva con idPedido: ${idPedido}`);
       return null;
     }
 
     console.log(`Pre-reserva confirmada para idPedido: ${idPedido}`);
-    return result;
+    return resultado;
   }
 }
