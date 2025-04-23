@@ -71,10 +71,70 @@ export class MovimientosInventarioService {
   async generarPreReservaInventario(
     crearPreReservaInventario: CreatePreReservaInventarioDto,
   ) {
-    // Revisar que no exista una pre-reserva con el mismo producto y mismo pedido. Si existe, lanzar error
-    // Obtener cantidad de productos en inventario por ubicacion (para pre-reservar por ubicacion)
-    // Si no existe stock para cubrir la pre-reserva, lanzar error
-    // Si existe stock, crear la pre-reserva
-    // Actualizar inventario
+    const inventariosEnUbicaciones =
+      await this.inventarioService.obtenerInventarioPorUbicacionesDeProductoPorIdProducto(
+        crearPreReservaInventario.idProducto,
+      );
+    const cantidadEnInventario = inventariosEnUbicaciones.reduce(
+      (acumulado, inventario) => acumulado + inventario.cantidad_disponible,
+      0,
+    );
+    const cantidadPreReservada = crearPreReservaInventario.cantidad;
+    if (cantidadEnInventario < cantidadPreReservada) {
+      throw new BadRequestException(
+        'No hay suficiente cantidad en inventario para realizar esta operación',
+      );
+    }
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      let cantidadRestante = cantidadPreReservada;
+      for (const inventario of inventariosEnUbicaciones) {
+        const cantidadDisponible = inventario.cantidad_disponible;
+        if (cantidadRestante > 0) {
+          const cantidadAReservar = Math.min(
+            cantidadRestante,
+            cantidadDisponible,
+          );
+
+          const movimientoInventarioCreado = this.repositorio.create({
+            cantidad: cantidadAReservar,
+            id_pedido: crearPreReservaInventario.idPedido,
+            tipo_movimiento: TipoMovimientoEnum.PRE_RESERVA,
+            id_usuario: crearPreReservaInventario.idUsuario,
+            fecha_registro: crearPreReservaInventario.fechaRegistro,
+            ubicacion: inventario.ubicacion,
+            producto: inventario.producto,
+          });
+
+          await queryRunner.manager.save(
+            MovimientoInventarioEntity,
+            movimientoInventarioCreado,
+          );
+
+          await this.inventarioService.actualizarInventarioDeProducto(
+            crearPreReservaInventario.idProducto,
+            TipoMovimientoEnum.PRE_RESERVA,
+            inventario.ubicacion,
+            cantidadAReservar,
+            queryRunner.manager,
+          );
+          cantidadRestante -= cantidadAReservar;
+        }
+      }
+      await queryRunner.commitTransaction();
+      return this.repositorio.find({
+        where: {
+          id_pedido: crearPreReservaInventario.idPedido,
+        },
+        relations: ['ubicacion', 'producto'],
+      });
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

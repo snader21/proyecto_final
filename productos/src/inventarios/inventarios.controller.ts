@@ -8,6 +8,8 @@ export class InventariosController {
 
   @Get()
   async obtenerInventario(@Query() query: QueryInventarioDto) {
-    return this.inventariosService.obtenerInventarioDeProductos(query);
+    return this.inventariosService.obtenerInventarioTotalDeProductosPorQueryDto(
+      query,
+    );
   }
 }

@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager, MoreThan, Repository } from 'typeorm';
 import { InventarioEntity } from './entities/inventario.entity';
 import { UbicacionEntity } from '../ubicaciones/entities/ubicacion.entity';
 import { TipoMovimientoEnum } from '../movimientos-inventario/enums/tipo-movimiento.enum';
@@ -12,7 +12,7 @@ export class InventariosService {
     private readonly repositorio: Repository<InventarioEntity>,
   ) {}
 
-  async obtenerInventarioDeProductos(
+  async obtenerInventarioTotalDeProductosPorQueryDto(
     query: QueryInventarioDto,
   ): Promise<any[]> {
     const operadorLike = process.env.NODE_ENV === 'test' ? 'LIKE' : 'ILIKE';
@@ -24,12 +24,26 @@ export class InventariosService {
       })
       .andWhere('inventario.cantidad_disponible > 0')
       .select([
-        'producto.id_producto',
-        'producto.precio',
-        'producto.nombre',
-        'inventario.cantidad_disponible',
+        'producto.id_producto as id_producto',
+        'producto.precio as precio',
+        'producto.nombre as nombre',
+        'SUM(inventario.cantidad_disponible) AS inventario',
       ])
-      .getMany();
+      .groupBy('producto.id_producto')
+      .getRawMany();
+  }
+
+  async obtenerInventarioPorUbicacionesDeProductoPorIdProducto(
+    idProducto: string,
+  ): Promise<InventarioEntity[]> {
+    return this.repositorio.find({
+      where: {
+        producto: { id_producto: idProducto },
+        cantidad_disponible: MoreThan(0),
+      },
+      relations: ['ubicacion', 'producto'],
+      order: { cantidad_disponible: 'DESC' },
+    });
   }
 
   async obtenerInventarioDeProductoEnBodega(
@@ -70,10 +84,10 @@ export class InventariosService {
 
     if (tipoMovimiento === TipoMovimientoEnum.ENTRADA) {
       inventario.cantidad_disponible += cantidad;
-    } else {
+    } else if (tipoMovimiento === TipoMovimientoEnum.PRE_RESERVA) {
       if (inventario.cantidad_disponible < cantidad) {
         throw new BadRequestException(
-          'Stock insuficiente para la salida solicitada',
+          'Stock insuficiente para la pre-reserva solicitada',
         );
       }
       inventario.cantidad_disponible -= cantidad;
