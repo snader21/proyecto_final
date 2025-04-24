@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProductosService } from './productos.service';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
-import { CreateMovimientoInventarioDto } from './dto/create-movimiento-inventario.dto';
+import { CreateEntradaInventarioDto } from './dto/create-entrada-inventario.dto';
 import { of, throwError } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
@@ -47,14 +47,12 @@ describe('ProductosService', () => {
     },
   };
 
-  const mockDto: CreateMovimientoInventarioDto = {
+  const mockDto: CreateEntradaInventarioDto = {
     idProducto: faker.string.uuid(),
     idUbicacion: faker.string.uuid(),
     cantidad: faker.number.int({ min: 1, max: 100 }),
-    tipoMovimiento: 'Entrada',
     idUsuario: faker.string.uuid(),
     fechaRegistro: new Date().toISOString(),
-    idPedido: undefined,
   };
 
   beforeEach(async () => {
@@ -76,7 +74,7 @@ describe('ProductosService', () => {
       of({ data: mockMovimientoInventario } as AxiosResponse),
     );
 
-    const result = await service.crearMovimientoInventario(mockDto);
+    const result = await service.crearEntradaInventario(mockDto);
     expect(result).toEqual(mockMovimientoInventario);
     expect(mockHttpService.post).toHaveBeenCalled();
   });
@@ -88,7 +86,7 @@ describe('ProductosService', () => {
 
     mockHttpService.post.mockReturnValueOnce(throwError(() => axiosLikeError));
 
-    await expect(service.crearMovimientoInventario(mockDto)).rejects.toThrow(
+    await expect(service.crearEntradaInventario(mockDto)).rejects.toThrow(
       BadRequestException,
     );
   });
@@ -105,7 +103,7 @@ describe('ProductosService', () => {
       }),
     );
 
-    await expect(service.crearMovimientoInventario(mockDto)).rejects.toThrow(
+    await expect(service.crearEntradaInventario(mockDto)).rejects.toThrow(
       NotFoundException,
     );
   });

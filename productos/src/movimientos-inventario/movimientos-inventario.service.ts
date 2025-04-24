@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateMovimientoInventarioDto } from './dto/create-movimiento-invenario.dto';
+import { CreateEntradaInventarioDto } from './dto/create-entrada-invenario.dto';
 import { MovimientoInventarioEntity } from './entities/movimiento-inventario.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
@@ -7,6 +7,7 @@ import { InventariosService } from '../inventarios/inventarios.service';
 import { ProductosService } from '../productos/productos.service';
 import { UbicacionesService } from '../ubicaciones/ubicaciones.service';
 import { TipoMovimientoEnum } from './enums/tipo-movimiento.enum';
+import { CreatePreReservaInventarioDto } from './dto/create-pre-reserva-inventario.dto';
 @Injectable()
 export class MovimientosInventarioService {
   constructor(
@@ -17,32 +18,14 @@ export class MovimientosInventarioService {
     private readonly ubicacionService: UbicacionesService,
     private readonly dataSource: DataSource,
   ) {}
-  async crearMovimientoInventario(
-    movimientoInventario: CreateMovimientoInventarioDto,
+  async generarEntradaInventario(
+    crearEntradaInventario: CreateEntradaInventarioDto,
   ) {
-    if (
-      movimientoInventario.idPedido &&
-      movimientoInventario.tipoMovimiento === TipoMovimientoEnum.ENTRADA
-    ) {
-      throw new BadRequestException(
-        'Para movimientos de tipo entrada no debe enviarse un número de pedido',
-      );
-    }
-
-    if (
-      !movimientoInventario.idPedido &&
-      movimientoInventario.tipoMovimiento === TipoMovimientoEnum.SALIDA
-    ) {
-      throw new BadRequestException(
-        'Para movimientos de tipo salida debe enviarse un número de pedido',
-      );
-    }
-
     const ubicacion = await this.ubicacionService.obtenerUbicacion(
-      movimientoInventario.idUbicacion,
+      crearEntradaInventario.idUbicacion,
     );
     const producto = await this.productoService.obtenerProducto(
-      movimientoInventario.idProducto,
+      crearEntradaInventario.idProducto,
     );
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -51,11 +34,10 @@ export class MovimientosInventarioService {
 
     try {
       const movimientoInventarioCreado = this.repositorio.create({
-        ...movimientoInventario,
-        tipo_movimiento: movimientoInventario.tipoMovimiento,
-        id_pedido: movimientoInventario.idPedido,
-        id_usuario: movimientoInventario.idUsuario,
-        fecha_registro: movimientoInventario.fechaRegistro,
+        ...crearEntradaInventario,
+        tipo_movimiento: TipoMovimientoEnum.ENTRADA,
+        id_usuario: crearEntradaInventario.idUsuario,
+        fecha_registro: crearEntradaInventario.fechaRegistro,
         ubicacion: ubicacion,
         producto: producto,
       });
@@ -66,16 +48,86 @@ export class MovimientosInventarioService {
       );
 
       await this.inventarioService.actualizarInventarioDeProducto(
-        movimientoInventario.idProducto,
-        movimientoInventario.tipoMovimiento,
+        crearEntradaInventario.idProducto,
+        TipoMovimientoEnum.ENTRADA,
         ubicacion,
-        movimientoInventario.cantidad,
+        crearEntradaInventario.cantidad,
         queryRunner.manager,
       );
 
       await queryRunner.commitTransaction();
       return this.repositorio.findOne({
         where: { id_movimiento: movimientoInventarioGuardado.id_movimiento },
+        relations: ['ubicacion', 'producto'],
+      });
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async generarPreReservaInventario(
+    crearPreReservaInventario: CreatePreReservaInventarioDto,
+  ) {
+    const inventariosEnUbicaciones =
+      await this.inventarioService.obtenerInventarioPorUbicacionesDeProductoPorIdProducto(
+        crearPreReservaInventario.idProducto,
+      );
+    const cantidadEnInventario = inventariosEnUbicaciones.reduce(
+      (acumulado, inventario) => acumulado + inventario.cantidad_disponible,
+      0,
+    );
+    const cantidadPreReservada = crearPreReservaInventario.cantidad;
+    if (cantidadEnInventario < cantidadPreReservada) {
+      throw new BadRequestException(
+        'No hay suficiente cantidad en inventario para realizar esta operación',
+      );
+    }
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      let cantidadRestante = cantidadPreReservada;
+      for (const inventario of inventariosEnUbicaciones) {
+        const cantidadDisponible = inventario.cantidad_disponible;
+        if (cantidadRestante > 0) {
+          const cantidadAReservar = Math.min(
+            cantidadRestante,
+            cantidadDisponible,
+          );
+
+          const movimientoInventarioCreado = this.repositorio.create({
+            cantidad: cantidadAReservar,
+            id_pedido: crearPreReservaInventario.idPedido,
+            tipo_movimiento: TipoMovimientoEnum.PRE_RESERVA,
+            id_usuario: crearPreReservaInventario.idUsuario,
+            fecha_registro: crearPreReservaInventario.fechaRegistro,
+            ubicacion: inventario.ubicacion,
+            producto: inventario.producto,
+          });
+
+          await queryRunner.manager.save(
+            MovimientoInventarioEntity,
+            movimientoInventarioCreado,
+          );
+
+          await this.inventarioService.actualizarInventarioDeProducto(
+            crearPreReservaInventario.idProducto,
+            TipoMovimientoEnum.PRE_RESERVA,
+            inventario.ubicacion,
+            cantidadAReservar,
+            queryRunner.manager,
+          );
+          cantidadRestante -= cantidadAReservar;
+        }
+      }
+      await queryRunner.commitTransaction();
+      return this.repositorio.find({
+        where: {
+          id_pedido: crearPreReservaInventario.idPedido,
+        },
         relations: ['ubicacion', 'producto'],
       });
     } catch (error) {
