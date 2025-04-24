@@ -16,7 +16,6 @@ import { FileGCP } from './utils/file-gcp.service';
 import { PubSubService } from '../common/services/pubsub.service';
 import { NotFoundException } from '@nestjs/common';
 import { UploadedFile } from './interfaces/uploaded-file.interface';
-import { TipoMovimientoEnum } from '../movimientos-inventario/enums/tipo-movimiento.enum';
 
 describe('ProductosService', () => {
   let service: ProductosService;

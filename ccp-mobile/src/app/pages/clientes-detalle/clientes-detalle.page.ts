@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 interface Cliente {
-  id: number;
+  id: string;
   nombre: string;
 }
 
@@ -14,7 +14,7 @@ interface Cliente {
 })
 export class ClientesDetallePage implements OnInit {
   mockCliente: Cliente = {
-    id: 1,
+    id: "f71a420c-b78d-4af6-a14b-e0987d4757e1",
     nombre: 'Juan Pérez'
   };
 

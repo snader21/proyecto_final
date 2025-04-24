@@ -24,6 +24,7 @@ import {
 import { NotFoundException } from '@nestjs/common';
 import { TipoMovimientoEnum } from './enums/tipo-movimiento.enum';
 import { PubSubService } from '../common/services/pubsub.service';
+
 let service: MovimientosInventarioService;
 let repositorio: Repository<MovimientoInventarioEntity>;
 let repositorioProducto: Repository<ProductoEntity>;
