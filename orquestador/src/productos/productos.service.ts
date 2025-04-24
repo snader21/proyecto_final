@@ -1,11 +1,15 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { map, tap } from 'rxjs/operators';
 import { firstValueFrom, Observable } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { AxiosError } from 'axios';
-import { CreateMovimientoInventarioDto } from './dto/create-movimiento-inventario.dto';
-import { MovimientoInventarioDto } from './dto/movimiento-inventario.dto';
+import { CreateEntradaInventarioDto } from './dto/create-entrada-inventario.dto';
+import { EntradaInventarioDto } from './dto/movimiento-inventario.dto';
 import { QueryInventarioDto } from './dto/query-inventario.dto';
 import { ProductoConInventarioDto } from './dto/producto-con-inventario.dto';
 
@@ -40,12 +44,12 @@ export class ProductosService {
       .pipe(map((respuesta) => respuesta.data));
   }
 
-  async crearMovimientoInventario(dto: CreateMovimientoInventarioDto) {
-    const apiEndPoint = `${this.apiProductos}/movimientos-inventario`;
+  async crearEntradaInventario(dto: CreateEntradaInventarioDto) {
+    const apiEndPoint = `${this.apiProductos}/movimientos-inventario/entradas`;
 
     try {
       const { data } = await firstValueFrom(
-        this.httpService.post<MovimientoInventarioDto>(apiEndPoint, dto),
+        this.httpService.post<EntradaInventarioDto>(apiEndPoint, dto),
       );
       return data;
     } catch (error: unknown) {
@@ -172,7 +176,7 @@ export class ProductosService {
       console.log(`Procesando archivo ${index + 1}:`, {
         name: file.originalname,
         type: file.mimetype,
-        size: file.size
+        size: file.size,
       });
       form.append('files', file.buffer, {
         filename: file.originalname,
@@ -189,14 +193,16 @@ export class ProductosService {
           },
         })
         .pipe(
-          tap(response => console.log('Respuesta del servidor:', response.data)),
-          map((respuesta) => respuesta.data)
+          tap((response) =>
+            console.log('Respuesta del servidor:', response.data),
+          ),
+          map((respuesta) => respuesta.data),
         ),
-    ).catch(error => {
+    ).catch((error) => {
       console.error('Error en uploadImages:', {
         status: error.response?.status,
         data: error.response?.data,
-        headers: error.response?.headers
+        headers: error.response?.headers,
       });
       throw error;
     });
