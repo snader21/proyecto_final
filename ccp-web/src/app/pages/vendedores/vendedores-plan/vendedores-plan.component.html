@@ -1,0 +1,58 @@
+<p-dialog
+  header="Plan de ventas"
+  [(visible)]="visible"
+  [modal]="true"
+  [style]="{ width: '50vw' }"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="onDialogHide()"
+>
+  <div class="flex flex-col">
+    <p-tabView [(activeIndex)]="activeTabIndex">
+      <p-tabPanel header="Clientes asociados">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl">Clientes</h2>
+          <p-button
+            label="Agregar cliente"
+            icon="pi pi-plus"
+            styleClass="bg-slate-700 text-white"
+          ></p-button>
+        </div>
+        
+        <div class="flex flex-col gap-3">
+          <div *ngFor="let cliente of clientesAsociados" class="flex justify-between items-center p-3 border rounded">
+            <div class="flex items-center gap-2">
+              <i class="pi pi-user"></i>
+              <span>Cliente YYY</span>
+            </div>
+            <p-button
+              icon="pi pi-trash"
+              severity="danger"
+              [text]="true"
+              [rounded]="true"
+            ></p-button>
+          </div>
+        </div>
+      </p-tabPanel>
+
+      <p-tabPanel header="Plan de ventas">
+        <!-- Plan de ventas content -->
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2">
+      <p-button
+        label="Cancelar"
+        (click)="closeDialog()"
+        styleClass="p-button-text"
+      ></p-button>
+      <p-button
+        label="Guardar"
+        (click)="onSave()"
+        styleClass="bg-slate-700 text-white"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>
