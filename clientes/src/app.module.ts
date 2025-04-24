@@ -34,7 +34,12 @@ import { VisitaController } from './controllers/visita.controller';
     }),
     TypeOrmModule.forFeature([Cliente, TipoCliente, VisitaCliente]),
   ],
-  controllers: [AppController, ClienteController, TipoClienteController, VisitaController],
+  controllers: [
+    AppController,
+    ClienteController,
+    TipoClienteController,
+    VisitaController,
+  ],
   providers: [
     AppService,
     ClienteService,
