@@ -5,7 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { Cliente } from '../entities/cliente.entity';
 import { TipoCliente } from '../entities/tipo-cliente.entity.ts';
 import { CreateClienteDto } from '../dto/create-cliente.dto';
@@ -145,5 +145,45 @@ export class ClienteService {
     if (result.affected === 0) {
       throw new NotFoundException(`Cliente con ID ${id} no encontrado`);
     }
+  }
+
+  /**
+   * Busca y retorna clientes por el ID de vendedor asignado.
+   * Permite buscar clientes sin vendedor asignado pasando null como id_vendedor.
+   * @param id_vendedor El ID del vendedor a buscar, o null para clientes sin vendedor asignado.
+   * @returns Una promesa que resuelve a un array de entidades Cliente encontradas, incluyendo su tipo de cliente.
+   */
+  async findByVendedorId(id_vendedor: string | null): Promise<Cliente[]> {
+    const whereCondition =
+      id_vendedor === null
+        ? { id_vendedor: IsNull() }
+        : { id_vendedor: id_vendedor };
+    const clientes = await this.clienteRepository.find({
+      where: whereCondition,
+      relations: ['tipoCliente'],
+    });
+    return clientes;
+  }
+
+  /**
+   * Asigna o desasigna un vendedor a un cliente.
+   * @param clienteId El ID del cliente al que se asignará/desasignará el vendedor.
+   * @param vendedorId El ID del vendedor a asignar, o null para desasignar.
+   * @returns Una promesa que resuelve a la entidad Cliente actualizada.
+   * Lanza NotFoundException si el cliente no existe.
+   */
+  async assignVendedorToCliente(
+    clienteId: string,
+    vendedorId: string | null,
+  ): Promise<Cliente> {
+    const cliente = await this.clienteRepository.findOne({
+      where: { id_cliente: clienteId },
+    });
+
+    if (!cliente) {
+      throw new NotFoundException(`Cliente con ID ${clienteId} no encontrado`);
+    }
+    cliente.id_vendedor = vendedorId;
+    return this.clienteRepository.save(cliente);
   }
 }

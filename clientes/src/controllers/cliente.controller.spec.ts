@@ -30,6 +30,8 @@ describe('ClienteController', () => {
     documento_identidad: '12345678A',
     lat: 40.416775,
     lng: -3.70379,
+    id_vendedor: null,
+    visitas: [],
   };
 
   const clientesDtoMock: GetClienteDto[] = [
