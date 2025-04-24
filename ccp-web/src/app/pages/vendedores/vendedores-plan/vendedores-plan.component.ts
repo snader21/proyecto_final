@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { TabViewModule } from 'primeng/tabview';
+import { TableModule } from 'primeng/table';
+import { InputTextModule } from 'primeng/inputtext';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-vendedores-plan',
@@ -12,7 +15,10 @@ import { TabViewModule } from 'primeng/tabview';
     CommonModule,
     ButtonModule,
     DialogModule,
-    TabViewModule
+    TabViewModule,
+    TableModule,
+    InputTextModule,
+    FormsModule
   ]
 })
 export class VendedoresPlanComponent {
@@ -23,6 +29,7 @@ export class VendedoresPlanComponent {
 
   public activeTabIndex = 0;
   public clientesAsociados: any[] = [];
+  public filtroCliente: string = '';
 
   constructor() {
     // Initialize with some dummy data
@@ -46,5 +53,17 @@ export class VendedoresPlanComponent {
     // Add save logic here
     this.success.emit(true);
     this.closeDialog();
+  }
+
+  filtrarClientes() {
+    // Implementar lógica de filtrado
+  }
+
+  agregarCliente() {
+    // Implementar lógica para agregar cliente
+  }
+
+  eliminarCliente(cliente: any) {
+    // Implementar lógica para eliminar cliente
   }
 }
