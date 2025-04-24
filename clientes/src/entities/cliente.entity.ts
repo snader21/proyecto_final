@@ -3,9 +3,11 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  OneToMany,
   JoinColumn,
 } from 'typeorm';
 import { TipoCliente } from './tipo-cliente.entity.ts';
+import { VisitaCliente } from './visita-cliente.entity';
 
 @Entity('cliente')
 export class Cliente {
@@ -42,4 +44,7 @@ export class Cliente {
 
   @Column({ type: 'decimal', precision: 11, scale: 8, nullable: true })
   lng: number;
+
+  @OneToMany(() => VisitaCliente, (visita) => visita.cliente)
+  visitas: VisitaCliente[];
 }
