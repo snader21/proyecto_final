@@ -17,9 +17,12 @@ import { MarcaEntity } from '../productos/entities/marca.entity';
 import { PaisEntity } from '../productos/entities/pais.entity';
 import { UnidadMedidaEntity } from '../productos/entities/unidad-medida.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { generarMovimientoInventarioDto } from '../shared/testing-utils/test-utils';
-import { TipoMovimientoEnum } from './enums/tipo-movimiento.enum';
+import {
+  generarEntradaInventarioDto,
+  generarPreReservaInventarioDto,
+} from '../shared/testing-utils/test-utils';
 import { NotFoundException } from '@nestjs/common';
+import { TipoMovimientoEnum } from './enums/tipo-movimiento.enum';
 
 let service: MovimientosInventarioService;
 let repositorio: Repository<MovimientoInventarioEntity>;
@@ -122,8 +125,11 @@ const mockBodegaService = {
 };
 
 let ubicacionId: string;
+let otraUbicacionId: string;
 const nombreUbicacion = faker.commerce.department();
+const nombreOtraUbicacion = faker.commerce.department();
 const descripcionUbicacion = faker.commerce.productDescription();
+const descripcionOtraUbicacion = faker.commerce.productDescription();
 const tipoUbicacion = faker.commerce.productAdjective();
 const mockUbicacionService = {
   obtenerUbicacion: jest.fn((id: string) => {
@@ -132,6 +138,13 @@ const mockUbicacionService = {
         id_ubicacion: ubicacionId,
         nombre: nombreUbicacion,
         descripcion: descripcionUbicacion,
+        tipo: tipoUbicacion,
+      });
+    } else if (id === otraUbicacionId) {
+      return Promise.resolve({
+        id_ubicacion: otraUbicacionId,
+        nombre: nombreOtraUbicacion,
+        descripcion: descripcionOtraUbicacion,
         tipo: tipoUbicacion,
       });
     }
@@ -202,6 +215,14 @@ const poblarBaseDeDatos = async () => {
     bodega: { id_bodega: bodegaId },
   });
   ubicacionId = entidadUbicacion.id_ubicacion;
+
+  const entidadOtraUbicacion = await repositorioUbicacion.save({
+    nombre: nombreOtraUbicacion,
+    descripcion: descripcionOtraUbicacion,
+    tipo: tipoUbicacion,
+    bodega: { id_bodega: bodegaId },
+  });
+  otraUbicacionId = entidadOtraUbicacion.id_ubicacion;
 };
 
 describe('Pruebas con servicio de inventario real', () => {
@@ -266,62 +287,23 @@ describe('Pruebas con servicio de inventario real', () => {
     expect(service).toBeDefined();
   });
 
-  it('no deberia crear un movimiento de inventario si el tipo de movimiento es entrada y se envia un numero de pedido', async () => {
-    const dto = generarMovimientoInventarioDto(
-      faker.string.uuid(),
-      faker.string.uuid(),
-      TipoMovimientoEnum.ENTRADA,
-      true,
-    );
-    await expect(service.crearMovimientoInventario(dto)).rejects.toThrow(
-      'Para movimientos de tipo entrada no debe enviarse un número de pedido',
-    );
-  });
-
-  it('no deberia crear un movimiento de inventario si el tipo de movimiento es salida y no se envia un numero de pedido', async () => {
-    const dto = generarMovimientoInventarioDto(
-      faker.string.uuid(),
-      faker.string.uuid(),
-      TipoMovimientoEnum.SALIDA,
-      false,
-    );
-    await expect(service.crearMovimientoInventario(dto)).rejects.toThrow(
-      'Para movimientos de tipo salida debe enviarse un número de pedido',
-    );
-  });
-
   it('no deberia crear un movimiento de inventario si la ubicacion no existe', async () => {
-    const dto = generarMovimientoInventarioDto(
-      productoId,
-      faker.string.uuid(),
-      TipoMovimientoEnum.ENTRADA,
-      false,
-    );
-    await expect(service.crearMovimientoInventario(dto)).rejects.toThrow(
+    const dto = generarEntradaInventarioDto(productoId, faker.string.uuid());
+    await expect(service.generarEntradaInventario(dto)).rejects.toThrow(
       'Ubicación no encontrada',
     );
   });
 
   it('no deberia crear un movimiento de inventario si el producto no existe', async () => {
-    const dto = generarMovimientoInventarioDto(
-      faker.string.uuid(),
-      ubicacionId,
-      TipoMovimientoEnum.ENTRADA,
-      false,
-    );
-    await expect(service.crearMovimientoInventario(dto)).rejects.toThrow(
+    const dto = generarEntradaInventarioDto(faker.string.uuid(), ubicacionId);
+    await expect(service.generarEntradaInventario(dto)).rejects.toThrow(
       'Producto no encontrado',
     );
   });
 
   it('deberia crear un movimiento de inventario correctamente y a su vez crear el inventario del producto si no existe el producto en el inventario', async () => {
-    const dto = generarMovimientoInventarioDto(
-      productoId,
-      ubicacionId,
-      TipoMovimientoEnum.ENTRADA,
-      false,
-    );
-    const movimiento = await service.crearMovimientoInventario(dto);
+    const dto = generarEntradaInventarioDto(productoId, ubicacionId);
+    const movimiento = await service.generarEntradaInventario(dto);
     const inventario = await repositorioInventario.findOne({
       where: { producto: { id_producto: productoId } },
     });
@@ -329,12 +311,126 @@ describe('Pruebas con servicio de inventario real', () => {
     expect(inventario?.cantidad_disponible).toBe(dto.cantidad);
     expect(movimiento).toBeDefined();
     expect(movimiento?.cantidad).toBe(dto.cantidad);
-    expect(movimiento?.tipo_movimiento).toBe(dto.tipoMovimiento);
     expect(movimiento?.ubicacion?.id_ubicacion).toBe(dto.idUbicacion);
     expect(movimiento?.producto?.id_producto).toBe(dto.idProducto);
-    expect(movimiento?.tipo_movimiento).toBe(dto.tipoMovimiento);
     expect(movimiento?.fecha_registro).toBe(dto.fechaRegistro);
     expect(movimiento?.id_usuario).toBe(dto.idUsuario);
+  });
+
+  it('deberia crear un movimiento de inventario correctamente y a su vez actualizar el inventario del producto si existe el producto en el inventario en la misma ubicacion', async () => {
+    const dto = generarEntradaInventarioDto(productoId, ubicacionId);
+    await service.generarEntradaInventario(dto);
+    await service.generarEntradaInventario(dto);
+    const inventario = await repositorioInventario.findOne({
+      where: { producto: { id_producto: productoId } },
+    });
+    expect(inventario).toBeDefined();
+    expect(inventario?.cantidad_disponible).toBe(dto.cantidad * 2);
+  });
+
+  it('deberia crear un movimiento de pre-reserva correctamente y a su vez actualizar el inventario del producto si existe producto en inventario', async () => {
+    // Crear inventario en dos ubicaciones
+    const cantidadUbicacion1 = faker.number.int({ min: 1, max: 100 });
+    const cantidadUbicacion2 = faker.number.int({ min: 1, max: 100 });
+
+    await service.generarEntradaInventario({
+      ...generarEntradaInventarioDto(productoId, ubicacionId),
+      cantidad: cantidadUbicacion1,
+    });
+
+    await service.generarEntradaInventario({
+      ...generarEntradaInventarioDto(productoId, otraUbicacionId),
+      cantidad: cantidadUbicacion2,
+    });
+
+    // Generar pre-reserva
+    const cantidadPreReserva = faker.number.int({
+      min: 1,
+      max: cantidadUbicacion1 + cantidadUbicacion2,
+    });
+    const dto = {
+      ...generarPreReservaInventarioDto(productoId),
+      cantidad: cantidadPreReserva,
+    };
+    const movimientos = await service.generarPreReservaInventario(dto);
+
+    // Validar que los movimientos suman la cantidad solicitada
+    const sumaPreReservada = movimientos.reduce(
+      (acc, mov) => acc + mov.cantidad,
+      0,
+    );
+    expect(sumaPreReservada).toBe(dto.cantidad);
+
+    // Validar que todos los movimientos son del producto y tipo correcto
+    for (const movimiento of movimientos) {
+      expect(movimiento.tipo_movimiento).toBe(TipoMovimientoEnum.PRE_RESERVA);
+      expect(movimiento.producto?.id_producto).toBe(productoId);
+      expect(movimiento.id_usuario).toBe(dto.idUsuario);
+      expect(movimiento.fecha_registro).toBe(dto.fechaRegistro);
+    }
+
+    // Validar inventario actualizado
+    const inventarioPrimeraUbicacion = await repositorioInventario.findOne({
+      where: {
+        producto: { id_producto: productoId },
+        ubicacion: { id_ubicacion: ubicacionId },
+      },
+    });
+
+    const inventarioOtraUbicacion = await repositorioInventario.findOne({
+      where: {
+        producto: { id_producto: productoId },
+        ubicacion: { id_ubicacion: otraUbicacionId },
+      },
+    });
+
+    const inventarioTotal =
+      (inventarioPrimeraUbicacion?.cantidad_disponible ?? 0) +
+      (inventarioOtraUbicacion?.cantidad_disponible ?? 0);
+
+    expect(inventarioTotal).toBe(
+      cantidadUbicacion1 + cantidadUbicacion2 - dto.cantidad,
+    );
+  });
+
+  it('no deberia crear un movimiento de pre-reserva correctamente y a su vez NO actualizar el inventario del producto si NO existe producto en inventario', async () => {
+    // Crear inventario en dos ubicaciones
+    const cantidadUbicacion1 = faker.number.int({ min: 1, max: 100 });
+    const cantidadUbicacion2 = faker.number.int({ min: 1, max: 100 });
+
+    await service.generarEntradaInventario({
+      ...generarEntradaInventarioDto(productoId, ubicacionId),
+      cantidad: cantidadUbicacion1,
+    });
+
+    await service.generarEntradaInventario({
+      ...generarEntradaInventarioDto(productoId, otraUbicacionId),
+      cantidad: cantidadUbicacion2,
+    });
+
+    // Generar pre-reserva
+    const cantidadPreReserva = faker.number.int({
+      min: cantidadUbicacion1 + cantidadUbicacion2 + 1,
+      max: cantidadUbicacion1 + cantidadUbicacion2 + 100,
+    });
+    const dto = {
+      ...generarPreReservaInventarioDto(productoId),
+      cantidad: cantidadPreReserva,
+    };
+    // Verificar que no se pueda crear el movimiento de pre-reserva
+    await expect(service.generarPreReservaInventario(dto)).rejects.toThrow(
+      'No hay suficiente cantidad en inventario para realizar esta operación',
+    );
+    // Verificar que el inventario no se haya actualizado
+    const inventarios = await repositorioInventario.find({
+      where: { producto: { id_producto: productoId } },
+    });
+    const inventarioTotal = inventarios.reduce(
+      (acc, inventario) => acc + inventario.cantidad_disponible,
+      0,
+    );
+    expect(inventarios).toBeDefined();
+    expect(inventarioTotal).toBe(cantidadUbicacion1 + cantidadUbicacion2);
   });
 });
 
@@ -397,24 +493,18 @@ describe('Pruebas con servicio de inventario mock', () => {
   });
 
   it('no deberia crear un movimiento de inventario si la actualización del inventario genera un error', async () => {
-    const dto = generarMovimientoInventarioDto(
-      productoId,
-      ubicacionId,
-      TipoMovimientoEnum.ENTRADA,
-      false,
-    );
+    const dto = generarEntradaInventarioDto(productoId, ubicacionId);
 
     mockInventarioService.actualizarInventarioDeProducto.mockRejectedValueOnce(
       new Error('Error al actualizar el inventario'),
     );
 
-    await expect(service.crearMovimientoInventario(dto)).rejects.toThrow(
+    await expect(service.generarEntradaInventario(dto)).rejects.toThrow(
       'Error al actualizar el inventario',
     );
 
     const movimientos = await repositorio.find({
       where: {
-        tipo_movimiento: dto.tipoMovimiento,
         cantidad: dto.cantidad,
       },
     });

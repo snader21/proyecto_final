@@ -9,7 +9,7 @@ import {
   Param,
 } from '@nestjs/common';
 import { ProductosService } from './productos.service';
-import { CreateMovimientoInventarioDto } from './dto/create-movimiento-inventario.dto';
+import { CreateEntradaInventarioDto } from './dto/create-entrada-inventario.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { QueryInventarioDto } from './dto/query-inventario.dto';
 
@@ -22,9 +22,9 @@ export class ProductosController {
     return this.productosService.getInventario(query);
   }
 
-  @Post('movimientos-inventario')
-  async crearMovimientoInventario(@Body() dto: CreateMovimientoInventarioDto) {
-    return this.productosService.crearMovimientoInventario(dto);
+  @Post('movimientos-inventario/entradas')
+  async crearEntradaInventario(@Body() dto: CreateEntradaInventarioDto) {
+    return this.productosService.crearEntradaInventario(dto);
   }
 
   @Get('categorias')

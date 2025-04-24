@@ -1,6 +1,7 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { MovimientosInventarioService } from './movimientos-inventario.service';
-import { CreateMovimientoInventarioDto } from './dto/create-movimiento-invenario.dto';
+import { CreateEntradaInventarioDto } from './dto/create-entrada-invenario.dto';
+import { CreatePreReservaInventarioDto } from './dto/create-pre-reserva-inventario.dto';
 
 @Controller('movimientos-inventario')
 export class MovimientosInventarioController {
@@ -8,11 +9,20 @@ export class MovimientosInventarioController {
     private readonly movimientosInventarioService: MovimientosInventarioService,
   ) {}
 
-  @Post()
+  @Post('entradas')
   async agregarProductoAlInventario(
-    @Body() movimientoInventario: CreateMovimientoInventarioDto,
+    @Body() movimientoInventario: CreateEntradaInventarioDto,
   ) {
-    return this.movimientosInventarioService.crearMovimientoInventario(
+    return this.movimientosInventarioService.generarEntradaInventario(
+      movimientoInventario,
+    );
+  }
+
+  @Post('pre-reservas')
+  async preReservarProducto(
+    @Body() movimientoInventario: CreatePreReservaInventarioDto,
+  ) {
+    return this.movimientosInventarioService.generarPreReservaInventario(
       movimientoInventario,
     );
   }

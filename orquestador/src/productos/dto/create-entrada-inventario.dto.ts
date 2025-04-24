@@ -1,9 +1,7 @@
-export class CreateMovimientoInventarioDto {
+export class CreateEntradaInventarioDto {
   idProducto: string;
   idUbicacion: string;
-  idPedido?: string;
   cantidad: number;
-  tipoMovimiento: string;
   idUsuario: string;
   fechaRegistro: string;
 }
