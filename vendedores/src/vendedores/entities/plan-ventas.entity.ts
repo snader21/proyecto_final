@@ -1,10 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { VendedorEntity } from './vendedor.entity';
 
 @Entity('plan_ventas')
 export class PlanVentasEntity {
-  @PrimaryGeneratedColumn()
-  idPlan: number;
+  @PrimaryGeneratedColumn('uuid')
+  idPlan: string;
 
   @ManyToOne(() => VendedorEntity, vendedor => vendedor.id, { nullable: false })
   vendedor: VendedorEntity;
