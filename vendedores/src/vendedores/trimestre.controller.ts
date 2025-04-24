@@ -1,7 +1,7 @@
 import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
 import { TrimestreService } from './trimestre.service';
 
-@Controller('trimestres')
+@Controller('plan-ventas/trimestres')
 export class TrimestreController {
   constructor(private readonly trimestreService: TrimestreService) {}
 

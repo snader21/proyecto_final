@@ -23,7 +23,7 @@ export class MetaTrimestralEntity {
   })
   @JoinColumn([
     { name: 'idQ', referencedColumnName: 'idQ' },
-    { name: 'ano', referencedColumnName: 'ano' }
+    { name: 'ano', referencedColumnName: 'ano' },
   ])
   trimestre: TrimestreEntity;
 
