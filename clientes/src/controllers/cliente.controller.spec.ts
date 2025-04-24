@@ -8,6 +8,7 @@ import { UpdateClienteDto } from '../dto/update-cliente.dto';
 import { GetClienteDto } from '../dto/get-cliente.dto';
 import { Cliente } from '../entities/cliente.entity';
 import { NotFoundException } from '@nestjs/common';
+import { AssignVendedorDto } from '../dto/assign-vendedor.dto';
 
 describe('ClienteController', () => {
   let clienteController: ClienteController;
@@ -93,6 +94,8 @@ describe('ClienteController', () => {
               .fn()
               .mockResolvedValue({ ...clienteMock, ...updateClienteDtoMock }),
             remove: jest.fn().mockResolvedValue(undefined),
+            findByVendedorId: jest.fn().mockResolvedValue([clienteMock]),
+            assignVendedorToCliente: jest.fn().mockResolvedValue(clienteMock),
           },
         },
       ],
@@ -214,6 +217,141 @@ describe('ClienteController', () => {
         new NotFoundException(`Cliente con ID ${id} no encontrado`),
       );
       expect(clienteService.remove).toHaveBeenCalledWith(id);
+    });
+  });
+
+  describe('findByVendedorId', () => {
+    it('debería retornar clientes asignados a un vendedor específico', async () => {
+      const vendedorId = '550e8400-e29b-41d4-a716-446655440003';
+      const clientesConVendedor = [
+        {
+          ...clienteMock,
+          id_vendedor: vendedorId,
+        },
+      ];
+
+      jest
+        .spyOn(clienteService, 'findByVendedorId')
+        .mockResolvedValue(clientesConVendedor);
+
+      const result = await clienteController.findByVendedorId(vendedorId);
+
+      expect(result).toEqual(clientesConVendedor);
+      expect(clienteService.findByVendedorId).toHaveBeenCalledWith(vendedorId);
+    });
+
+    it('debería retornar clientes sin vendedor asignado cuando se pasa null', async () => {
+      const clientesSinVendedor = [
+        {
+          ...clienteMock,
+          id_vendedor: null,
+        },
+      ];
+
+      jest
+        .spyOn(clienteService, 'findByVendedorId')
+        .mockResolvedValue(clientesSinVendedor);
+
+      const result = await clienteController.findByVendedorId(undefined);
+
+      expect(result).toEqual(clientesSinVendedor);
+      expect(clienteService.findByVendedorId).toHaveBeenCalledWith(null);
+    });
+
+    it('debería manejar el string "null" como null', async () => {
+      const clientesSinVendedor = [
+        {
+          ...clienteMock,
+          id_vendedor: null,
+        },
+      ];
+
+      jest
+        .spyOn(clienteService, 'findByVendedorId')
+        .mockResolvedValue(clientesSinVendedor);
+
+      const result = await clienteController.findByVendedorId('null');
+
+      expect(result).toEqual(clientesSinVendedor);
+      expect(clienteService.findByVendedorId).toHaveBeenCalledWith(null);
+    });
+  });
+
+  describe('assignVendedor', () => {
+    it('debería asignar un vendedor a un cliente', async () => {
+      const clienteId = '550e8400-e29b-41d4-a716-446655440001';
+      const vendedorId = '550e8400-e29b-41d4-a716-446655440003';
+      const assignVendedorDto: AssignVendedorDto = {
+        id_vendedor: vendedorId,
+      };
+      const clienteActualizado = {
+        ...clienteMock,
+        id_vendedor: vendedorId,
+      };
+
+      jest
+        .spyOn(clienteService, 'assignVendedorToCliente')
+        .mockResolvedValue(clienteActualizado);
+
+      const result = await clienteController.assignVendedor(
+        clienteId,
+        assignVendedorDto,
+      );
+
+      expect(result).toEqual(clienteActualizado);
+      expect(clienteService.assignVendedorToCliente).toHaveBeenCalledWith(
+        clienteId,
+        vendedorId,
+      );
+    });
+
+    it('debería desasignar un vendedor cuando se pasa null', async () => {
+      const clienteId = '550e8400-e29b-41d4-a716-446655440001';
+      const assignVendedorDto: AssignVendedorDto = {
+        id_vendedor: null,
+      };
+      const clienteActualizado = {
+        ...clienteMock,
+        id_vendedor: null,
+      };
+
+      jest
+        .spyOn(clienteService, 'assignVendedorToCliente')
+        .mockResolvedValue(clienteActualizado);
+
+      const result = await clienteController.assignVendedor(
+        clienteId,
+        assignVendedorDto,
+      );
+
+      expect(result).toEqual(clienteActualizado);
+      expect(clienteService.assignVendedorToCliente).toHaveBeenCalledWith(
+        clienteId,
+        null,
+      );
+    });
+
+    it('debería lanzar NotFoundException si el cliente no existe', async () => {
+      const clienteId = 'non-existent-client-uuid';
+      const assignVendedorDto: AssignVendedorDto = {
+        id_vendedor: '550e8400-e29b-41d4-a716-446655440003',
+      };
+
+      jest
+        .spyOn(clienteService, 'assignVendedorToCliente')
+        .mockRejectedValue(
+          new NotFoundException(`Cliente con ID ${clienteId} no encontrado`),
+        );
+
+      await expect(
+        clienteController.assignVendedor(clienteId, assignVendedorDto),
+      ).rejects.toThrow(
+        new NotFoundException(`Cliente con ID ${clienteId} no encontrado`),
+      );
+      expect(clienteService.assignVendedorToCliente).toHaveBeenCalledWith(
+        clienteId,
+        assignVendedorDto.id_vendedor,
+      );
     });
   });
 });

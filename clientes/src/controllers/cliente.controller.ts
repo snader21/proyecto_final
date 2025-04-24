@@ -16,7 +16,7 @@ import { CreateClienteDto } from '../dto/create-cliente.dto';
 import { UpdateClienteDto } from '../dto/update-cliente.dto';
 import { GetClienteDto } from '../dto/get-cliente.dto';
 import { Cliente } from '../entities/cliente.entity';
-import { AssignVendedorDto } from 'src/dto/assign-vendedor.dto';
+import { AssignVendedorDto } from '../dto/assign-vendedor.dto';
 
 @Controller('clientes')
 export class ClienteController {
