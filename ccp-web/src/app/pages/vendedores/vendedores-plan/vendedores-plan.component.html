@@ -61,7 +61,32 @@
       </p-tabPanel>
 
       <p-tabPanel header="Plan de ventas">
-        <!-- Plan de ventas content -->
+        <div class="flex flex-col gap-8">
+          <div *ngFor="let trimestre of trimestres" class="flex flex-col gap-4">
+            <div class="flex flex-col">
+              <label class="text-lg font-medium mb-2">Meta {{ trimestre.idQ }}</label>
+              <p-inputNumber 
+                [(ngModel)]="trimestre.meta"
+                mode="currency" 
+                currency="COP" 
+                locale="es-CO"
+                [minFractionDigits]="0"
+                [maxFractionDigits]="0"
+                class="w-full"
+                inputStyleClass="w-full"
+              ></p-inputNumber>
+            </div>
+
+            <div class="flex flex-col">
+              <label class="text-base mb-1">Cumplimiento</label>
+              <div class="flex items-center gap-2">
+                <div class="bg-blue-500 text-white px-4 py-1 rounded-full">
+                  {{ trimestre.cumplimiento }}%
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </p-tabPanel>
     </p-tabView>
   </div>
