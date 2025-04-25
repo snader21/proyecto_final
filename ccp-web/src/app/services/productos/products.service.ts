@@ -9,7 +9,7 @@ import {
   Unit,
   Product,
   CreateProduct,
-  MovimientoInventario,
+  EntradaInventario,
 } from "../../interfaces/product.interfaces";
 import { UploadResult } from "../../interfaces/upload-result.interface";
 
@@ -76,9 +76,9 @@ export class ProductsService {
     return this.http.get<any[]>(`${this.apiUrl}/productos/ubicaciones`);
   }
 
-  generarEntrada(movimiento: MovimientoInventario) {
+  generarEntrada(movimiento: EntradaInventario) {
     return this.http.post<any>(
-      `${this.apiUrl}/productos/movimientos-inventario`,
+      `${this.apiUrl}/productos/movimientos-inventario/entradas`,
       movimiento
     );
   }

@@ -6,7 +6,7 @@ import { INestApplication } from '@nestjs/common';
 import { faker } from '@faker-js/faker';
 import { InventariosService } from './inventarios.service';
 const mockInventariosService = {
-  obtenerInventarioDeProductos: jest.fn(),
+  obtenerInventarioTotalDeProductosPorQueryDto: jest.fn(),
 };
 
 describe('InventariosController', () => {
@@ -44,11 +44,13 @@ describe('InventariosController', () => {
         const dto = {
           nombre_producto: faker.commerce.productName(),
         };
-        mockInventariosService.obtenerInventarioDeProductos.mockResolvedValue({
-          id_producto: faker.string.uuid(),
-          nombre: faker.commerce.productName(),
-          inventario: faker.number.int({ min: 1, max: 100 }),
-        });
+        mockInventariosService.obtenerInventarioTotalDeProductosPorQueryDto.mockResolvedValue(
+          {
+            id_producto: faker.string.uuid(),
+            nombre: faker.commerce.productName(),
+            inventario: faker.number.int({ min: 1, max: 100 }),
+          },
+        );
 
         return request(app.getHttpServer())
           .get('/inventarios')

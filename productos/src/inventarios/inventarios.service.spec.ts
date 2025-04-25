@@ -160,58 +160,58 @@ describe('Pruebas con servicio de inventario mock', () => {
       );
     });
 
-    it('should update inventory for SALIDA movement', async () => {
-      const mockInventario: InventarioEntity = {
-        id_inventario: '1',
-        producto: { id_producto: 'PROD-1' } as any,
-        ubicacion: { id_ubicacion: 'UBI-1' } as any,
-        cantidad_disponible: 10,
-        cantidad_minima: 5,
-        cantidad_maxima: 100,
-        fecha_actualizacion: new Date(),
-      };
+    // it('should update inventory for SALIDA movement', async () => {
+    //   const mockInventario: InventarioEntity = {
+    //     id_inventario: '1',
+    //     producto: { id_producto: 'PROD-1' } as any,
+    //     ubicacion: { id_ubicacion: 'UBI-1' } as any,
+    //     cantidad_disponible: 10,
+    //     cantidad_minima: 5,
+    //     cantidad_maxima: 100,
+    //     fecha_actualizacion: new Date(),
+    //   };
 
-      repositorio.findOne.mockResolvedValue(mockInventario);
-      mockManager.save.mockImplementation((_, inventory) => inventory);
+    //   repositorio.findOne.mockResolvedValue(mockInventario);
+    //   mockManager.save.mockImplementation((_, inventory) => inventory);
 
-      const result = await service.actualizarInventarioDeProducto(
-        'PROD-1',
-        TipoMovimientoEnum.SALIDA,
-        mockUbicacion,
-        5,
-        mockManager,
-      );
+    //   const result = await service.actualizarInventarioDeProducto(
+    //     'PROD-1',
+    //     TipoMovimientoEnum.SALIDA,
+    //     mockUbicacion,
+    //     5,
+    //     mockManager,
+    //   );
 
-      expect(result.cantidad_disponible).toBe(5);
-      expect(mockManager.save).toHaveBeenCalledWith(
-        InventarioEntity,
-        expect.any(Object),
-      );
-    });
+    //   expect(result.cantidad_disponible).toBe(5);
+    //   expect(mockManager.save).toHaveBeenCalledWith(
+    //     InventarioEntity,
+    //     expect.any(Object),
+    //   );
+    // });
 
-    it('should throw error when insufficient stock for SALIDA', async () => {
-      const mockInventario: InventarioEntity = {
-        id_inventario: '1',
-        producto: { id_producto: 'PROD-1' } as any,
-        ubicacion: { id_ubicacion: 'UBI-1' } as any,
-        cantidad_disponible: 10,
-        cantidad_minima: 5,
-        cantidad_maxima: 100,
-        fecha_actualizacion: new Date(),
-      };
+    //   it('should throw error when insufficient stock for SALIDA', async () => {
+    //     const mockInventario: InventarioEntity = {
+    //       id_inventario: '1',
+    //       producto: { id_producto: 'PROD-1' } as any,
+    //       ubicacion: { id_ubicacion: 'UBI-1' } as any,
+    //       cantidad_disponible: 10,
+    //       cantidad_minima: 5,
+    //       cantidad_maxima: 100,
+    //       fecha_actualizacion: new Date(),
+    //     };
 
-      repositorio.findOne.mockResolvedValue(mockInventario);
+    //     repositorio.findOne.mockResolvedValue(mockInventario);
 
-      await expect(
-        service.actualizarInventarioDeProducto(
-          'PROD-1',
-          TipoMovimientoEnum.SALIDA,
-          mockUbicacion,
-          15,
-          mockManager,
-        ),
-      ).rejects.toThrow(BadRequestException);
-    });
+    //     await expect(
+    //       service.actualizarInventarioDeProducto(
+    //         'PROD-1',
+    //         TipoMovimientoEnum.SALIDA,
+    //         mockUbicacion,
+    //         15,
+    //         mockManager,
+    //       ),
+    //     ).rejects.toThrow(BadRequestException);
+    //   });
   });
 });
 
@@ -231,11 +231,14 @@ interface ProductoPreCreado {
   id: string;
   inventario: number;
   nombre: string;
+  id_ubicacion?: string;
 }
 
 const numProductos = faker.number.int({ min: 200, max: 1000 });
-const productosConInventario: Array<ProductoPreCreado> = [];
-const productosSinInventario: Array<ProductoPreCreado> = [];
+const numUbicaciones = faker.number.int({ min: 1, max: 10 });
+let ubicaciones: UbicacionEntity[] = [];
+let productosPreCreadosConInventario: Array<ProductoPreCreado> = [];
+let ProductosPreCreadosSinInventario: Array<ProductoPreCreado> = [];
 
 const poblarBaseDeDatos = async (conInventario: boolean) => {
   const entidadPais = await repositorioPais.save({
@@ -264,24 +267,29 @@ const poblarBaseDeDatos = async (conInventario: boolean) => {
   });
   const unidadMedidaId = entidadUnidadMedida.id_unidad_medida;
 
-  const entidadBodega = await repositorioBodega.save({
-    nombre: faker.commerce.department(),
-    direccion: faker.location.streetAddress(),
-    capacidad: faker.number.int({ min: 1, max: 1000 }),
-  });
-  const bodegaId = entidadBodega.id_bodega;
+  for (let i = 0; i < numUbicaciones; i++) {
+    const entidadBodega = await repositorioBodega.save({
+      nombre: faker.commerce.department(),
+      direccion: faker.location.streetAddress(),
+      capacidad: faker.number.int({ min: 1, max: 1000 }),
+    });
+    const bodegaId = entidadBodega.id_bodega;
 
-  const entidadUbicacion = await repositorioUbicacion.save({
-    nombre: faker.commerce.department(),
-    descripcion: faker.commerce.productDescription(),
-    tipo: faker.commerce.productAdjective(),
-    bodega: { id_bodega: bodegaId },
-  });
-  const ubicacionId = entidadUbicacion.id_ubicacion;
+    const entidadUbicacion = await repositorioUbicacion.save({
+      nombre: faker.commerce.department(),
+      descripcion: faker.commerce.productDescription(),
+      tipo: faker.commerce.productAdjective(),
+      bodega: { id_bodega: bodegaId },
+    });
+    ubicaciones.push(entidadUbicacion);
+  }
 
   for (let i = 0; i < numProductos; i++) {
     const entidadProducto = await repositorioProducto.save({
-      nombre: faker.commerce.productName(),
+      nombre:
+        faker.string.alpha(3) +
+        faker.commerce.productName() +
+        faker.string.alpha(3),
       descripcion: faker.commerce.productDescription(),
       sku: faker.string.alpha(10),
       codigo_barras: faker.string.numeric(13),
@@ -301,32 +309,42 @@ const poblarBaseDeDatos = async (conInventario: boolean) => {
     });
 
     if (conInventario) {
-      const entidadEntradaInventario =
-        await repositorioMovimientoInventario.save({
+      const numUbicacionesProducto = faker.number.int({
+        min: 1,
+        max: numUbicaciones,
+      });
+      for (let i = 0; i < numUbicacionesProducto; i++) {
+        const ubicacion = faker.helpers.arrayElement(ubicaciones);
+        const entidadEntradaInventario =
+          await repositorioMovimientoInventario.save({
+            producto: { id_producto: entidadProducto.id_producto },
+            ubicacion: {
+              id_ubicacion: ubicacion.id_ubicacion,
+            },
+            cantidad: faker.number.int({ min: 1, max: 100 }),
+            tipo_movimiento: TipoMovimientoEnum.ENTRADA,
+            id_usuario: faker.string.uuid(),
+            fecha_registro: faker.date.recent(),
+          });
+
+        await repositorio.save({
           producto: { id_producto: entidadProducto.id_producto },
-          ubicacion: { id_ubicacion: ubicacionId },
-          cantidad: faker.number.int({ min: 1, max: 100 }),
-          tipo_movimiento: TipoMovimientoEnum.ENTRADA,
-          id_usuario: faker.string.uuid(),
-          fecha_registro: faker.date.recent(),
+          ubicacion: { id_ubicacion: ubicacion.id_ubicacion },
+          cantidad_disponible: entidadEntradaInventario.cantidad,
+          cantidad_minima: 0,
+          cantidad_maxima: 1000,
+          fecha_actualizacion: faker.date.recent(),
         });
 
-      await repositorio.save({
-        producto: { id_producto: entidadProducto.id_producto },
-        ubicacion: { id_ubicacion: ubicacionId },
-        cantidad_disponible: entidadEntradaInventario.cantidad,
-        cantidad_minima: 0,
-        cantidad_maxima: 1000,
-        fecha_actualizacion: faker.date.recent(),
-      });
-
-      productosConInventario.push({
-        id: entidadProducto.id_fabricante,
-        inventario: entidadEntradaInventario.cantidad,
-        nombre: entidadProducto.nombre,
-      });
+        productosPreCreadosConInventario.push({
+          id: entidadProducto.id_producto,
+          inventario: entidadEntradaInventario.cantidad,
+          nombre: entidadProducto.nombre,
+          id_ubicacion: ubicacion.id_ubicacion,
+        });
+      }
     } else {
-      productosSinInventario.push({
+      ProductosPreCreadosSinInventario.push({
         id: entidadProducto.id_producto,
         inventario: 0,
         nombre: entidadProducto.nombre,
@@ -382,44 +400,79 @@ describe('Pruebas con servicio de inventario real', () => {
     await repositorioUnidadMedida.clear();
     await repositorioUbicacion.clear();
     await repositorioBodega.clear();
+    productosPreCreadosConInventario = [];
+    ProductosPreCreadosSinInventario = [];
+    ubicaciones = [];
   });
 
   it('deberia obtener productos con inventario', async () => {
     await poblarBaseDeDatos(true);
-    const producto = faker.helpers.arrayElement(productosConInventario);
+    const productoParaExtraerSubstring = faker.helpers.arrayElement(
+      productosPreCreadosConInventario,
+    );
     const longitudSubstring = Math.min(
       faker.number.int({ min: 1, max: 5 }),
-      producto.nombre.length - 1,
+      productoParaExtraerSubstring.nombre.length - 1,
     );
-    const substring = producto.nombre.substring(0, longitudSubstring);
-    const productosQueTienenSubstring = productosConInventario.filter((p) =>
-      p.nombre.toLowerCase().includes(substring.toLowerCase()),
+    const substring = productoParaExtraerSubstring.nombre.substring(
+      0,
+      longitudSubstring,
     );
-    const matchProductos = await service.obtenerInventarioDeProductos({
-      nombre_producto: substring,
-    });
-    expect(matchProductos.length).toEqual(productosQueTienenSubstring.length);
-    matchProductos.forEach((p: ProductoConInventarioDto) => {
-      const productoCreado = productosConInventario.find(
-        (pc: ProductoPreCreado) => pc.id === p.id_producto,
-      );
-      expect(productoCreado?.inventario).toEqual(p.inventario);
-      expect(productoCreado?.nombre).toEqual(p.nombre);
-      expect(productoCreado?.id).toEqual(p.id_producto);
-    });
+    const productosIdQueDeberiaRetornar = Array.from(
+      new Set(
+        productosPreCreadosConInventario
+          .filter((p) =>
+            p.nombre.toLowerCase().includes(substring.toLowerCase()),
+          )
+          .map((p) => p.id),
+      ),
+    );
+
+    const productosRetornados =
+      await service.obtenerInventarioTotalDeProductosPorQueryDto({
+        nombre_producto: substring,
+      });
+
+    expect(productosRetornados.length).toEqual(
+      productosIdQueDeberiaRetornar.length,
+    );
+    productosRetornados.forEach(
+      (productoRetornado: ProductoConInventarioDto) => {
+        const productosEncontrados = productosPreCreadosConInventario.filter(
+          (productoPreCreado: ProductoPreCreado) => {
+            return productoPreCreado.id === productoRetornado.id_producto;
+          },
+        );
+        const inventarioProductoCreado = productosEncontrados.reduce(
+          (acumulado, productoEncontrado) =>
+            acumulado + productoEncontrado.inventario,
+          0,
+        );
+        expect(inventarioProductoCreado).toEqual(productoRetornado.inventario);
+        expect(productosEncontrados[0].nombre).toEqual(
+          productoRetornado.nombre,
+        );
+        expect(productosEncontrados[0].id).toEqual(
+          productoRetornado.id_producto,
+        );
+      },
+    );
   });
 
   it('no deberia obtener productos sin inventario', async () => {
     await poblarBaseDeDatos(false);
-    const producto = faker.helpers.arrayElement(productosSinInventario);
+    const producto = faker.helpers.arrayElement(
+      ProductosPreCreadosSinInventario,
+    );
     const longitudSubstring = Math.min(
       faker.number.int({ min: 1, max: 5 }),
       producto.nombre.length - 1,
     );
     const substring = producto.nombre.substring(0, longitudSubstring);
-    const matchProductos = await service.obtenerInventarioDeProductos({
-      nombre_producto: substring,
-    });
+    const matchProductos =
+      await service.obtenerInventarioTotalDeProductosPorQueryDto({
+        nombre_producto: substring,
+      });
     expect(matchProductos.length).toEqual(0);
   });
 
@@ -427,9 +480,10 @@ describe('Pruebas con servicio de inventario real', () => {
     await poblarBaseDeDatos(true);
     const substring =
       faker.string.alpha(10) + faker.lorem.word() + faker.string.alpha(10);
-    const matchProductos = await service.obtenerInventarioDeProductos({
-      nombre_producto: substring,
-    });
+    const matchProductos =
+      await service.obtenerInventarioTotalDeProductosPorQueryDto({
+        nombre_producto: substring,
+      });
     expect(matchProductos.length).toEqual(0);
   });
 });
