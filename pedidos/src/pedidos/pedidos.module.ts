@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PedidosService } from './pedidos.service';
 import { PedidosController } from './pedidos.controller';
+import { MetodosPagoController } from './metodos-pago.controller';
 import { HttpModule } from '@nestjs/axios';
 import { PedidoEntity } from './entities/pedido.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -18,7 +19,7 @@ import { MetodoPagoEntity } from './entities/metodo-pago.entity';
     ]),
     HttpModule,
   ],
-  controllers: [PedidosController],
+  controllers: [PedidosController, MetodosPagoController],
   providers: [PedidosService],
   exports: [PedidosService],
 })

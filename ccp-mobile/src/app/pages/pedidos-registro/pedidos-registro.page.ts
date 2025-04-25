@@ -1,16 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ProductosService } from '../../services/productos.service';
+import { Producto } from '../../interfaces/producto.interface';
+import { ProductoPedido } from '../../interfaces/producto-pedido.interface';
 import { AlertController } from '@ionic/angular';
+import { MetodosPagoService, MetodoPago } from '../../services/metodos-pago.service';
 
 interface Cliente {
   id: number;
   nombre: string;
-}
-
-interface Producto {
-  id: number;
-  nombre: string;
-  precio: number;
 }
 
 @Component({
@@ -28,57 +26,89 @@ export class PedidosRegistroPage implements OnInit {
     { id: 4, nombre: 'Ana Martínez' },
   ];
 
-  productos: Producto[] = [
-    { id: 1, nombre: 'Producto A', precio: 10000 },
-    { id: 2, nombre: 'Producto B', precio: 20000 },
-    { id: 3, nombre: 'Producto C', precio: 30000 },
-    { id: 4, nombre: 'Producto D', precio: 40000 },
-  ];
-
+  productos: Producto[] = [];
   productosFiltrados: Producto[] = [];
-  productosSeleccionados: Producto[] = [];
-  mediosPago = ['Efectivo', 'Tarjeta de crédito'];
+  productosSeleccionados: ProductoPedido[] = [];
+  cantidadesSeleccionadas: { [key: string]: number } = {};
+  mediosPago: any[] = [];
   fechaMinima = new Date().toISOString();
   mostrarBusquedaProductos = false;
   mostrarCalendario = false;
   terminoBusqueda = '';
+  mostrarMensajeNoResultados = false;
 
   constructor(
+    private productosService: ProductosService,
     private formBuilder: FormBuilder,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private metodosPagoService: MetodosPagoService
   ) {
     this.pedidoForm = this.formBuilder.group({
       clienteId: ['', Validators.required],
       medioPago: ['', Validators.required],
       fechaEntrega: ['', Validators.required]
     });
-
-    // Set minimum date to today
-    this.fechaMinima = new Date().toISOString();
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.metodosPagoService.getMetodosPago().subscribe((metodos: MetodoPago[]) => {
+      console.log(metodos);
+      this.mediosPago = metodos;
+    });
+  }
 
-  buscarProductos(evento: any) {
-    const termino = evento.target.value.toLowerCase();
+  async buscarProductos(evento: any) {
+    const termino = evento.target.value;
     this.terminoBusqueda = termino;
-    this.productosFiltrados = this.productos.filter(producto =>
-      producto.nombre.toLowerCase().includes(termino)
-    );
-  }
+    this.mostrarMensajeNoResultados = false;
 
-  seleccionarProducto(producto: Producto) {
-    if (!this.productosSeleccionados.find(p => p.id === producto.id)) {
-      this.productosSeleccionados.push(producto);
+    if (termino.length < 3) {
+      this.productosFiltrados = [];
+      return;
     }
-    this.mostrarBusquedaProductos = false;
-    this.terminoBusqueda = '';
+
+    try {
+      const productos = await this.productosService.getInventario(termino).toPromise();
+      this.productosFiltrados = productos || [];
+      this.mostrarMensajeNoResultados = this.productosFiltrados.length === 0;
+    } catch (error) {
+      console.error('Error al buscar productos:', error);
+      this.productosFiltrados = [];
+      this.mostrarMensajeNoResultados = false;
+    }
   }
 
-  removerProducto(productoId: number) {
+  agregarProducto(producto: Producto, cantidad: number) {
+    if (!this.productosSeleccionados.find(p => p.id_producto === producto.id_producto)) {
+      const productoPedido: ProductoPedido = {
+        ...producto,
+        cantidad_seleccionada: cantidad
+      };
+      this.productosSeleccionados.push(productoPedido);
+    }
+    this.terminoBusqueda = '';
+    this.productosFiltrados = [];
+    this.cantidadesSeleccionadas = {};
+  }
+
+  eliminarProducto(producto: Producto) {
     this.productosSeleccionados = this.productosSeleccionados.filter(
-      p => p.id !== productoId
+      p => p.id_producto !== producto.id_producto
     );
+  }
+
+  calcularTotal(): number {
+    return this.productosSeleccionados.reduce(
+      (total, producto) => total + (producto.precio * producto.cantidad_seleccionada),
+      0
+    );
+  }
+
+  actualizarCantidad(producto: Producto, event: any) {
+    const cantidad = parseInt(event.target.value, 10);
+    if (cantidad > 0 && cantidad <= producto.inventario) {
+      this.cantidadesSeleccionadas[producto.id_producto] = cantidad;
+    }
   }
 
   async guardarPedido() {

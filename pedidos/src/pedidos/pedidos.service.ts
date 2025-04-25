@@ -101,4 +101,8 @@ export class PedidosService implements OnModuleInit {
       relations: ['estado', 'pago', 'envio'],
     });
   }
+
+  async findAllMetodosPago() {
+    return await this.metodoPagoRepository.find();
+  }
 }
