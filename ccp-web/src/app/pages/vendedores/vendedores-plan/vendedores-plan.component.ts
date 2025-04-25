@@ -6,8 +6,10 @@ import { TabViewModule } from 'primeng/tabview';
 import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 import { FormsModule } from '@angular/forms';
 import { PlanesVentaService, Trimestre } from '../../../services/vendedores/planes-venta.service';
+import { ClientesService, Cliente } from '../../../services/clientes/clientes.service';
 
 @Component({
   selector: 'app-vendedores-plan',
@@ -21,6 +23,7 @@ import { PlanesVentaService, Trimestre } from '../../../services/vendedores/plan
     TableModule,
     InputTextModule,
     InputNumberModule,
+    AutoCompleteModule,
     FormsModule
   ]
 })
@@ -32,16 +35,14 @@ export class VendedoresPlanComponent implements OnInit {
 
   public activeTabIndex = 0;
   public clientesAsociados: any[] = [];
-  public filtroCliente: string = '';
+  public clientesFiltrados: Cliente[] = [];
+  public clienteSeleccionado: Cliente | null = null;
   public trimestres: Trimestre[] = [];
 
-  constructor(private planesVentaService: PlanesVentaService) {
-    // Initialize with some dummy data
-    this.clientesAsociados = Array(7).fill(null).map((_, i) => ({
-      id: i + 1,
-      nombre: 'Cliente YYY'
-    }));
-  }
+  constructor(
+    private planesVentaService: PlanesVentaService,
+    private clientesService: ClientesService
+  ) {}
 
   ngOnInit() {
     this.cargarTrimestres();
@@ -53,6 +54,30 @@ export class VendedoresPlanComponent implements OnInit {
       .subscribe(trimestres => {
         this.trimestres = trimestres;
       });
+  }
+
+  filtrarClientes(event: any) {
+    const query = event.query.toLowerCase();
+    this.clientesService.getClientesVendedor()
+      .subscribe(clientes => {
+        this.clientesFiltrados = clientes.filter(cliente => 
+          cliente.nombre.toLowerCase().includes(query)
+        );
+      });
+  }
+
+  agregarCliente() {
+    if (this.clienteSeleccionado && !this.clientesAsociados.some(c => c.id === this.clienteSeleccionado?.id)) {
+      this.clientesAsociados.push(this.clienteSeleccionado);
+      this.clienteSeleccionado = null;
+    }
+  }
+
+  eliminarCliente(cliente: Cliente) {
+    const index = this.clientesAsociados.findIndex(c => c.id === cliente.id);
+    if (index > -1) {
+      this.clientesAsociados.splice(index, 1);
+    }
   }
 
   onDialogHide() {
@@ -69,17 +94,5 @@ export class VendedoresPlanComponent implements OnInit {
     // Add save logic here
     this.success.emit(true);
     this.closeDialog();
-  }
-
-  filtrarClientes() {
-    // Implementar lógica de filtrado
-  }
-
-  agregarCliente() {
-    // Implementar lógica para agregar cliente
-  }
-
-  eliminarCliente(cliente: any) {
-    // Implementar lógica para eliminar cliente
   }
 }

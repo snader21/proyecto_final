@@ -12,16 +12,18 @@
       <p-tabPanel header="Clientes asociados">
         <div class="flex justify-between items-center mb-4">
           <div class="flex items-center gap-2">
-            <span class="p-input-icon-left">
+            <span class="p-input-icon-left w-96">
               <i class="pi pi-search"></i>
-              <input 
-                type="text" 
-                pInputText 
-                [(ngModel)]="filtroCliente" 
-                (input)="filtrarClientes()"
-                placeholder="Clientes" 
-                class="w-96"
-              />
+              <p-autoComplete
+                [(ngModel)]="clienteSeleccionado"
+                [suggestions]="clientesFiltrados"
+                (completeMethod)="filtrarClientes($event)"
+                field="nombre"
+                placeholder="Buscar cliente"
+                [dropdown]="true"
+                styleClass="w-full"
+                [inputStyleClass]="'w-full'"
+              ></p-autoComplete>
             </span>
           </div>
           <p-button
@@ -29,6 +31,7 @@
             icon="pi pi-plus"
             styleClass="bg-slate-700 text-white"
             (click)="agregarCliente()"
+            [disabled]="!clienteSeleccionado"
           ></p-button>
         </div>
         
