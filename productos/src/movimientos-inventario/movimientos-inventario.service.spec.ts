@@ -23,6 +23,7 @@ import {
 } from '../shared/testing-utils/test-utils';
 import { NotFoundException } from '@nestjs/common';
 import { TipoMovimientoEnum } from './enums/tipo-movimiento.enum';
+import { PubSubService } from '../common/services/pubsub.service';
 
 let service: MovimientosInventarioService;
 let repositorio: Repository<MovimientoInventarioEntity>;
@@ -38,6 +39,9 @@ let repositorioUbicacion: Repository<UbicacionEntity>;
 
 const mockInventarioService = {
   actualizarInventarioDeProducto: jest.fn(),
+};
+const mockPubSubService = {
+  publicarMensaje: jest.fn(),
 };
 
 let paisId: string;
@@ -235,6 +239,7 @@ describe('Pruebas con servicio de inventario real', () => {
         { provide: ProductosService, useValue: mockProductoService },
         { provide: BodegasService, useValue: mockBodegaService },
         { provide: UbicacionesService, useValue: mockUbicacionService },
+        { provide: PubSubService, useValue: mockPubSubService },
       ],
     }).compile();
 
@@ -432,6 +437,50 @@ describe('Pruebas con servicio de inventario real', () => {
     expect(inventarios).toBeDefined();
     expect(inventarioTotal).toBe(cantidadUbicacion1 + cantidadUbicacion2);
   });
+
+  it('deberia confirmar una pre-reserva correctamente', async () => {
+    // Crear inventario en dos ubicaciones
+    const cantidadUbicacion1 = faker.number.int({ min: 1, max: 100 });
+    const cantidadUbicacion2 = faker.number.int({ min: 1, max: 100 });
+
+    await service.generarEntradaInventario({
+      ...generarEntradaInventarioDto(productoId, ubicacionId),
+      cantidad: cantidadUbicacion1,
+    });
+
+    await service.generarEntradaInventario({
+      ...generarEntradaInventarioDto(productoId, otraUbicacionId),
+      cantidad: cantidadUbicacion2,
+    });
+
+    // Generar pre-reserva
+    const cantidadPreReserva = faker.number.int({
+      min: 1,
+      max: cantidadUbicacion1 + cantidadUbicacion2,
+    });
+    const dtoPreReserva = {
+      ...generarPreReservaInventarioDto(productoId),
+      cantidad: cantidadPreReserva,
+    };
+    await service.generarPreReservaInventario(dtoPreReserva);
+
+    // Confirmar pre-reserva
+    const idPedido = dtoPreReserva.idPedido;
+    await service.confirmarPreReservaInventario(idPedido);
+
+    // Verificar que se haya actualizado el movimiento de pre-reserva
+    const movimientos = await repositorio.find({
+      where: {
+        producto: { id_producto: productoId },
+        id_pedido: idPedido,
+      },
+    });
+    movimientos.forEach((movimiento) => {
+      expect(movimiento.tipo_movimiento).toBe(
+        TipoMovimientoEnum.RESERVA_CONFIRMADA,
+      );
+    });
+  });
 });
 
 describe('Pruebas con servicio de inventario mock', () => {
@@ -444,6 +493,7 @@ describe('Pruebas con servicio de inventario mock', () => {
         { provide: ProductosService, useValue: mockProductoService },
         { provide: BodegasService, useValue: mockBodegaService },
         { provide: UbicacionesService, useValue: mockUbicacionService },
+        { provide: PubSubService, useValue: mockPubSubService },
       ],
     }).compile();
 

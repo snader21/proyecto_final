@@ -12,6 +12,7 @@ import { ProductosService } from './productos.service';
 import { CreateEntradaInventarioDto } from './dto/create-entrada-inventario.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { QueryInventarioDto } from './dto/query-inventario.dto';
+import { CreatePreReservaInventarioDto } from './dto/create-pre-reserva-inventario.dto';
 
 @Controller('productos')
 export class ProductosController {
@@ -25,6 +26,11 @@ export class ProductosController {
   @Post('movimientos-inventario/entradas')
   async crearEntradaInventario(@Body() dto: CreateEntradaInventarioDto) {
     return this.productosService.crearEntradaInventario(dto);
+  }
+
+  @Post('movimientos-inventario/pre-reservas')
+  async crearPreReservaInventario(@Body() dto: CreatePreReservaInventarioDto) {
+    return this.productosService.crearPreReservaInventario(dto);
   }
 
   @Get('categorias')
