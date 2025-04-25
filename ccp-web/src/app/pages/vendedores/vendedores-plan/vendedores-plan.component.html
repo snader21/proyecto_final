@@ -35,7 +35,7 @@
             [disabled]="!clienteSeleccionado"
           ></p-button>
         </div>
-        
+
         <p-table [value]="clientesAsociados" [scrollable]="true" scrollHeight="calc(100vh - 400px)">
           <ng-template pTemplate="header">
             <tr>
@@ -69,10 +69,10 @@
           <div *ngFor="let trimestre of trimestres" class="flex flex-col gap-4">
             <div class="flex flex-col">
               <label class="text-lg font-medium mb-2">Meta {{ trimestre.idQ }}</label>
-              <p-inputNumber 
+              <p-inputNumber
                 [(ngModel)]="trimestre.meta"
-                mode="currency" 
-                currency="COP" 
+                mode="currency"
+                currency="COP"
                 locale="es-CO"
                 [minFractionDigits]="0"
                 [maxFractionDigits]="0"

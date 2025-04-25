@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, SimpleChanges, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -27,7 +27,7 @@ import { ClientesService, Cliente } from '../../../services/clientes/clientes.se
     FormsModule
   ]
 })
-export class VendedoresPlanComponent implements OnInit {
+export class VendedoresPlanComponent implements OnInit, OnChanges {
   @Input() vendedor: any;
   @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
@@ -45,7 +45,42 @@ export class VendedoresPlanComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.cargarTrimestres();
+    if (this.visible && this.vendedor) {
+      this.cargarClientesAsociados();
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    // Si el modal se hace visible y tenemos un vendedor, cargamos los clientes
+    if (changes['visible'] && changes['visible'].currentValue === true && this.vendedor) {
+      console.log('Modal abierto - cargando clientes');
+      this.cargarClientesAsociados();
+    }
+  }
+
+  cargarClientesAsociados = () => {
+    console.log('cargarClientesAsociados - vendedor:', {
+      vendedor: this.vendedor,
+      id: this.vendedor?.id,
+      usuario_id: this.vendedor?.usuario_id,
+      propiedades: this.vendedor ? Object.keys(this.vendedor) : []
+    });
+
+    if (this.vendedor && this.vendedor['usuario_id']) {
+      console.log('Intentando cargar clientes con usuario_id:', this.vendedor['usuario_id']);
+      this.clientesService.getClientesVendedor(this.vendedor['usuario_id'])
+        .subscribe({
+          next: (clientes) => {
+            console.log('Clientes recibidos:', clientes);
+            this.clientesAsociados = clientes;
+          },
+          error: (error) => {
+            console.error('Error al cargar clientes:', error);
+          }
+        });
+    } else {
+      console.warn('No se encontró usuario_id en el vendedor');
+    }
   }
 
   cargarTrimestres() {
@@ -58,26 +93,54 @@ export class VendedoresPlanComponent implements OnInit {
 
   filtrarClientes(event: any) {
     const query = event.query.toLowerCase();
-    this.clientesService.getClientesVendedor()
+    this.clientesService.getClientesSinVendedor()
       .subscribe(clientes => {
-        this.clientesFiltrados = clientes.filter(cliente => 
+        console.table(clientes);
+        this.clientesFiltrados = clientes.filter(cliente =>
           cliente.nombre.toLowerCase().includes(query)
         );
       });
   }
 
   agregarCliente() {
-    if (this.clienteSeleccionado && !this.clientesAsociados.some(c => c.id === this.clienteSeleccionado?.id)) {
-      this.clientesAsociados.push(this.clienteSeleccionado);
-      this.clienteSeleccionado = null;
+    console.log('Cliente seleccionado: ', this.clienteSeleccionado);
+
+    if (!this.clienteSeleccionado || !this.vendedor?.usuario_id) {
+      console.error('Datos inválidos:', {
+        cliente: this.clienteSeleccionado,
+        vendedor: this.vendedor
+      });
+      return;
+    }
+
+    if (!this.clientesAsociados.some(c => c.id_cliente === this.clienteSeleccionado?.id_cliente)) {
+      console.log('Intentando asociar cliente:', {
+        clienteId: this.clienteSeleccionado.id_cliente,
+        vendedorId: this.vendedor.usuario_id,
+        vendedor: this.vendedor
+      });
+
+      this.clientesService.asignarClienteVendedor(this.clienteSeleccionado.id_cliente, this.vendedor.usuario_id)
+        .subscribe(() => {
+          this.cargarClientesAsociados();
+          this.clienteSeleccionado = null;
+        });
     }
   }
 
   eliminarCliente(cliente: Cliente) {
-    const index = this.clientesAsociados.findIndex(c => c.id === cliente.id);
-    if (index > -1) {
-      this.clientesAsociados.splice(index, 1);
+    if (!cliente.id_cliente || !this.vendedor?.usuario_id) {
+      console.error('Datos inválidos para desasociar:', {
+        clienteId: cliente.id_cliente,
+        vendedorId: this.vendedor?.usuario_id
+      });
+      return;
     }
+
+    this.clientesService.eliminarClienteVendedor(cliente.id_cliente)
+      .subscribe(() => {
+        this.cargarClientesAsociados();
+      });
   }
 
   onDialogHide() {
