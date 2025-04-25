@@ -8,10 +8,12 @@ import { IconField } from "primeng/iconfield";
 import { InputIcon } from "primeng/inputicon";
 import { TagModule } from "primeng/tag";
 import { VendedoresFormComponent } from "./vendedores-form/vendedores-form.component";
+import { VendedoresPlanComponent } from "./vendedores-plan/vendedores-plan.component";
 import { FormsModule } from "@angular/forms";
 import { VendedoresService } from "../../services/vendedores/vendedores.service";
 import { UsuariosService } from "../../services/usuarios/usuarios.service";
 import { firstValueFrom } from "rxjs";
+
 @Component({
   selector: "app-vendedores",
   templateUrl: "./vendedores.component.html",
@@ -28,14 +30,14 @@ import { firstValueFrom } from "rxjs";
     InputIcon,
     TagModule,
     VendedoresFormComponent,
+    VendedoresPlanComponent,
   ],
 })
 export class VendedoresComponent implements OnInit {
-  public vendedoresRaw: any[] = [];
-  public usuariosRaw: any[] = [];
   public vendedores: any[] = [];
   public selectedVendedor: any = null;
   public dialogVisible: boolean = false;
+  public planVentasVisible: boolean = false;
   public loading: boolean = false;
   public filtro: string = "";
 
@@ -51,29 +53,35 @@ export class VendedoresComponent implements OnInit {
   public async listarVendedores() {
     this.loading = true;
     try {
-      this.vendedoresRaw = await this.vendedoresService.getVendedores();
-      this.usuariosRaw = await firstValueFrom(
-        this.usuariosService.obtenerUsuarios()
-      );
-      this.vendedores = this.vendedoresRaw;
-      this.vendedores.forEach((vendedor) => {
-        const usuario = this.usuariosRaw.find(
-          (usuario) => usuario.id === vendedor.usuario_id
-        );
-        vendedor.estado = usuario.estado === true ? "Activo" : "Inactivo";
+      const vendedores = await this.vendedoresService.getVendedores();
+      const usuarios = await firstValueFrom(this.usuariosService.obtenerUsuarios());
+      
+      this.vendedores = vendedores.map(vendedor => {
+        const usuario = usuarios.find(u => u.id === vendedor.usuario_id);
+        return {
+          ...vendedor,
+          estado: usuario?.estado === true ? "Activo" : "Inactivo"
+        };
       });
+    } catch (error) {
+      console.error('Error al cargar vendedores:', error);
     } finally {
       this.loading = false;
     }
   }
 
   public async filtrarVendedores() {
-    this.vendedores = this.vendedoresRaw.filter(
-      (vendedor) =>
-        vendedor.nombre.toLowerCase().includes(this.filtro.toLowerCase()) ||
-        vendedor.correo.toLowerCase().includes(this.filtro.toLowerCase()) ||
-        vendedor.telefono.toLowerCase().includes(this.filtro.toLowerCase()) ||
-        vendedor.zona.nombre.toLowerCase().includes(this.filtro.toLowerCase())
+    if (!this.filtro) {
+      await this.listarVendedores();
+      return;
+    }
+
+    const filtroLower = this.filtro.toLowerCase();
+    this.vendedores = this.vendedores.filter(vendedor =>
+      vendedor.nombre.toLowerCase().includes(filtroLower) ||
+      vendedor.correo.toLowerCase().includes(filtroLower) ||
+      vendedor.telefono.toLowerCase().includes(filtroLower) ||
+      vendedor.zona.nombre.toLowerCase().includes(filtroLower)
     );
   }
 
@@ -84,7 +92,7 @@ export class VendedoresComponent implements OnInit {
 
   public planDeVenta(vendedor: any) {
     this.selectedVendedor = vendedor;
-    this.dialogVisible = true;
+    this.planVentasVisible = true;
   }
 
   public createVendedor() {
@@ -92,13 +100,20 @@ export class VendedoresComponent implements OnInit {
     this.dialogVisible = true;
   }
 
-  public onDialogVisibilityChange(visible: boolean) {
-    this.dialogVisible = visible;
-  }
-
   public onSuccess(success: boolean) {
+    this.dialogVisible = false;
     if (success) {
       this.listarVendedores();
     }
+  }
+
+  public onPlanSuccess(success: boolean) {
+    if (success) {
+      this.listarVendedores();
+    }
+  }
+
+  public onPlanVisibleChange(visible: boolean) {
+    this.planVentasVisible = visible;
   }
 }

@@ -1,0 +1,108 @@
+<p-dialog
+  header="Plan de ventas"
+  [(visible)]="visible"
+  [modal]="true"
+  [style]="{ width: '50vw' }"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="onDialogHide()"
+>
+  <div class="flex flex-col">
+    <p-tabView [(activeIndex)]="activeTabIndex">
+      <p-tabPanel header="Clientes asociados">
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex items-center gap-2">
+            <span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input 
+                type="text" 
+                pInputText 
+                [(ngModel)]="filtroCliente" 
+                (input)="filtrarClientes()"
+                placeholder="Clientes" 
+                class="w-96"
+              />
+            </span>
+          </div>
+          <p-button
+            label="Agregar cliente"
+            icon="pi pi-plus"
+            styleClass="bg-slate-700 text-white"
+            (click)="agregarCliente()"
+          ></p-button>
+        </div>
+        
+        <p-table [value]="clientesAsociados">
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="w-16"></th>
+              <th>Cliente</th>
+              <th class="w-16"></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-cliente>
+            <tr>
+              <td>
+                <i class="pi pi-user"></i>
+              </td>
+              <td>{{ cliente.nombre }}</td>
+              <td>
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [text]="true"
+                  [rounded]="true"
+                  (click)="eliminarCliente(cliente)"
+                ></p-button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabPanel>
+
+      <p-tabPanel header="Plan de ventas">
+        <div class="flex flex-col gap-8">
+          <div *ngFor="let trimestre of trimestres" class="flex flex-col gap-4">
+            <div class="flex flex-col">
+              <label class="text-lg font-medium mb-2">Meta {{ trimestre.idQ }}</label>
+              <p-inputNumber 
+                [(ngModel)]="trimestre.meta"
+                mode="currency" 
+                currency="COP" 
+                locale="es-CO"
+                [minFractionDigits]="0"
+                [maxFractionDigits]="0"
+                class="w-full"
+                inputStyleClass="w-full"
+              ></p-inputNumber>
+            </div>
+
+            <div class="flex flex-col">
+              <label class="text-base mb-1">Cumplimiento</label>
+              <div class="flex items-center gap-2">
+                <div class="bg-blue-500 text-white px-4 py-1 rounded-full">
+                  {{ trimestre.cumplimiento }}%
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2">
+      <p-button
+        label="Cancelar"
+        (click)="closeDialog()"
+        styleClass="p-button-text"
+      ></p-button>
+      <p-button
+        label="Guardar"
+        (click)="onSave()"
+        styleClass="bg-slate-700 text-white"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>
