@@ -1,11 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-
-interface Cliente {
-  id: number;
-  nombre: string;
-  foto: string;
-}
+import { firstValueFrom } from 'rxjs';
+import { Cliente } from 'src/app/interfaces/cliente.interface';
+import { ClienteService } from 'src/app/services/cliente.service';
 
 @Component({
   selector: 'app-clientes',
@@ -14,19 +11,19 @@ interface Cliente {
   standalone: false
 })
 export class ClientesPage implements OnInit {
-  clientes: Cliente[] = [
-    { id: 1, nombre: 'Juan Pérez', foto: 'https://ionicframework.com/docs/img/demos/avatar.svg' },
-    { id: 2, nombre: 'María García', foto: 'https://ionicframework.com/docs/img/demos/avatar.svg' },
-    { id: 3, nombre: 'Carlos López', foto: 'https://ionicframework.com/docs/img/demos/avatar.svg' },
-    { id: 4, nombre: 'Ana Martínez', foto: 'https://ionicframework.com/docs/img/demos/avatar.svg' },
-    { id: 5, nombre: 'Luis Rodriguez', foto: 'https://ionicframework.com/docs/img/demos/avatar.svg' }
-  ];
+  public clientes: Cliente[] = [];
 
-  constructor(private router: Router) { }
+  constructor(private readonly router: Router, private readonly clienteService: ClienteService) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.obtenerClientes(null);
+  }
 
-  verDetalleCliente(clienteId: number) {
+  verDetalleCliente(clienteId: string) {
     this.router.navigate(['/clientes-detalle', clienteId]);
+  }
+
+  async obtenerClientes(vendedorId: string | null) {
+    this.clientes = await firstValueFrom(this.clienteService.obtenerClientes(vendedorId));
   }
 }

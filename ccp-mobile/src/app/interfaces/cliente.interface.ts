@@ -8,4 +8,5 @@ export interface Cliente {
   documento_identidad?: string;
   lat?: number;
   lng?: number;
+  id_vendedor?: string
 }

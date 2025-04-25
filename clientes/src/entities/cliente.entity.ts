@@ -45,6 +45,9 @@ export class Cliente {
   @Column({ type: 'decimal', precision: 11, scale: 8, nullable: true })
   lng: number;
 
+  @Column({ type: 'uuid', nullable: true })
+  id_vendedor: string | null;
+
   @OneToMany(() => VisitaCliente, (visita) => visita.cliente)
   visitas: VisitaCliente[];
 }

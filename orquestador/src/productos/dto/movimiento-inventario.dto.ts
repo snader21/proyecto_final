@@ -7,6 +7,16 @@ export class EntradaInventarioDto {
   ubicacion: UbicacionDto;
 }
 
+export class PreReservaInventarioDto {
+  id_movimiento: string;
+  cantidad: number;
+  fecha_registro: string;
+  id_usuario: string;
+  id_pedido: string;
+  producto: ProductoDto;
+  ubicacion: UbicacionDto;
+}
+
 class ProductoDto {
   id_producto: string;
   nombre: string;

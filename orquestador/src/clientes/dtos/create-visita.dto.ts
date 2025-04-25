@@ -1,4 +1,11 @@
-import { IsBoolean, IsDateString, IsOptional, IsString, IsUUID } from 'class-validator';
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+import {
+  IsBoolean,
+  IsDateString,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class CreateVisitaDto {
   @IsUUID()
