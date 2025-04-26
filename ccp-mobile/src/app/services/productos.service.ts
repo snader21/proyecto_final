@@ -17,4 +17,8 @@ export class ProductosService {
       params: nombre_producto ? { nombre_producto } : {}
     });
   }
+
+  crearPreReserva(dto: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/productos/movimientos-inventario/pre-reservas`, dto);
+  }
 }

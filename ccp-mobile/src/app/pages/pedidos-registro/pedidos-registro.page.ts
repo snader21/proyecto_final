@@ -3,13 +3,13 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProductosService } from '../../services/productos.service';
 import { Producto } from '../../interfaces/producto.interface';
 import { ProductoPedido } from '../../interfaces/producto-pedido.interface';
+import { ClienteService } from '../../services/cliente.service';
+import { Cliente } from '../../interfaces/cliente.interface';
 import { AlertController } from '@ionic/angular';
 import { MetodosPagoService, MetodoPago } from '../../services/metodos-pago.service';
-
-interface Cliente {
-  id: number;
-  nombre: string;
-}
+import { v4 as uuidv4 } from 'uuid';
+import { PedidosService } from '../../services/pedidos.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-pedidos-registro',
@@ -19,18 +19,16 @@ interface Cliente {
 })
 export class PedidosRegistroPage implements OnInit {
   pedidoForm: FormGroup;
-  clientes: Cliente[] = [
-    { id: 1, nombre: 'Juan Pérez' },
-    { id: 2, nombre: 'María García' },
-    { id: 3, nombre: 'Carlos López' },
-    { id: 4, nombre: 'Ana Martínez' },
-  ];
+  clientes: Cliente[] = [];
+  idPedido: string = '';
+  idUsuario: string = '';
 
   productos: Producto[] = [];
   productosFiltrados: Producto[] = [];
   productosSeleccionados: ProductoPedido[] = [];
   cantidadesSeleccionadas: { [key: string]: number } = {};
   mediosPago: any[] = [];
+  metodosEnvio: any[] = [];
   fechaMinima = new Date().toISOString();
   mostrarBusquedaProductos = false;
   mostrarCalendario = false;
@@ -41,20 +39,43 @@ export class PedidosRegistroPage implements OnInit {
     private productosService: ProductosService,
     private formBuilder: FormBuilder,
     private alertController: AlertController,
-    private metodosPagoService: MetodosPagoService
+    private metodosPagoService: MetodosPagoService,
+    private clienteService: ClienteService,
+    private pedidosService: PedidosService,
+    private router: Router
   ) {
     this.pedidoForm = this.formBuilder.group({
-      clienteId: ['', Validators.required],
+      id_cliente: ['', Validators.required],
       medioPago: ['', Validators.required],
-      fechaEntrega: ['', Validators.required]
+      fechaEntrega: ['', Validators.required],
+      id_metodo_envio: ['', Validators.required]
     });
   }
 
   ngOnInit() {
+    this.idPedido = uuidv4();
+    this.idUsuario = this.recuperarUsuario();
+
     this.metodosPagoService.getMetodosPago().subscribe((metodos: MetodoPago[]) => {
       console.log(metodos);
       this.mediosPago = metodos;
     });
+    this.clienteService.obtenerClientes(null).subscribe((clientes: Cliente[]) => {
+      console.log(clientes);
+      this.clientes = clientes;
+    });
+    this.pedidosService.getMetodosEnvio().subscribe((metodos: any[]) => {
+      this.metodosEnvio = metodos;
+    });
+  }
+
+  recuperarUsuario = (): string =>{
+    const usuarioStr = localStorage.getItem('usuario');
+    if (usuarioStr) {
+      const usuario = JSON.parse(usuarioStr);
+      return usuario.id;
+    }
+    return '';
   }
 
   async buscarProductos(evento: any) {
@@ -85,6 +106,23 @@ export class PedidosRegistroPage implements OnInit {
         cantidad_seleccionada: cantidad
       };
       this.productosSeleccionados.push(productoPedido);
+
+      // Llamada al orquestador para pre-reserva
+      const preReservaDto = {
+        idPedido: this.idPedido,
+        idUsuario: this.idUsuario,
+        idProducto: producto.id_producto,
+        cantidad: cantidad,
+        fechaRegistro: new Date().toISOString()
+      };
+      this.productosService.crearPreReserva(preReservaDto).subscribe({
+        next: (resp) => {
+          // Manejar respuesta si es necesario
+        },
+        error: (err) => {
+          console.error('Error creando pre-reserva:', err);
+        }
+      });
     }
     this.terminoBusqueda = '';
     this.productosFiltrados = [];
@@ -111,21 +149,53 @@ export class PedidosRegistroPage implements OnInit {
     }
   }
 
+  // Constante base para el costo de envío por unidad
+  private readonly COSTO_ENVIO_BASE = 5;
+
+  calcularCostoEnvio(): number {
+    // Suma la cantidad total de unidades de todos los productos seleccionados
+    const totalUnidades = this.productosSeleccionados.reduce((acc, prod) => acc + (prod.cantidad_seleccionada || 1), 0);
+    return totalUnidades * this.COSTO_ENVIO_BASE;
+  }
+
   async guardarPedido() {
     if (this.pedidoForm.valid && this.productosSeleccionados.length > 0) {
       const pedido = {
-        ...this.pedidoForm.value,
-        productos: this.productosSeleccionados
+        id_pedido: this.idPedido,
+        id_vendedor: this.idUsuario,
+        fecha_registro: new Date().toISOString(),
+        id_estado: 2,
+        descripcion: 'Pedido generado con ' + this.productosSeleccionados.length + ' productos',
+        id_cliente: this.pedidoForm.value.id_cliente,
+        id_metodo_pago: this.pedidoForm.value.medioPago,
+        estado_pago: 'Pendiente',
+        costo_envio: this.calcularCostoEnvio(),
+        id_metodo_envio: this.pedidoForm.value.id_metodo_envio
       };
 
-      const alert = await this.alertController.create({
-        header: 'Éxito',
-        message: 'Pedido guardado correctamente',
-        buttons: ['OK']
-      });
-
-      await alert.present();
-      console.log('Pedido guardado:', pedido);
+      try {
+        await this.pedidosService.createPedido(pedido).toPromise();
+        const alert = await this.alertController.create({
+          header: 'Éxito',
+          message: 'Pedido guardado correctamente',
+          buttons: ['OK']
+        });
+        await alert.present();
+        await alert.onDidDismiss();
+        this.pedidoForm.reset();
+        this.productosSeleccionados = [];
+        this.cantidadesSeleccionadas = {};
+        this.idPedido = uuidv4();
+        this.router.navigate(['/pedidos']);
+      } catch (error) {
+        const alert = await this.alertController.create({
+          header: 'Error',
+          message: 'No se pudo guardar el pedido. Intenta de nuevo.',
+          buttons: ['OK']
+        });
+        await alert.present();
+        console.error('Error al guardar pedido:', error);
+      }
     }
   }
 }

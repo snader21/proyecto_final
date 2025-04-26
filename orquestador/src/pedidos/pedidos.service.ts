@@ -44,4 +44,10 @@ export class PedidosService {
       .get<IRespuestaPedido[]>(apiEndPoint)
       .pipe(map((respuesta) => respuesta.data));
   }
+
+  crearPedido(dto: any): Observable<IRespuestaPedido> {
+    const api = this.configService.get<string>('URL_PEDIDOS');
+    const apiEndPoint = `${api}/pedidos`;
+    return this.httpService.post<IRespuestaPedido>(apiEndPoint, dto).pipe(map(res => res.data));
+  }
 }

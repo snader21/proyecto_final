@@ -11,8 +11,8 @@
   <form [formGroup]="pedidoForm" (ngSubmit)="guardarPedido()">
     <ion-item>
       <ion-label position="stacked">Cliente</ion-label>
-      <ion-select formControlName="clienteId" placeholder="Nombre del cliente" fill="solid">
-        <ion-select-option *ngFor="let cliente of clientes" [value]="cliente.id">
+      <ion-select formControlName="id_cliente" placeholder="Nombre del cliente" fill="solid">
+        <ion-select-option *ngFor="let cliente of clientes" [value]="cliente.id_cliente">
           {{ cliente.nombre }}
         </ion-select-option>
       </ion-select>
@@ -103,6 +103,15 @@
       <ion-select formControlName="medioPago" placeholder="Seleccione medio de pago">
         <ion-select-option *ngFor="let medio of mediosPago" [value]="medio.id_metodo_pago">
           {{ medio.nombre }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Método de envío</ion-label>
+      <ion-select formControlName="id_metodo_envio" placeholder="Seleccione método de envío">
+        <ion-select-option *ngFor="let metodo of metodosEnvio" [value]="metodo.id_metodo_envio">
+          {{ metodo.nombre }}
         </ion-select-option>
       </ion-select>
     </ion-item>

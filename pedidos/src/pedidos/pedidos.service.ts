@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import { EstadoPedidoEntity } from './entities/estado-pedido.entity';
 import { MetodoPagoEntity } from './entities/metodo-pago.entity';
 import { MetodoEnvioEntity } from './entities/metodo-envio.entity';
+import { CreatePedidoDto } from './dto/create-pedido.dto';
+import { PubSubService } from '../common/services/pubsub.service';
 
 @Injectable()
 export class PedidosService implements OnModuleInit {
@@ -17,6 +19,7 @@ export class PedidosService implements OnModuleInit {
     private readonly metodoPagoRepository: Repository<MetodoPagoEntity>,
     @InjectRepository(MetodoEnvioEntity)
     private readonly metodoEnvioRepository: Repository<MetodoEnvioEntity>,
+    private readonly pubSubService: PubSubService,
   ) {}
 
   async onModuleInit() {
@@ -104,5 +107,27 @@ export class PedidosService implements OnModuleInit {
 
   async findAllMetodosPago() {
     return await this.metodoPagoRepository.find();
+  }
+
+  async create(createPedidoDto: CreatePedidoDto): Promise<PedidoEntity> {
+    if (Array.isArray(createPedidoDto)) {
+      throw new Error('Solo se permite crear un pedido a la vez');
+    }
+    // Si el DTO trae id_pedido, asignarlo explícitamente, sino dejar que TypeORM genere uno
+    const pedido = this.pedidoRepository.create(createPedidoDto);
+    if (createPedidoDto.id_pedido) {
+      pedido.id_pedido = createPedidoDto.id_pedido;
+    }
+    const saved = await this.pedidoRepository.save(pedido);
+    const found = await this.pedidoRepository.findOne({
+      where: { id_pedido: saved.id_pedido },
+      relations: ['estado', 'pago', 'envio'],
+    });
+    if (!found) throw new Error('Pedido no encontrado después de guardar');
+    // Publicar mensaje al tópico para confirmar productos en inventario
+    await this.pubSubService.publishMessage({
+      idPedido: pedido.id_pedido,
+    });
+    return found;
   }
 }
