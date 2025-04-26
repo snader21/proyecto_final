@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { CreateEntradaInventarioDto } from './dto/create-entrada-invenario.dto';
 import { MovimientoInventarioEntity } from './entities/movimiento-inventario.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,8 +13,20 @@ import { ProductosService } from '../productos/productos.service';
 import { UbicacionesService } from '../ubicaciones/ubicaciones.service';
 import { TipoMovimientoEnum } from './enums/tipo-movimiento.enum';
 import { CreatePreReservaInventarioDto } from './dto/create-pre-reserva-inventario.dto';
+import { PubSubService } from '../common/services/pubsub.service';
+import { Subscription } from '@google-cloud/pubsub';
+
+interface MensajeConfirmacionPreReserva {
+  idPedido: string;
+}
+const SUBSCRIPTION_NAME =
+  'projects/intense-guru-453022-j0/subscriptions/proyecto-final-confirmar-reserva-sub';
+
 @Injectable()
-export class MovimientosInventarioService {
+export class MovimientosInventarioService
+  implements OnModuleInit, OnModuleDestroy
+{
+  private suscripcion: Subscription | null = null;
   constructor(
     @InjectRepository(MovimientoInventarioEntity)
     private readonly repositorio: Repository<MovimientoInventarioEntity>,
@@ -17,7 +34,35 @@ export class MovimientosInventarioService {
     private readonly productoService: ProductosService,
     private readonly ubicacionService: UbicacionesService,
     private readonly dataSource: DataSource,
+    private readonly pubSubService: PubSubService,
   ) {}
+
+  async onModuleInit() {
+    try {
+      this.suscripcion =
+        await this.pubSubService.subscribe<MensajeConfirmacionPreReserva>(
+          async (message) => {
+            try {
+              await this.confirmarPreReservaInventario(message.idPedido);
+            } catch (error) {
+              console.error('Error procesando archivo:', error);
+            }
+          },
+          SUBSCRIPTION_NAME,
+        );
+
+      console.log('Servicio de confirmacion de pre-reserva iniciado');
+    } catch (error) {
+      console.error(
+        'Error al iniciar el servicio de confirmacion de pre-reserva:',
+        error,
+      );
+    }
+  }
+
+  async onModuleDestroy() {
+    await this.suscripcion?.close();
+  }
   async generarEntradaInventario(
     crearEntradaInventario: CreateEntradaInventarioDto,
   ) {
@@ -136,5 +181,19 @@ export class MovimientosInventarioService {
     } finally {
       await queryRunner.release();
     }
+  }
+  async confirmarPreReservaInventario(idPedido: string) {
+    const resultado = await this.repositorio.update(
+      { id_pedido: idPedido },
+      { tipo_movimiento: TipoMovimientoEnum.RESERVA_CONFIRMADA },
+    );
+
+    if (resultado.affected === 0) {
+      console.warn(`No se encontró pre-reserva con idPedido: ${idPedido}`);
+      return null;
+    }
+
+    console.log(`Pre-reserva confirmada para idPedido: ${idPedido}`);
+    return resultado;
   }
 }

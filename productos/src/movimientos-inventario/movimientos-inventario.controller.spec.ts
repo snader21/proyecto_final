@@ -7,9 +7,14 @@ import { INestApplication } from '@nestjs/common';
 import { generarEntradaInventarioDto } from '../shared/testing-utils/test-utils';
 import { faker } from '@faker-js/faker';
 import { CreateEntradaInventarioDto } from './dto/create-entrada-invenario.dto';
+import { PubSubService } from '../common/services/pubsub.service';
 const mockMovimientosInventarioService = {
   generarEntradaInventario: jest.fn(),
   generarPreReservaInventario: jest.fn(),
+};
+
+const mockPubSubService = {
+  publicarMensaje: jest.fn(),
 };
 
 describe('MovimientosInventarioController', () => {
@@ -22,6 +27,10 @@ describe('MovimientosInventarioController', () => {
         {
           provide: MovimientosInventarioService,
           useValue: mockMovimientosInventarioService,
+        },
+        {
+          provide: PubSubService,
+          useValue: mockPubSubService,
         },
       ],
     }).compile();

@@ -9,9 +9,13 @@ import { firstValueFrom, Observable } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { AxiosError } from 'axios';
 import { CreateEntradaInventarioDto } from './dto/create-entrada-inventario.dto';
-import { EntradaInventarioDto } from './dto/movimiento-inventario.dto';
+import {
+  EntradaInventarioDto,
+  PreReservaInventarioDto,
+} from './dto/movimiento-inventario.dto';
 import { QueryInventarioDto } from './dto/query-inventario.dto';
 import { ProductoConInventarioDto } from './dto/producto-con-inventario.dto';
+import { CreatePreReservaInventarioDto } from './dto/create-pre-reserva-inventario.dto';
 
 export interface IRespuestaProducto {
   id_producto: string;
@@ -57,6 +61,20 @@ export class ProductosService {
       if (axiosError?.response?.status === 404) {
         throw new NotFoundException(axiosError?.response?.data?.message);
       }
+      throw new BadRequestException(axiosError?.response?.data?.message);
+    }
+  }
+
+  async crearPreReservaInventario(dto: CreatePreReservaInventarioDto) {
+    const apiEndPoint = `${this.apiProductos}/movimientos-inventario/pre-reservas`;
+
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.post<PreReservaInventarioDto[]>(apiEndPoint, dto),
+      );
+      return data;
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message: string }>;
       throw new BadRequestException(axiosError?.response?.data?.message);
     }
   }
