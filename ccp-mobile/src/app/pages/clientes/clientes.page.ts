@@ -16,7 +16,20 @@ export class ClientesPage implements OnInit {
   constructor(private readonly router: Router, private readonly clienteService: ClienteService) { }
 
   ngOnInit() {
-    this.obtenerClientes(null);
+    this.cargarClientes();
+  }
+
+  ionViewWillEnter() {
+    this.cargarClientes();
+  }
+
+  private cargarClientes() {
+    const usuarioStr = localStorage.getItem('usuario');
+    if (usuarioStr) {
+      const usuario = JSON.parse(usuarioStr);
+      const esVendedor = usuario.roles.some((rol: any) => rol.nombre.toLowerCase() === 'vendedor');
+      this.obtenerClientes(esVendedor ? usuario.id : null);
+    }
   }
 
   verDetalleCliente(clienteId: string) {

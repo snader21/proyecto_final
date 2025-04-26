@@ -28,4 +28,12 @@ export class ClienteService {
       return this.http.get<Cliente[]>(`${this.apiUrl}/clientes`);
     }
   }
+
+  registrarCliente(cliente: Object): Observable<Cliente[]> {
+    return this.http.post<Cliente[]>(`${this.apiUrl}/clientes`, cliente);
+  }
+
+  obtenerTiposDeCliente(): Observable<any[]> {
+    return this.http.get<Cliente[]>(`${this.apiUrl}/tipos-cliente`);
+  }
 }
