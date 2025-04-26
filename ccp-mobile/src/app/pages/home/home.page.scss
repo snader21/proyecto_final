@@ -1,3 +1,9 @@
+:host {
+  ion-content {
+    --background: no-repeat left/cover url('/assets/bg.webp');
+  }
+}
+
 ion-menu-button {
     color: var(--ion-color-primary);
   }
@@ -7,7 +13,7 @@ ion-menu-button {
     position: absolute;
     left: 0;
     right: 0;
-    top: 50%;
+    top: 30%;
     transform: translateY(-50%);
   }
   
