@@ -32,9 +32,9 @@
           ></ion-input>
         </ion-item>
       </div>
-      <ion-button expand="full" (click)="login()">Iniciar sesión</ion-button>
+      <ion-button expand="full" (click)="login()" color="blue-gray">Iniciar sesión</ion-button>
       <div class="login-form-footer ion-text-center">
-        <p>¿No tienes una cuenta? <a href="#">Regístrate</a></p>
+        <p>¿No tienes una cuenta? <a (click)="goToRegister()">Regístrate</a></p>
       </div>
     </ion-card-content>
   </ion-card>

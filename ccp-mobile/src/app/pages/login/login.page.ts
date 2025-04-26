@@ -24,7 +24,8 @@ export class LoginPage implements OnInit {
     if (this.correo && this.contrasena) {
       try {
         const response = await firstValueFrom(this.authService.login({ correo: this.correo, contrasena: this.contrasena }));
-        console.log(response);
+        this.correo = '';
+        this.contrasena = '';
         this.router.navigate(['/home']);
       } catch (error) {
         console.log(error);
@@ -53,5 +54,9 @@ export class LoginPage implements OnInit {
     });
 
     await this.currentToast.present();
+  }
+
+  goToRegister() {
+    this.router.navigate(['/register']);
   }
 }
