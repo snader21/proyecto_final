@@ -54,4 +54,8 @@ export class LoginPage implements OnInit {
 
     await this.currentToast.present();
   }
+
+  goToRegister() {
+    this.router.navigate(['/register']);
+  }
 }
