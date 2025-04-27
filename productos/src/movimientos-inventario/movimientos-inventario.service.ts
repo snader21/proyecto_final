@@ -183,6 +183,7 @@ export class MovimientosInventarioService
     }
   }
   async confirmarPreReservaInventario(idPedido: string) {
+    console.log("LLega a subscripcion topico", idPedido);
     const resultado = await this.repositorio.update(
       { id_pedido: idPedido },
       { tipo_movimiento: TipoMovimientoEnum.RESERVA_CONFIRMADA },

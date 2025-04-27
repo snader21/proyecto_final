@@ -125,11 +125,16 @@ export class PedidosService implements OnModuleInit {
     });
     if (!found) throw new Error('Pedido no encontrado después de guardar');
     // Publicar mensaje al tópico para procesar el archivo
-    await this.pubSubService.publishMessage(
-      {
-        idPedido: createPedidoDto.id_pedido,
-      }
-    );
+    try {
+      await this.pubSubService.publishMessage(
+        {
+          idPedido: createPedidoDto.id_pedido,
+        }
+      );
+    } catch (error) {
+      console.log(error);      
+    }
+    
     return found;
   }
 
