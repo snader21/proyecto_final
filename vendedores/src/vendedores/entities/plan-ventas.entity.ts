@@ -8,7 +8,7 @@ export class PlanVentasEntity {
   idPlan: string;
 
   @Column({ name: 'id_vendedor' })
-  idVendedor: number;
+  idVendedor: string;
 
   @Column()
   ano: number;

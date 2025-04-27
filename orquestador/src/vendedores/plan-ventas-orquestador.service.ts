@@ -20,10 +20,10 @@ export class PlanVentasOrquestadorService {
     }
   }
 
-  async getPlanVentas(ano: number) {
+  async getPlanVentas(idVendedor: string, ano: number) {
     try {
       const api = this.configService.get<string>('URL_VENDEDORES') || 'http://localhost:3000';
-      const { data } = await firstValueFrom(this.httpService.get(`${api}/plan-ventas/${ano}`));
+      const { data } = await firstValueFrom(this.httpService.get(`${api}/plan-ventas/${idVendedor}/${ano}`));
       return data;
     } catch (error) {
       throw new HttpException('Error consultando planes de venta en vendedores', 502);

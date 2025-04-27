@@ -8,7 +8,6 @@ import { TrimestreEntity } from './entities/trimestre.entity';
 
 @Injectable()
 export class PlanVentasService {
-
   constructor(
     @InjectRepository(PlanVentasEntity)
     private readonly planVentasRepository: Repository<PlanVentasEntity>,
@@ -25,9 +24,9 @@ export class PlanVentasService {
     });
   }
 
-  async getPlanVentas(ano: number) {
+  async getPlanVentas(idVendedor: string, ano: number) {
     return this.planVentasRepository.find({
-      where: { ano },
+      where: { ano, idVendedor },
       relations: ['metas'],
     });
   }

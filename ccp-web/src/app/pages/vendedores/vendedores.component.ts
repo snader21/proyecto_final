@@ -74,10 +74,7 @@ export class VendedoresComponent implements OnInit {
           estado: usuario?.estado === true ? "Activo" : "Inactivo"
         };
       });
-
-      console.log('Vendedores procesados:', this.vendedores);
     } catch (error) {
-      console.error('Error al cargar vendedores:', error);
     } finally {
       this.loading = false;
     }
@@ -104,9 +101,7 @@ export class VendedoresComponent implements OnInit {
   }
 
   public planDeVenta(vendedor: any) {
-    console.log('Plan de venta - vendedor recibido:', vendedor);
     this.selectedVendedor = vendedor;
-    console.log('Plan de venta - selectedVendedor:', this.selectedVendedor);
     this.planVentasVisible = true;
   }
 

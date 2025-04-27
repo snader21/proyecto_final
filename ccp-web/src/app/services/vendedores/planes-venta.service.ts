@@ -40,7 +40,7 @@ export class PlanesVentaService {
     return this.http.put<PlanVentas>(`${this.apiUrl}/plan-ventas`, planVentas);
   }
 
-  getPlanVentas(idVendedor: number, ano: number): Observable<PlanVentas> {
+  getPlanVentas(idVendedor: string, ano: number): Observable<PlanVentas> {
     return this.http.get<PlanVentas>(`${this.apiUrl}/plan-ventas/${idVendedor}/${ano}`);
   }
 }

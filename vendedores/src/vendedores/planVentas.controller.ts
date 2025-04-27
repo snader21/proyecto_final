@@ -16,8 +16,11 @@ export class PlanVentasController {
     return this.planVentasService.createOrUpdatePlanVentas(planVentasDto);
   }
 
-  @Get(':ano')
-  async getPlanVentas(@Param('ano', ParseIntPipe) ano: number) {
-    return this.planVentasService.getPlanVentas(ano);
+  @Get(':idVendedor/:ano')
+  async getPlanVentas(
+    @Param('idVendedor') idVendedor: string,
+    @Param('ano', ParseIntPipe) ano: number,
+  ) {
+    return this.planVentasService.getPlanVentas(idVendedor, ano);
   }
 }

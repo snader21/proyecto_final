@@ -49,33 +49,23 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
   ngOnInit() {
     if (this.visible && this.vendedor) {
       this.cargarClientesAsociados();
-      this.cargarPlanVentas();
     }
     this.cargarTrimestres();
+    this.cargarPlanVentas();
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['visible'] && changes['visible'].currentValue === true && this.vendedor) {
-      console.log('Modal abierto - cargando datos');
       this.cargarClientesAsociados();
       this.cargarPlanVentas();
     }
   }
 
   cargarClientesAsociados = () => {
-    console.log('cargarClientesAsociados - vendedor:', {
-      vendedor: this.vendedor,
-      id: this.vendedor?.id,
-      usuario_id: this.vendedor?.usuario_id,
-      propiedades: this.vendedor ? Object.keys(this.vendedor) : []
-    });
-
     if (this.vendedor && this.vendedor['usuario_id']) {
-      console.log('Intentando cargar clientes con usuario_id:', this.vendedor['usuario_id']);
       this.clientesService.getClientesVendedor(this.vendedor['usuario_id'])
         .subscribe({
           next: (clientes) => {
-            console.log('Clientes recibidos:', clientes);
             this.clientesAsociados = clientes;
           },
           error: (error) => {
@@ -92,6 +82,7 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
     if (this.vendedor?.id) {
       this.planesVentaService.getPlanVentas(this.vendedor.id, currentYear)
         .subscribe(plan => {
+          console.log("Consultando planes de venta", plan);
           this.planVentas = plan;
           // Inicializar las metas por trimestre
           this.metasPorTrimestre = {};
@@ -122,7 +113,6 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
     const query = event.query.toLowerCase();
     this.clientesService.getClientesSinVendedor()
       .subscribe(clientes => {
-        console.table(clientes);
         this.clientesFiltrados = clientes.filter(cliente =>
           cliente.nombre.toLowerCase().includes(query)
         );
@@ -130,23 +120,11 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
   }
 
   agregarCliente() {
-    console.log('Cliente seleccionado: ', this.clienteSeleccionado);
-
     if (!this.clienteSeleccionado || !this.vendedor?.usuario_id) {
-      console.error('Datos inválidos:', {
-        cliente: this.clienteSeleccionado,
-        vendedor: this.vendedor
-      });
       return;
     }
 
     if (!this.clientesAsociados.some(c => c.id_cliente === this.clienteSeleccionado?.id_cliente)) {
-      console.log('Intentando asociar cliente:', {
-        clienteId: this.clienteSeleccionado.id_cliente,
-        vendedorId: this.vendedor.usuario_id,
-        vendedor: this.vendedor
-      });
-
       this.clientesService.asignarClienteVendedor(this.clienteSeleccionado.id_cliente, this.vendedor.usuario_id)
         .subscribe(() => {
           this.cargarClientesAsociados();
@@ -171,7 +149,6 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
   }
 
   onSave() {
-    console.log('Guardando cambios...');
     if (!this.vendedor?.id) return;
 
     const currentYear = new Date().getFullYear();
