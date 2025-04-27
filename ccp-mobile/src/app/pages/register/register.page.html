@@ -1,0 +1,150 @@
+<ion-content [fullscreen]="true">
+  <div class="logo-container">
+  </div>
+  <ion-card class="register-card">
+    <ion-card-header>
+      <ion-card-title>Registro</ion-card-title>
+      <ion-card-subtitle>Crea tu cuenta</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <form [formGroup]="registerForm" (ngSubmit)="register()">
+        <div class="register-form">
+          <ion-item>
+            <ion-input
+              formControlName="nombre"
+              label="Nombre o razon social"
+              label-placement="floating"
+              placeholder="Ingresa tu nombre completo"
+            ></ion-input>
+          </ion-item>
+          <ion-note color="danger" *ngIf="registerForm.get('nombre')?.touched && registerForm.get('nombre')?.errors?.['required']">
+            El nombre es requerido
+          </ion-note>
+          <ion-note color="danger" *ngIf="registerForm.get('nombre')?.touched && registerForm.get('nombre')?.errors?.['minlength']">
+            El nombre debe tener al menos 3 caracteres
+          </ion-note>
+
+          <ion-item>
+            <ion-input
+              formControlName="documento_identidad"
+              label="Identificación o NIT"
+              label-placement="floating"
+              placeholder="Ingresa tu número de identificación o NIT"
+              type="text"
+            ></ion-input>
+          </ion-item>
+          <ion-note color="danger" *ngIf="registerForm.get('documento_identidad')?.touched && registerForm.get('documento_identidad')?.errors?.['required']">
+            La identificación es requerida
+          </ion-note>
+          <ion-note color="danger" *ngIf="registerForm.get('documento_identidad')?.touched && registerForm.get('documento_identidad')?.errors?.['minlength']">
+            La identificación debe tener al menos 8 caracteres
+          </ion-note>
+
+          <ion-item>
+            <ion-select
+              formControlName="id_tipo_cliente"
+              label="Tipo de cliente"
+              label-placement="floating"
+              interface="popover"
+              placeholder="Selecciona el tipo de cliente"
+            >
+              <ion-select-option *ngFor="let tipo of tiposCliente" [value]="tipo.id_tipo_cliente">
+                {{ tipo.tipo_cliente }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+          <ion-note color="danger" *ngIf="registerForm.get('id_tipo_cliente')?.touched && registerForm.get('id_tipo_cliente')?.errors?.['required']">
+            El tipo de cliente es requerido
+          </ion-note>
+
+          <ion-item>
+            <ion-input
+              formControlName="telefono"
+              label="Teléfono"
+              label-placement="floating"
+              placeholder="Ingresa tu número de teléfono"
+              type="tel"
+            ></ion-input>
+          </ion-item>
+          <ion-note color="danger" *ngIf="registerForm.get('telefono')?.touched && registerForm.get('telefono')?.errors?.['required']">
+            El teléfono es requerido
+          </ion-note>
+          <ion-note color="danger" *ngIf="registerForm.get('telefono')?.touched && registerForm.get('telefono')?.errors?.['pattern']">
+            Ingresa un número de teléfono válido (10 dígitos)
+          </ion-note>
+
+          <ion-item>
+            <ion-input
+              formControlName="direccion"
+              label="Dirección"
+              label-placement="floating"
+              placeholder="Ingresa tu dirección completa"
+              type="text"
+            ></ion-input>
+          </ion-item>
+          <ion-note color="danger" *ngIf="registerForm.get('direccion')?.touched && registerForm.get('direccion')?.errors?.['required']">
+            La dirección es requerida
+          </ion-note>
+          <ion-note color="danger" *ngIf="registerForm.get('direccion')?.touched && registerForm.get('direccion')?.errors?.['minlength']">
+            La dirección debe tener al menos 5 caracteres
+          </ion-note>
+
+          <ion-item>
+            <ion-input
+              formControlName="correo"
+              label="Correo electrónico"
+              label-placement="floating"
+              placeholder="Ingresa tu correo electrónico"
+              type="email"
+            ></ion-input>
+          </ion-item>
+          <ion-note color="danger" *ngIf="registerForm.get('correo')?.touched && registerForm.get('correo')?.errors?.['required']">
+            El correo es requerido
+          </ion-note>
+          <ion-note color="danger" *ngIf="registerForm.get('correo')?.touched && registerForm.get('correo')?.errors?.['email']">
+            Ingresa un correo electrónico válido
+          </ion-note>
+
+          <ion-item>
+            <ion-input
+              formControlName="contrasena"
+              label="Contraseña"
+              label-placement="floating"
+              placeholder="Ingresa tu contraseña"
+              type="password"
+            ></ion-input>
+          </ion-item>
+          <ion-note color="danger" *ngIf="registerForm.get('contrasena')?.touched && registerForm.get('contrasena')?.errors?.['required']">
+            La contraseña es requerida
+          </ion-note>
+          <ion-note color="danger" *ngIf="registerForm.get('contrasena')?.touched && registerForm.get('contrasena')?.errors?.['minlength']">
+            La contraseña debe tener al menos 6 caracteres
+          </ion-note>
+
+          <ion-item>
+            <ion-input
+              formControlName="confirmarContrasena"
+              label="Confirmar contraseña"
+              label-placement="floating"
+              placeholder="Confirma tu contraseña"
+              type="password"
+            ></ion-input>
+          </ion-item>
+          <ion-note color="danger" *ngIf="registerForm.get('confirmarContrasena')?.touched && registerForm.get('confirmarContrasena')?.errors?.['required']">
+            La confirmación de contraseña es requerida
+          </ion-note>
+          <ion-note color="danger" *ngIf="registerForm.errors?.['passwordMismatch'] && registerForm.get('confirmarContrasena')?.touched">
+            Las contraseñas no coinciden
+          </ion-note>
+        </div>
+        <ion-button expand="full" type="submit" color="blue-gray" [disabled]="registerForm.invalid || isLoading">
+          {{ isLoading ? 'Registrando...' : 'Registrarse' }}
+        </ion-button>
+        <div class="register-form-footer ion-text-center">
+          <p>¿Ya tienes una cuenta? <a (click)="goToLogin()">Inicia sesión</a></p>
+        </div>
+      </form>
+    </ion-card-content>
+  </ion-card>
+</ion-content> 
