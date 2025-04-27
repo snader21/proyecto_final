@@ -6,7 +6,6 @@ import { EstadoPedidoEntity } from './entities/estado-pedido.entity';
 import { MetodoPagoEntity } from './entities/metodo-pago.entity';
 import { MetodoEnvioEntity } from './entities/metodo-envio.entity';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
-import { PubSubService } from '../common/services/pubsub.service';
 
 @Injectable()
 export class PedidosService implements OnModuleInit {
@@ -18,8 +17,7 @@ export class PedidosService implements OnModuleInit {
     @InjectRepository(MetodoPagoEntity)
     private readonly metodoPagoRepository: Repository<MetodoPagoEntity>,
     @InjectRepository(MetodoEnvioEntity)
-    private readonly metodoEnvioRepository: Repository<MetodoEnvioEntity>,
-    private readonly pubSubService: PubSubService,
+    private readonly metodoEnvioRepository: Repository<MetodoEnvioEntity>
   ) {}
 
   async onModuleInit() {
@@ -124,17 +122,21 @@ export class PedidosService implements OnModuleInit {
       relations: ['estado', 'pago', 'envio'],
     });
     if (!found) throw new Error('Pedido no encontrado después de guardar');
-    // Publicar mensaje al tópico para confirmar productos en inventario
-    await this.pubSubService.publishMessage({
-      idPedido: pedido.id_pedido,
-    });
     return found;
   }
 
   async findByIdVendedor(idVendedor: string): Promise<PedidoEntity[]> {
-    return await this.pedidoRepository.find({
-      where: { id_vendedor: idVendedor },
-      relations: ['estado', 'pago', 'envio'],
-    });
+    try {
+      console.log('Buscando pedidos para vendedor:', idVendedor);
+      const pedidos = await this.pedidoRepository.find({
+        where: { id_vendedor: idVendedor },
+        relations: ['estado', 'pago', 'envio'],
+      });
+      console.log('Pedidos encontrados:', pedidos);
+      return pedidos;
+    } catch (error) {
+      console.error('Error al buscar pedidos:', error);
+      throw error;
+    }
   }
 }
