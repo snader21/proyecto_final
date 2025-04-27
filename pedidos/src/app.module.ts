@@ -9,6 +9,7 @@ import { EstadoPedidoEntity } from './pedidos/entities/estado-pedido.entity';
 import { MetodoEnvioEntity } from './pedidos/entities/metodo-envio.entity';
 import { MetodoPagoEntity } from './pedidos/entities/metodo-pago.entity';
 import { PedidoEntity } from './pedidos/entities/pedido.entity';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -18,10 +19,11 @@ import { PedidoEntity } from './pedidos/entities/pedido.entity';
       envFilePath: '.env',
     }),
     PedidosModule,
+    CommonModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5434'),
+      port: parseInt(process.env.DB_PORT || '5432'),
       username: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_NAME || 'pedidos',
