@@ -42,4 +42,37 @@ describe('PedidosController', () => {
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
+
+  describe('findAll', () => {
+    it('should return all pedidos', async () => {
+      const mockPedidos = [{ id_pedido: '1' }, { id_pedido: '2' }];
+      const pedidosService = controller['pedidosService'];
+      pedidosService.findAll = jest.fn().mockResolvedValue(mockPedidos);
+      const result = await controller.findAll();
+      expect(result).toEqual(mockPedidos);
+      expect(pedidosService.findAll).toHaveBeenCalled();
+    });
+  });
+
+  describe('create', () => {
+    it('should create a pedido', async () => {
+      const dto = { id_pedido: '1', id_vendedor: 'V1' };
+      const pedidosService = controller['pedidosService'];
+      pedidosService.create = jest.fn().mockResolvedValue(dto);
+      const result = await controller.create(dto as any);
+      expect(result).toEqual(dto);
+      expect(pedidosService.create).toHaveBeenCalledWith(dto);
+    });
+  });
+
+  describe('findByIdVendedor', () => {
+    it('should return pedidos for a vendedor', async () => {
+      const mockPedidos = [{ id_pedido: '1', id_vendedor: 'V1' }];
+      const pedidosService = controller['pedidosService'];
+      pedidosService.findByIdVendedor = jest.fn().mockResolvedValue(mockPedidos);
+      const result = await controller.findByIdVendedor('V1');
+      expect(result).toEqual(mockPedidos);
+      expect(pedidosService.findByIdVendedor).toHaveBeenCalledWith('V1');
+    });
+  });
 });
