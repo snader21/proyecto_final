@@ -10,6 +10,7 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { FormsModule } from '@angular/forms';
 import { PlanesVentaService, Trimestre, PlanVentas, MetaTrimestral } from '../../../services/vendedores/planes-venta.service';
 import { ClientesService, Cliente } from '../../../services/clientes/clientes.service';
+import { PedidosService } from '../../../services/pedidos/pedidos.service';
 import { firstValueFrom } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
@@ -49,7 +50,8 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
   constructor(
     private planesVentaService: PlanesVentaService,
     private clientesService: ClientesService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private pedidosService: PedidosService,
   ) {}
 
   ngOnInit() {
@@ -69,32 +71,35 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
   async cargarDatos() {
     console.log('=== INICIO cargarDatos ===');
     console.log('Vendedor:', this.vendedor);
-    
+
     if (!this.vendedor?.id) {
       console.log('No hay vendedor o no tiene ID');
       return;
     }
-    
-    const currentYear = new Date().getFullYear();
-    console.log('Año actual:', currentYear);
 
     try {
-      // 1. Esperar a que se carguen los trimestres
-      console.log('1. Cargando trimestres...');
+      // 1. Cargar pedidos
+      console.log('1. Cargando pedidos...');
+      const pedidos = await firstValueFrom(this.pedidosService.findByIdVendedor(this.vendedor.id));
+      console.log('Pedidos cargados:', pedidos);
+
+      // 2. Cargar trimestres
+      console.log('2. Cargando trimestres...');
+      const currentYear = new Date().getFullYear();
       this.trimestres = await firstValueFrom(
         this.planesVentaService.getTrimestresPorAno(currentYear)
       );
       console.log('Trimestres cargados:', JSON.stringify(this.trimestres, null, 2));
 
-      // 2. Esperar a que se cargue el plan
-      console.log('2. Cargando plan de ventas...');
+      // 3. Cargar plan de ventas
+      console.log('3. Cargando plan de ventas...');
       const planes = await firstValueFrom(
         this.planesVentaService.getPlanVentas(this.vendedor.id, currentYear)
       );
       console.log('Planes recibidos:', JSON.stringify(planes, null, 2));
 
-      // 3. Asignar valores
-      console.log('3. Asignando valores...');
+      // 4. Asignar valores
+      console.log('4. Asignando valores...');
       this.metasPorTrimestre = {};
       
       // Tomamos el primer plan si existe
@@ -107,7 +112,7 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
           idVendedor: Number(plan.idVendedor),
           metas: plan.metas
         };
-        
+
         plan.metas.forEach(meta => {
           const valor = Number(meta.metaVenta);
           console.log(`Asignando meta para trimestre ${meta.idQ}:`, {

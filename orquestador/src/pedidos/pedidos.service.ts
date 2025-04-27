@@ -50,4 +50,12 @@ export class PedidosService {
     const apiEndPoint = `${api}/pedidos`;
     return this.httpService.post<IRespuestaPedido>(apiEndPoint, dto).pipe(map(res => res.data));
   }
+
+  findByIdVendedor(idVendedor: string): Observable<IRespuestaPedido[]> {
+    const api = this.configService.get<string>('URL_PEDIDOS');
+    const apiEndPoint = `${api}/pedidos/${idVendedor}`;
+    return this.httpService
+      .get<IRespuestaPedido[]>(apiEndPoint)
+      .pipe(map((res) => res.data));
+  }
 }
