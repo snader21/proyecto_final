@@ -6,6 +6,7 @@ import { EstadoPedidoEntity } from './entities/estado-pedido.entity';
 import { MetodoPagoEntity } from './entities/metodo-pago.entity';
 import { MetodoEnvioEntity } from './entities/metodo-envio.entity';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
+import { PubSubService } from '../common/services/pubsub.service';
 
 @Injectable()
 export class PedidosService implements OnModuleInit {
@@ -17,7 +18,8 @@ export class PedidosService implements OnModuleInit {
     @InjectRepository(MetodoPagoEntity)
     private readonly metodoPagoRepository: Repository<MetodoPagoEntity>,
     @InjectRepository(MetodoEnvioEntity)
-    private readonly metodoEnvioRepository: Repository<MetodoEnvioEntity>
+    private readonly metodoEnvioRepository: Repository<MetodoEnvioEntity>,
+    private readonly pubSubService: PubSubService,
   ) {}
 
   async onModuleInit() {
@@ -122,6 +124,12 @@ export class PedidosService implements OnModuleInit {
       relations: ['estado', 'pago', 'envio'],
     });
     if (!found) throw new Error('Pedido no encontrado después de guardar');
+    // Publicar mensaje al tópico para procesar el archivo
+    await this.pubSubService.publishMessage(
+      {
+        idPedido: createPedidoDto.id_pedido,
+      }
+    );
     return found;
   }
 
