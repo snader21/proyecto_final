@@ -130,4 +130,11 @@ export class PedidosService implements OnModuleInit {
     });
     return found;
   }
+
+  async findByIdVendedor(idVendedor: string): Promise<PedidoEntity[]> {
+    return await this.pedidoRepository.find({
+      where: { id_vendedor: idVendedor },
+      relations: ['estado', 'pago', 'envio'],
+    });
+  }
 }

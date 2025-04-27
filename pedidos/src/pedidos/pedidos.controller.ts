@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { PedidosService } from './pedidos.service';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
 
@@ -14,6 +14,11 @@ export class PedidosController {
   @Post()
   async create(@Body() createPedidoDto: CreatePedidoDto) {
     return await this.pedidosService.create(createPedidoDto);
+  }
+
+  @Get(':idVendedor')
+  async findByIdVendedor(@Param('idVendedor') idVendedor: string) {
+    return await this.pedidosService.findByIdVendedor(idVendedor);
   }
 
 }
