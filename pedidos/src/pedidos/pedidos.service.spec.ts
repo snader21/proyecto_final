@@ -12,6 +12,7 @@ describe('PedidosService', () => {
   let service: PedidosService;
 
   beforeEach(async () => {
+    //mock pubSub service
     const mockPubSubService = {
       publishMessage: jest.fn(),
     } as any;
