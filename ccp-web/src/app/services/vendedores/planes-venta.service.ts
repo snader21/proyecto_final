@@ -10,12 +10,22 @@ export interface Trimestre {
 }
 
 export interface MetaTrimestral {
-  idMeta?: number;
-  idPlan?: number;
+  idMeta?: string;
+  idPlan?: string;
   idQ: string;
   ano: number;
-  idVendedor: number;
   metaVenta: number;
+  fechaCreacion?: string;
+  fechaModificacion?: string;
+}
+
+export interface PlanVentasResponse {
+  idPlan: string;
+  idVendedor: string;
+  ano: number;
+  fechaCreacion: string;
+  fechaModificacion: string;
+  metas: MetaTrimestral[];
 }
 
 export interface PlanVentas {
@@ -40,7 +50,7 @@ export class PlanesVentaService {
     return this.http.put<PlanVentas>(`${this.apiUrl}/plan-ventas`, planVentas);
   }
 
-  getPlanVentas(idVendedor: number, ano: number): Observable<PlanVentas> {
-    return this.http.get<PlanVentas>(`${this.apiUrl}/plan-ventas/${idVendedor}/${ano}`);
+  getPlanVentas(idVendedor: string, ano: number): Observable<PlanVentasResponse[]> {
+    return this.http.get<PlanVentasResponse[]>(`${this.apiUrl}/plan-ventas/${idVendedor}/${ano}`);
   }
 }

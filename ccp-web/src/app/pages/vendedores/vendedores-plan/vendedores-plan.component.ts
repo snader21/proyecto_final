@@ -10,11 +10,15 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { FormsModule } from '@angular/forms';
 import { PlanesVentaService, Trimestre, PlanVentas, MetaTrimestral } from '../../../services/vendedores/planes-venta.service';
 import { ClientesService, Cliente } from '../../../services/clientes/clientes.service';
+import { firstValueFrom } from 'rxjs';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-vendedores-plan',
   templateUrl: './vendedores-plan.component.html',
   standalone: true,
+  providers: [MessageService],
   imports: [
     CommonModule,
     ButtonModule,
@@ -24,7 +28,8 @@ import { ClientesService, Cliente } from '../../../services/clientes/clientes.se
     InputTextModule,
     InputNumberModule,
     AutoCompleteModule,
-    FormsModule
+    FormsModule,
+    ToastModule
   ]
 })
 export class VendedoresPlanComponent implements OnInit, OnChanges {
@@ -43,43 +48,104 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
 
   constructor(
     private planesVentaService: PlanesVentaService,
-    private clientesService: ClientesService
+    private clientesService: ClientesService,
+    private messageService: MessageService
   ) {}
 
   ngOnInit() {
     if (this.visible && this.vendedor) {
       this.cargarClientesAsociados();
-      this.cargarPlanVentas();
     }
-    this.cargarTrimestres();
+    this.cargarDatos();
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['visible'] && changes['visible'].currentValue === true && this.vendedor) {
-      console.log('Modal abierto - cargando datos');
       this.cargarClientesAsociados();
-      this.cargarPlanVentas();
+      this.cargarDatos();
+    }
+  }
+
+  async cargarDatos() {
+    console.log('=== INICIO cargarDatos ===');
+    console.log('Vendedor:', this.vendedor);
+    
+    if (!this.vendedor?.id) {
+      console.log('No hay vendedor o no tiene ID');
+      return;
+    }
+    
+    const currentYear = new Date().getFullYear();
+    console.log('Año actual:', currentYear);
+
+    try {
+      // 1. Esperar a que se carguen los trimestres
+      console.log('1. Cargando trimestres...');
+      this.trimestres = await firstValueFrom(
+        this.planesVentaService.getTrimestresPorAno(currentYear)
+      );
+      console.log('Trimestres cargados:', JSON.stringify(this.trimestres, null, 2));
+
+      // 2. Esperar a que se cargue el plan
+      console.log('2. Cargando plan de ventas...');
+      const planes = await firstValueFrom(
+        this.planesVentaService.getPlanVentas(this.vendedor.id, currentYear)
+      );
+      console.log('Planes recibidos:', JSON.stringify(planes, null, 2));
+
+      // 3. Asignar valores
+      console.log('3. Asignando valores...');
+      this.metasPorTrimestre = {};
+      
+      // Tomamos el primer plan si existe
+      const plan = Array.isArray(planes) && planes.length > 0 ? planes[0] : null;
+      console.log('Plan seleccionado:', JSON.stringify(plan, null, 2));
+
+      if (plan?.metas) {
+        this.planVentas = {
+          ano: plan.ano,
+          idVendedor: Number(plan.idVendedor),
+          metas: plan.metas
+        };
+        
+        plan.metas.forEach(meta => {
+          const valor = Number(meta.metaVenta);
+          console.log(`Asignando meta para trimestre ${meta.idQ}:`, {
+            valorOriginal: meta.metaVenta,
+            valorConvertido: valor
+          });
+          this.metasPorTrimestre[meta.idQ] = valor;
+        });
+      } else {
+        console.log('No se encontraron metas en el plan');
+      }
+
+      console.log('Estado final de metasPorTrimestre:', this.metasPorTrimestre);
+      console.log('=== FIN cargarDatos ===');
+    } catch (error) {
+      console.error('Error en cargarDatos:', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Error al cargar los datos del plan de ventas'
+      });
     }
   }
 
   cargarClientesAsociados = () => {
-    console.log('cargarClientesAsociados - vendedor:', {
-      vendedor: this.vendedor,
-      id: this.vendedor?.id,
-      usuario_id: this.vendedor?.usuario_id,
-      propiedades: this.vendedor ? Object.keys(this.vendedor) : []
-    });
-
     if (this.vendedor && this.vendedor['usuario_id']) {
-      console.log('Intentando cargar clientes con usuario_id:', this.vendedor['usuario_id']);
       this.clientesService.getClientesVendedor(this.vendedor['usuario_id'])
         .subscribe({
           next: (clientes) => {
-            console.log('Clientes recibidos:', clientes);
             this.clientesAsociados = clientes;
           },
           error: (error) => {
             console.error('Error al cargar clientes:', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Error al cargar los clientes asociados'
+            });
           }
         });
     } else {
@@ -87,42 +153,10 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
     }
   }
 
-  cargarPlanVentas() {
-    const currentYear = new Date().getFullYear();
-    if (this.vendedor?.id) {
-      this.planesVentaService.getPlanVentas(this.vendedor.id, currentYear)
-        .subscribe(plan => {
-          this.planVentas = plan;
-          // Inicializar las metas por trimestre
-          this.metasPorTrimestre = {};
-          if (plan?.metas) {
-            plan.metas.forEach(meta => {
-              this.metasPorTrimestre[meta.idQ] = meta.metaVenta;
-            });
-          }
-        });
-    }
-  }
-
-  cargarTrimestres() {
-    const currentYear = new Date().getFullYear();
-    this.planesVentaService.getTrimestresPorAno(currentYear)
-      .subscribe(trimestres => {
-        this.trimestres = trimestres;
-        // Inicializar metas en 0 si no existen
-        trimestres.forEach(trimestre => {
-          if (!this.metasPorTrimestre[trimestre.idQ]) {
-            this.metasPorTrimestre[trimestre.idQ] = 0;
-          }
-        });
-      });
-  }
-
   filtrarClientes(event: any) {
     const query = event.query.toLowerCase();
     this.clientesService.getClientesSinVendedor()
       .subscribe(clientes => {
-        console.table(clientes);
         this.clientesFiltrados = clientes.filter(cliente =>
           cliente.nombre.toLowerCase().includes(query)
         );
@@ -130,27 +164,30 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
   }
 
   agregarCliente() {
-    console.log('Cliente seleccionado: ', this.clienteSeleccionado);
-
     if (!this.clienteSeleccionado || !this.vendedor?.usuario_id) {
-      console.error('Datos inválidos:', {
-        cliente: this.clienteSeleccionado,
-        vendedor: this.vendedor
-      });
       return;
     }
 
     if (!this.clientesAsociados.some(c => c.id_cliente === this.clienteSeleccionado?.id_cliente)) {
-      console.log('Intentando asociar cliente:', {
-        clienteId: this.clienteSeleccionado.id_cliente,
-        vendedorId: this.vendedor.usuario_id,
-        vendedor: this.vendedor
-      });
-
       this.clientesService.asignarClienteVendedor(this.clienteSeleccionado.id_cliente, this.vendedor.usuario_id)
-        .subscribe(() => {
-          this.cargarClientesAsociados();
-          this.clienteSeleccionado = null;
+        .subscribe({
+          next: () => {
+            this.cargarClientesAsociados();
+            this.clienteSeleccionado = null;
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Éxito',
+              detail: 'Cliente asociado correctamente'
+            });
+          },
+          error: (error) => {
+            console.error('Error al asociar cliente:', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Error al asociar el cliente'
+            });
+          }
         });
     }
   }
@@ -165,13 +202,27 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
     }
 
     this.clientesService.eliminarClienteVendedor(cliente.id_cliente)
-      .subscribe(() => {
-        this.cargarClientesAsociados();
+      .subscribe({
+        next: () => {
+          this.cargarClientesAsociados();
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Cliente desasociado correctamente'
+          });
+        },
+        error: (error) => {
+          console.error('Error al desasociar cliente:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al desasociar el cliente'
+          });
+        }
       });
   }
 
   onSave() {
-    console.log('Guardando cambios...');
     if (!this.vendedor?.id) return;
 
     const currentYear = new Date().getFullYear();
@@ -190,11 +241,21 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
       .subscribe({
         next: (response) => {
           console.log('Plan de ventas guardado:', response);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Plan de ventas guardado correctamente'
+          });
           this.success.emit(true);
           this.closeDialog();
         },
         error: (error) => {
           console.error('Error al guardar plan de ventas:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al guardar el plan de ventas'
+          });
         }
       });
   }

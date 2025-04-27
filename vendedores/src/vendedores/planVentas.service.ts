@@ -23,61 +23,79 @@ export class PlanVentasService {
       order: { idQ: 'ASC' },
     });
   }
-  
-  async createOrUpdatePlanVentas(planVentasDto: PlanVentasDto): Promise<PlanVentasEntity> {
-    // 1. Buscar o crear PlanVentasEntity
-    let planVentas = await this.planVentasRepository.findOne({
-      where: { 
-        ano: planVentasDto.ano, 
-        idVendedor: planVentasDto.idVendedor 
+
+  async getPlanVentas(idVendedor: string, ano: number) {
+    return this.planVentasRepository.find({
+      where: { ano, idVendedor },
+      relations: ['metas'],
+    });
+  }
+
+  async createOrUpdatePlanVentas(
+    planVentasDto: PlanVentasDto,
+  ): Promise<PlanVentasEntity> {
+    // Primero verificamos que existan los trimestres
+    for (const meta of planVentasDto.metas) {
+      const trimestre = await this.trimestreRepository.findOne({
+        where: { idQ: meta.idQ, ano: meta.ano },
+      });
+      if (!trimestre) {
+        throw new Error(
+          `El trimestre ${meta.idQ} del año ${meta.ano} no existe`,
+        );
       }
+    }
+
+    // Buscamos o creamos el plan de ventas
+    let planVentas = await this.planVentasRepository.findOne({
+      where: {
+        ano: planVentasDto.ano,
+        idVendedor: planVentasDto.idVendedor,
+      },
     });
 
-    // Si no existe, crear uno nuevo
     if (!planVentas) {
       planVentas = this.planVentasRepository.create({
         ano: planVentasDto.ano,
-        idVendedor: planVentasDto.idVendedor
+        idVendedor: planVentasDto.idVendedor,
       });
       planVentas = await this.planVentasRepository.save(planVentas);
     }
 
-    // En este punto planVentas siempre existe y tiene un idPlan
-    const idPlan = planVentas.idPlan;
-
-    // 2. Procesar cada meta trimestral
+    // Actualizamos las metas trimestrales
     for (const metaDto of planVentasDto.metas) {
-      // Buscar si existe la meta
       let meta = await this.metaTrimestralRepository.findOne({
         where: {
-          idPlan,
+          idPlan: planVentas.idPlan,
           idQ: metaDto.idQ,
-          ano: metaDto.ano
-        }
+          ano: metaDto.ano,
+        },
       });
 
-      // Actualizar o crear
       if (meta) {
         meta.metaVenta = metaDto.metaVenta;
         await this.metaTrimestralRepository.save(meta);
       } else {
-        await this.metaTrimestralRepository.save({
-          idPlan,
+        const newMeta = this.metaTrimestralRepository.create({
+          idPlan: planVentas.idPlan,
           idQ: metaDto.idQ,
           ano: metaDto.ano,
-          metaVenta: metaDto.metaVenta
+          metaVenta: metaDto.metaVenta,
         });
+        await this.metaTrimestralRepository.save(newMeta);
       }
     }
 
-    // 3. Retornar plan actualizado con metas
+    // Retornamos el plan actualizado con sus metas
     const planActualizado = await this.planVentasRepository.findOne({
-      where: { idPlan },
+      where: { idPlan: planVentas.idPlan },
       relations: ['metas'],
     });
 
     if (!planActualizado) {
-      throw new Error(`No se pudo encontrar el plan con id ${idPlan}`);
+      throw new Error(
+        `No se pudo encontrar el plan con id ${planVentas.idPlan}`,
+      );
     }
 
     return planActualizado;

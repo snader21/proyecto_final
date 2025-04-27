@@ -1,12 +1,14 @@
-import { IsArray, IsNumber, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsNumber,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 
 export class MetaTrimestralDto {
-  @IsNumber()
-  idMeta?: number;
-
-  @IsNumber()
-  idPlan?: number;
+  idMeta?: string;
+  idPlan?: string;
 
   @IsString()
   idQ: string;
@@ -14,8 +16,8 @@ export class MetaTrimestralDto {
   @IsNumber()
   ano: number;
 
-  @IsNumber()
-  idVendedor: number;
+  @IsString()
+  idVendedor: string;
 
   @IsNumber()
   metaVenta: number;
@@ -25,8 +27,8 @@ export class PlanVentasDto {
   @IsNumber()
   ano: number;
 
-  @IsNumber()
-  idVendedor: number;
+  @IsString()
+  idVendedor: string;
 
   @IsArray()
   @ValidateNested({ each: true })

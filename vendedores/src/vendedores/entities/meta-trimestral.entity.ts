@@ -15,20 +15,28 @@ export class MetaTrimestralEntity {
   @PrimaryGeneratedColumn('uuid')
   idMeta: string;
 
-  @ManyToOne(() => PlanVentasEntity, (plan) => plan.idPlan, { nullable: false })
+  @Column({ name: 'id_plan' })
+  idPlan: string;
+
+  @Column({ length: 2 })
+  idQ: string;
+
+  @Column()
+  ano: number;
+
+  @Column('float', { name: 'meta_venta' })
+  metaVenta: number;
+
+  @ManyToOne(() => PlanVentasEntity, (plan) => plan.metas)
+  @JoinColumn({ name: 'id_plan' })
   plan: PlanVentasEntity;
 
-  @ManyToOne(() => TrimestreEntity, (trimestre) => trimestre.idQ, {
-    nullable: false,
-  })
+  @ManyToOne(() => TrimestreEntity)
   @JoinColumn([
     { name: 'idQ', referencedColumnName: 'idQ' },
     { name: 'ano', referencedColumnName: 'ano' },
   ])
   trimestre: TrimestreEntity;
-
-  @Column('float', { name: 'meta_venta' })
-  metaVenta: number;
 
   @CreateDateColumn({ name: 'fecha_creacion' })
   fechaCreacion: Date;

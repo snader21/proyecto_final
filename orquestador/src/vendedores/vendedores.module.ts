@@ -3,13 +3,13 @@ import { VendedoresService } from './vendedores.service';
 import { VendedoresController } from './vendedores.controller';
 import { HttpModule } from '@nestjs/axios';
 import { UsuariosModule } from '../usuarios/usuarios.module';
-import { TrimestresOrquestadorController } from './trimestres-orquestador.controller';
-import { TrimestresOrquestadorService } from './trimestres-orquestador.service';
+import { PlanVentasOrquestadorController } from './plan-ventas-orquestador.controller';
+import { PlanVentasOrquestadorService } from './plan-ventas-orquestador.service';
 
 @Module({
   imports: [HttpModule, UsuariosModule],
-  controllers: [VendedoresController, TrimestresOrquestadorController],
-  providers: [VendedoresService, TrimestresOrquestadorService],
+  controllers: [VendedoresController, PlanVentasOrquestadorController],
+  providers: [VendedoresService, PlanVentasOrquestadorService],
   exports: [VendedoresService],
 })
 export class VendedoresModule {}
