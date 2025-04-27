@@ -58,15 +58,11 @@ export class PedidosRegistroPage implements OnInit {
   ngOnInit() {
     this.idPedido = uuidv4();
     this.idUsuario = this.recuperarUsuario();
-    this.cargarDatosIniciales();
+  }
 
-    this.metodosPagoService.getMetodosPago().subscribe((metodos: MetodoPago[]) => {
-      console.log(metodos);
-      this.mediosPago = metodos;
-    });
-    this.pedidosService.getMetodosEnvio().subscribe((metodos: any[]) => {
-      this.metodosEnvio = metodos;
-    });
+  ionViewWillEnter() {
+    this.cargarDatosIniciales();
+    this.cargarMetodosPagoYEnvio();
   }
 
   private cargarDatosIniciales() {
@@ -222,5 +218,14 @@ export class PedidosRegistroPage implements OnInit {
         console.error('Error al guardar pedido:', error);
       }
     }
+  }
+
+  private cargarMetodosPagoYEnvio() {
+    this.metodosPagoService.getMetodosPago().subscribe((metodos: MetodoPago[]) => {
+      this.mediosPago = metodos;
+    });
+    this.pedidosService.getMetodosEnvio().subscribe((metodos: any[]) => {
+      this.metodosEnvio = metodos;
+    });
   }
 }
