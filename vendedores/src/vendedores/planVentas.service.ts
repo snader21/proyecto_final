@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { TrimestreEntity } from './entities/trimestre.entity';
 
 @Injectable()
-export class TrimestreService {
+export class PlanVentasService {
   constructor(
     @InjectRepository(TrimestreEntity)
     private readonly trimestreRepository: Repository<TrimestreEntity>,
@@ -13,4 +13,11 @@ export class TrimestreService {
   async getTrimestresPorAno(ano: number): Promise<TrimestreEntity[]> {
     return this.trimestreRepository.find({ where: { ano }, order: { idQ: 'ASC' } });
   }
+  
+  async updatePlanVentas() {}
+
+
+
+
+
 }

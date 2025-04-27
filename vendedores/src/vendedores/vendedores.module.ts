@@ -6,13 +6,13 @@ import { VendedorEntity } from './entities/vendedor.entity';
 import { TrimestreEntity } from './entities/trimestre.entity';
 import { ZonasModule } from '../zonas/zonas.module';
 import { TrimestreSeedService } from './trimestre-seed.service';
-import { TrimestreService } from './trimestre.service';
-import { TrimestreController } from './trimestre.controller';
+import { PlanVentasController } from './planVentas.controller';
+import { PlanVentasService } from './planVentas.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([VendedorEntity, TrimestreEntity]), ZonasModule],
-  controllers: [VendedoresController, TrimestreController],
-  providers: [VendedoresService, TrimestreSeedService, TrimestreService],
-  exports: [VendedoresService, TrimestreService],
+  controllers: [VendedoresController, PlanVentasController],
+  providers: [VendedoresService, TrimestreSeedService, PlanVentasService],
+  exports: [VendedoresService, PlanVentasService],
 })
 export class VendedoresModule {}

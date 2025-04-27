@@ -48,10 +48,10 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
     if (this.visible && this.vendedor) {
       this.cargarClientesAsociados();
     }
+    this.cargarTrimestres();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    // Si el modal se hace visible y tenemos un vendedor, cargamos los clientes
     if (changes['visible'] && changes['visible'].currentValue === true && this.vendedor) {
       console.log('Modal abierto - cargando clientes');
       this.cargarClientesAsociados();
@@ -154,6 +154,7 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
   }
 
   onSave() {
+    console.log('Guardando cambios...');
     // Add save logic here
     this.success.emit(true);
     this.closeDialog();
