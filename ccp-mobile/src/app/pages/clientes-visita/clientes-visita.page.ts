@@ -3,40 +3,24 @@ import { VisitaService } from '../../services/visita.service';
 import { AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-
-interface ClienteData {
-  id_cliente: string;
-  nombre: string;
-  [key: string]: any;
-}
-
-interface CreateVisitaDto {
-  id_cliente: string;
-  fecha_visita: Date;
-  observaciones?: string;
-  realizo_pedido?: boolean;
-  key_object_storage?: string;
-  url?: string;
-}
+import { Cliente } from 'src/app/interfaces/cliente.interface';
+import { CreateVisitaDto } from 'src/app/interfaces/visita.interface';
 
 @Component({
   selector: 'app-clientes-visita',
   templateUrl: './clientes-visita.page.html',
   styleUrls: ['./clientes-visita.page.scss'],
   standalone: false,
-
 })
 export class ClientesVisitaPage implements OnInit {
   visitaForm: FormGroup;
-  cliente: ClienteData | null = null;
+  cliente: Cliente | null = null;
 
   constructor(
     private formBuilder: FormBuilder,
-    private route: ActivatedRoute,
+    private router: Router,
     private visitaService: VisitaService,
-    private alertController: AlertController,
-    private router: Router
+    private alertController: AlertController
   ) {
     this.visitaForm = this.formBuilder.group({
       fecha: ['', Validators.required],
@@ -47,13 +31,10 @@ export class ClientesVisitaPage implements OnInit {
   }
 
   ngOnInit() {
-    // Get client from route parameters
-    this.route.queryParams.subscribe(params => {
-      if (params['cliente']) {
-        const clienteData = JSON.parse(params['cliente']);
-        this.cliente = clienteData;
-      }
-    });
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state) {
+      this.cliente = navigation.extras.state['cliente'];
+    }
 
     // Set default date and time
     const now = new Date();
@@ -78,13 +59,13 @@ export class ClientesVisitaPage implements OnInit {
       const formValue = this.visitaForm.value;
 
       // Crear objeto de visita
-      const visitaData = {
+      const visitaData: CreateVisitaDto = {
         id_cliente: this.cliente.id_cliente,
         fecha_visita: new Date(`${formValue.fecha}T${formValue.hora}`),
         observaciones: formValue.observaciones || undefined,
-        realizo_pedido: Boolean(formValue.realizo_pedido),
-        key_object_storage: undefined,
-        url: undefined
+        realizo_pedido: formValue.realizo_pedido,
+        key_object_storage: null,
+        url: null
       };
 
       try {
