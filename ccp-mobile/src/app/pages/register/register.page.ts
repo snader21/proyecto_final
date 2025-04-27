@@ -80,9 +80,17 @@ export class RegisterPage implements OnInit {
       await firstValueFrom(this.clienteService.registrarCliente(userData));
       await this.showToast('Registro exitoso');
       this.router.navigate(['/login']);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error en el registro:', error);
-      this.showToast('Error al registrar. Por favor, intenta nuevamente');
+      let mensajeError = 'Error al registrar. Por favor, intenta nuevamente';
+      
+      if (error.error && error.error.message) {
+        mensajeError = error.error.message;
+      } else if (error.message) {
+        mensajeError = error.message;
+      }
+
+      this.showToast(mensajeError);
     } finally {
       this.isLoading = false;
       await loading.dismiss();

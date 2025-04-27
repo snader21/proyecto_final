@@ -1,10 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-
-interface Cliente {
-  id: string;
-  nombre: string;
-}
+import { Cliente } from 'src/app/interfaces/cliente.interface';
 
 @Component({
   selector: 'app-clientes-detalle',
@@ -13,22 +9,22 @@ interface Cliente {
   standalone: false
 })
 export class ClientesDetallePage implements OnInit {
-  mockCliente: Cliente = {
-    id: "f71a420c-b78d-4af6-a14b-e0987d4757e1",
-    nombre: 'Juan Pérez'
-  };
+  cliente: Cliente | null = null;
 
   constructor(private router: Router) { }
 
   ngOnInit() {
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state) {
+      this.cliente = navigation.extras.state['cliente'];
+    }
   }
 
   navegarAVisita() {
-    this.router.navigate(['/clientes-visita'], {
-      queryParams: {
-        cliente: JSON.stringify(this.mockCliente)
-      }
-    });
+    if (this.cliente) {
+      this.router.navigate(['/clientes-visita'], {
+        state: { cliente: this.cliente }
+      });
+    }
   }
-
 }

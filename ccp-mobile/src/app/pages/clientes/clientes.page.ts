@@ -32,8 +32,10 @@ export class ClientesPage implements OnInit {
     }
   }
 
-  verDetalleCliente(clienteId: string) {
-    this.router.navigate(['/clientes-detalle', clienteId]);
+  verDetalleCliente(cliente: Cliente) {
+    this.router.navigate(['/clientes-detalle'], {
+      state: { cliente }
+    });
   }
 
   async obtenerClientes(vendedorId: string | null) {
