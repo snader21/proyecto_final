@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@google-cloud/pubsub": "^4.11.0",
     "@nestjs/axios": "^4.0.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.0",
@@ -28,6 +29,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/schedule": "^5.0.1",
     "@nestjs/typeorm": "^11.0.0",
+    "@types/google-cloud__pubsub": "^0.18.1",
     "axios": "^1.7.9",
     "openai": "^4.85.4",
     "pg": "^8.13.3",
