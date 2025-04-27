@@ -7,6 +7,10 @@ import { VendedoresModule } from './vendedores/vendedores.module';
 import { ZonasModule } from './zonas/zonas.module';
 import { ZonaEntity } from './zonas/entities/zona.entity';
 import { VendedorEntity } from './vendedores/entities/vendedor.entity';
+import { PlanVentasEntity } from './vendedores/entities/plan-ventas.entity';
+import { MetaTrimestralEntity } from './vendedores/entities/meta-trimestral.entity';
+import { TrimestreEntity } from './vendedores/entities/trimestre.entity';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -20,8 +24,8 @@ import { VendedorEntity } from './vendedores/entities/vendedor.entity';
       username: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_NAME || 'vendedores',
-      entities: [VendedorEntity, ZonaEntity],
-      dropSchema: true,
+      entities: [VendedorEntity, ZonaEntity, PlanVentasEntity, MetaTrimestralEntity, TrimestreEntity],
+      dropSchema: false,
       synchronize: true,
     }),
     VendedoresModule,

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
 import { TableModule } from 'primeng/table';
@@ -16,6 +16,9 @@ import { ImageModule } from 'primeng/image';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { Subscription } from 'rxjs';
+import { MessageService } from 'primeng/api';
+
 @Component({
   selector: 'app-products',
   standalone: true,
@@ -36,15 +39,17 @@ import { InputIconModule } from 'primeng/inputicon';
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.scss']
 })
-export class ProductsComponent implements OnInit {
+export class ProductsComponent implements OnInit, OnDestroy {
   products: Product[] = [];
   showInventoryDialog = false;
   selectedProduct?: Product;
+  private subscriptions = new Subscription();
 
   constructor(
     private productsService: ProductsService,
     private modalService: ModalService,
-    private eventsService: EventsService
+    private eventsService: EventsService,
+    private messageService: MessageService
   ) {
     this.eventsService.refreshProducts$.subscribe(() => {
       this.loadProducts();
@@ -55,10 +60,24 @@ export class ProductsComponent implements OnInit {
     this.loadProducts();
   }
 
-  private loadProducts() {
-    this.productsService.getProducts().subscribe(products => {
-      this.products = products;
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+  }
+
+  public loadProducts() {
+    const sub = this.productsService.getProducts().subscribe({
+      next: (products) => {
+        this.products = products;
+      },
+      error: (error) => {
+        this.messageService.add({
+          severity: "error",
+          summary: "Error",
+          detail: "Error al cargar los productos",
+        });
+      },
     });
+    this.subscriptions.add(sub);
   }
 
   openModal() {

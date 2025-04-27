@@ -7,6 +7,7 @@ import { BodegasModule } from '../bodegas/bodegas.module';
 import { UbicacionesModule } from '../ubicaciones/ubicaciones.module';
 import { ProductosModule } from '../productos/productos.module';
 import { InventariosModule } from '../inventarios/inventarios.module';
+import { CommonModule } from '../common/common.module';
 @Module({
   controllers: [MovimientosInventarioController],
   providers: [MovimientosInventarioService],
@@ -16,6 +17,7 @@ import { InventariosModule } from '../inventarios/inventarios.module';
     ProductosModule,
     UbicacionesModule,
     BodegasModule,
+    CommonModule,
   ],
 })
 export class MovimientosInventarioModule {}

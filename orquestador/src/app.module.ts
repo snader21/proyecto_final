@@ -11,6 +11,7 @@ import { AuthModule } from './auth/auth.module';
 import { VendedoresModule } from './vendedores/vendedores.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { FabricantesModule } from './fabricantes/fabricantes.module';
+import { ClientesModule } from './clientes/clientes.module';
 @Module({
   imports: [
     RutasModule,
@@ -26,6 +27,7 @@ import { FabricantesModule } from './fabricantes/fabricantes.module';
     VendedoresModule,
     UsuariosModule,
     FabricantesModule,
+    ClientesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

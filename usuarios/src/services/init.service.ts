@@ -81,6 +81,13 @@ export class InitService implements OnModuleInit {
           'Permite acceder a todas las funcionalidades del módulo de pedidos',
       },
       {
+        nombre: 'Acceso a Módulo de Clientes',
+        tipoRecurso: TipoRecurso.BACKEND,
+        modulo: 'clientes',
+        descripcion:
+          'Permite acceder a todas las funcionalidades del módulo de clientes',
+      },
+      {
         nombre: 'Acceso a Módulo de Vendedores',
         tipoRecurso: TipoRecurso.BACKEND,
         modulo: 'vendedores',
@@ -158,6 +165,13 @@ export class InitService implements OnModuleInit {
         ruta: '/rutas',
         descripcion: 'Permite acceder a la página de gestión de rutas',
       },
+      {
+        nombre: 'Acceso a Página de clientes',
+        tipoRecurso: TipoRecurso.FRONTEND,
+        modulo: 'clientes',
+        ruta: '/clientes',
+        descripcion: 'Permite acceder a la página de gestión de clientes',
+      },
     ];
 
     const permisosCreados = await Promise.all(
@@ -191,7 +205,14 @@ export class InitService implements OnModuleInit {
           break;
         case 'Vendedor':
           rolActualizado.permisos = permisosCreados.filter(
-            (p) => p.modulo === 'pedidos' || p.modulo === 'productos',
+            (p) =>
+              ((p.modulo === 'pedidos' ||
+                p.modulo === 'productos' ||
+                p.modulo === 'rutas' ||
+                p.modulo === 'clientes') &&
+                (p.tipoRecurso === TipoRecurso.BACKEND ||
+                  p.tipoRecurso === TipoRecurso.FRONTEND)) ||
+              (p.modulo == 'usuarios' && p.tipoRecurso == TipoRecurso.BACKEND),
           );
           break;
         case 'Director de ventas':
@@ -222,7 +243,12 @@ export class InitService implements OnModuleInit {
           );
           break;
         case 'Cliente':
-          rolActualizado.permisos = []; // El cliente no tiene permisos específicos
+          rolActualizado.permisos = permisosCreados.filter(
+            (p) =>
+              p.modulo === 'pedidos' &&
+              (p.tipoRecurso === TipoRecurso.BACKEND ||
+                p.tipoRecurso === TipoRecurso.FRONTEND),
+          ); // El cliente no tiene permisos específicos
           break;
       }
       await this.rolRepository.save(rolActualizado);

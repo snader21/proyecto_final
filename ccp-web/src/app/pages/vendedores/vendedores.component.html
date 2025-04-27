@@ -87,4 +87,10 @@
     [(visible)]="dialogVisible"
     (success)="onSuccess($event)"
   ></app-vendedores-form>
+
+  <app-vendedores-plan
+    [vendedor]="selectedVendedor"
+    [(visible)]="planVentasVisible"
+    (success)="onPlanSuccess($event)"
+  ></app-vendedores-plan>
 </p-card>

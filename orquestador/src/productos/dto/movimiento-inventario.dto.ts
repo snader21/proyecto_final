@@ -1,10 +1,18 @@
-export class MovimientoInventarioDto {
+export class EntradaInventarioDto {
   id_movimiento: string;
-  id_pedido?: string;
   cantidad: number;
-  tipo_movimiento: string;
   fecha_registro: string;
   id_usuario: string;
+  producto: ProductoDto;
+  ubicacion: UbicacionDto;
+}
+
+export class PreReservaInventarioDto {
+  id_movimiento: string;
+  cantidad: number;
+  fecha_registro: string;
+  id_usuario: string;
+  id_pedido: string;
   producto: ProductoDto;
   ubicacion: UbicacionDto;
 }

@@ -5,18 +5,32 @@ import {
   Get,
   UploadedFiles,
   UseInterceptors,
+  Query,
+  Param,
 } from '@nestjs/common';
 import { ProductosService } from './productos.service';
-import { CreateMovimientoInventarioDto } from './dto/create-movimiento-inventario.dto';
+import { CreateEntradaInventarioDto } from './dto/create-entrada-inventario.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { QueryInventarioDto } from './dto/query-inventario.dto';
+import { CreatePreReservaInventarioDto } from './dto/create-pre-reserva-inventario.dto';
 
 @Controller('productos')
 export class ProductosController {
   constructor(private readonly productosService: ProductosService) {}
 
-  @Post('movimientos-inventario')
-  async crearMovimientoInventario(@Body() dto: CreateMovimientoInventarioDto) {
-    return this.productosService.crearMovimientoInventario(dto);
+  @Get('inventarios')
+  async getInventario(@Query() query: QueryInventarioDto) {
+    return this.productosService.getInventario(query);
+  }
+
+  @Post('movimientos-inventario/entradas')
+  async crearEntradaInventario(@Body() dto: CreateEntradaInventarioDto) {
+    return this.productosService.crearEntradaInventario(dto);
+  }
+
+  @Post('movimientos-inventario/pre-reservas')
+  async crearPreReservaInventario(@Body() dto: CreatePreReservaInventarioDto) {
+    return this.productosService.crearPreReservaInventario(dto);
   }
 
   @Get('categorias')
@@ -73,5 +87,22 @@ export class ProductosController {
   @Get('archivos-csv')
   async getCSVFiles() {
     return this.productosService.getCSVFiles();
+  }
+
+  @Post('upload-images')
+  @UseInterceptors(FilesInterceptor('files', 25))
+  async uploadImages(@UploadedFiles() files: any[]): Promise<any> {
+    // Asegurarse de que files es un array
+    if (!files) {
+      files = [];
+    } else if (!Array.isArray(files)) {
+      files = [files];
+    }
+    return this.productosService.uploadImages(files);
+  }
+
+  @Get('archivos-imagenes')
+  async getImageFiles() {
+    return this.productosService.getImageFiles();
   }
 }

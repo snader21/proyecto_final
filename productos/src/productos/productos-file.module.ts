@@ -17,6 +17,9 @@ import { PubSubService } from '../common/services/pubsub.service';
 import { FileGCP } from './utils/file-gcp.service';
 import { HttpModule } from '@nestjs/axios';
 
+const SUBSCRIPTION_NAME =
+  'projects/intense-guru-453022-j0/subscriptions/proyecto-final-topic-sub';
+
 interface FileProcessingMessage {
   archivoProductoId: string;
 }
@@ -86,6 +89,7 @@ export class ProductosFileModule implements OnModuleInit {
             this.logger.error('Error procesando archivo:', error);
           }
         },
+        SUBSCRIPTION_NAME,
       );
 
       this.logger.log('Servicio de procesamiento de archivos iniciado');
