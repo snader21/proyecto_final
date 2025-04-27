@@ -29,7 +29,7 @@ const routes: Routes = [
     loadChildren: () => import('./pages/clientes/clientes.module').then( m => m.ClientesPageModule),
   },
   {
-    path: 'clientes-detalle/:id',
+    path: 'clientes-detalle',
     loadChildren: () => import('./pages/clientes-detalle/clientes-detalle.module').then( m => m.ClientesDetallePageModule)
   },
   {

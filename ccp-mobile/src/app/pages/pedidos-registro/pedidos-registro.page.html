@@ -9,9 +9,9 @@
 
 <ion-content [fullscreen]="true">
   <form [formGroup]="pedidoForm" (ngSubmit)="guardarPedido()">
-    <ion-item>
+    <ion-item *ngIf="!esCliente">
       <ion-label position="stacked">Cliente</ion-label>
-      <ion-select formControlName="id_cliente" placeholder="Nombre del cliente" fill="solid">
+      <ion-select formControlName="id_cliente" placeholder="Nombre del cliente">
         <ion-select-option *ngFor="let cliente of clientes" [value]="cliente.id_cliente">
           {{ cliente.nombre }}
         </ion-select-option>
@@ -150,8 +150,7 @@
             [min]="fechaMinima"
             locale="es-ES"
             hourCycle="h23"
-            firstDayOfWeek="1"
-            (ionChange)="mostrarCalendario = false">
+            firstDayOfWeek="1">
           </ion-datetime>
         </ion-content>
       </ng-template>

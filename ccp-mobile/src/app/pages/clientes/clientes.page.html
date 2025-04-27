@@ -9,7 +9,7 @@
 
 <ion-content [fullscreen]="true">
   <ion-list>
-    <ion-item *ngFor="let cliente of clientes" (click)="verDetalleCliente(cliente.id_cliente)" button>
+    <ion-item *ngFor="let cliente of clientes" (click)="verDetalleCliente(cliente)" button>
       <ion-avatar slot="start">
         <img src="https://ionicframework.com/docs/img/demos/avatar.svg" [alt]="cliente.nombre">
       </ion-avatar>

@@ -10,6 +10,7 @@ import { MetodosPagoService, MetodoPago } from '../../services/metodos-pago.serv
 import { v4 as uuidv4 } from 'uuid';
 import { PedidosService } from '../../services/pedidos.service';
 import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-pedidos-registro',
@@ -34,6 +35,8 @@ export class PedidosRegistroPage implements OnInit {
   mostrarCalendario = false;
   terminoBusqueda = '';
   mostrarMensajeNoResultados = false;
+  esCliente = false;
+  clienteId: string | null = null;
 
   constructor(
     private productosService: ProductosService,
@@ -55,18 +58,40 @@ export class PedidosRegistroPage implements OnInit {
   ngOnInit() {
     this.idPedido = uuidv4();
     this.idUsuario = this.recuperarUsuario();
+    this.cargarDatosIniciales();
 
     this.metodosPagoService.getMetodosPago().subscribe((metodos: MetodoPago[]) => {
       console.log(metodos);
       this.mediosPago = metodos;
     });
-    this.clienteService.obtenerClientes(null).subscribe((clientes: Cliente[]) => {
-      console.log(clientes);
-      this.clientes = clientes;
-    });
     this.pedidosService.getMetodosEnvio().subscribe((metodos: any[]) => {
       this.metodosEnvio = metodos;
     });
+  }
+
+  private cargarDatosIniciales() {
+    const usuarioStr = localStorage.getItem('usuario');
+    if (usuarioStr) {
+      const usuario = JSON.parse(usuarioStr);
+      const esVendedor = usuario.roles.some((rol: any) => rol.nombre.toLowerCase() === 'vendedor');
+      const esCliente = usuario.roles.some((rol: any) => rol.nombre.toLowerCase() === 'cliente');
+      
+      this.esCliente = esCliente;
+      if (esCliente) {
+        this.clienteId = usuario.id;
+        this.pedidoForm.get('id_cliente')?.setValue(usuario.id);
+      }
+
+      this.obtenerClientes(esVendedor ? usuario.id : null);
+    }
+  }
+
+  async obtenerClientes(vendedorId: string | null) {
+    try {
+      this.clientes = await firstValueFrom(this.clienteService.obtenerClientes(vendedorId));
+    } catch (error) {
+      console.error('Error al obtener clientes:', error);
+    }
   }
 
   recuperarUsuario = (): string =>{
