@@ -17,6 +17,9 @@ import { MovimientoInventarioEntity } from '../movimientos-inventario/entities/m
 import { PubSubService } from '../common/services/pubsub.service';
 import { ResultadoCargaImagenes } from './interfaces/resultado-carga-imagenes.interface';
 
+const PRODUCTS_TOPIC_NAME =
+  'projects/intense-guru-453022-j0/topics/proyecto-final-topic';
+
 @Injectable()
 export class ProductosService implements OnModuleInit {
   constructor(
@@ -371,9 +374,12 @@ export class ProductosService implements OnModuleInit {
     });
 
     // Publicar mensaje al tópico para procesar el archivo
-    await this.pubSubService.publishMessage({
-      archivoProductoId: archivoProducto.id_archivo,
-    });
+    await this.pubSubService.publishMessage(
+      {
+        archivoProductoId: archivoProducto.id_archivo,
+      },
+      PRODUCTS_TOPIC_NAME,
+    );
 
     return { url };
   }
@@ -439,7 +445,9 @@ export class ProductosService implements OnModuleInit {
     });
   }
 
-  async guardarImagenesProductos(files: UploadedFile[]): Promise<ResultadoCargaImagenes> {
+  async guardarImagenesProductos(
+    files: UploadedFile[],
+  ): Promise<ResultadoCargaImagenes> {
     const resultado: ResultadoCargaImagenes = {
       total_imagenes: files.length,
       imagenes_cargadas: 0,

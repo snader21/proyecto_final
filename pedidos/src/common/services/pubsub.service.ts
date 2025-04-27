@@ -2,8 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PubSub, Subscription } from '@google-cloud/pubsub';
 import { GCPConfigService } from './gcp-config.service';
 
-const RESERVAS_TOPIC_NAME =
-  'projects/intense-guru-453022-j0/topics/proyecto_final_reservas';
+const TOPIC_NAME =
+  'projects/intense-guru-453022-j0/topics/proyecto-final-topic';
 
 @Injectable()
 export class PubSubService {
@@ -36,14 +36,14 @@ export class PubSubService {
     }
   }
 
-  async publishMessage<T>(data: T, topicName: string): Promise<string | null> {
+  async publishMessage<T>(data: T): Promise<string | null> {
     if (!this.enabled || !this.pubSubClient) {
       this.logger.error('Intento de publicar mensaje con PubSub deshabilitado');
       return null;
     }
 
     try {
-      const topic = this.pubSubClient.topic(topicName);
+      const topic = this.pubSubClient.topic(TOPIC_NAME);
       const messageBuffer = Buffer.from(JSON.stringify(data));
       const messageId = await topic.publish(messageBuffer);
       this.logger.log(`Mensaje publicado correctamente con ID: ${messageId}`);

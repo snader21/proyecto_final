@@ -55,16 +55,26 @@ export class VendedoresComponent implements OnInit {
     try {
       const vendedores = await this.vendedoresService.getVendedores();
       const usuarios = await firstValueFrom(this.usuariosService.obtenerUsuarios());
-      
+
+      console.log('Datos crudos:', {
+        vendedores,
+        usuarios
+      });
+
       this.vendedores = vendedores.map(vendedor => {
         const usuario = usuarios.find(u => u.id === vendedor.usuario_id);
+        console.log('Mapeando vendedor:', {
+          vendedor,
+          usuario,
+          usuario_id: vendedor.usuario_id
+        });
+
         return {
           ...vendedor,
           estado: usuario?.estado === true ? "Activo" : "Inactivo"
         };
       });
     } catch (error) {
-      console.error('Error al cargar vendedores:', error);
     } finally {
       this.loading = false;
     }
