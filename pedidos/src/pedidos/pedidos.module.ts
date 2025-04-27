@@ -10,6 +10,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EstadoPedidoEntity } from './entities/estado-pedido.entity';
 import { MetodoEnvioEntity } from './entities/metodo-envio.entity';
 import { MetodoPagoEntity } from './entities/metodo-pago.entity';
+import { CommonModule } from '../common/common.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { MetodoPagoEntity } from './entities/metodo-pago.entity';
       MetodoPagoEntity,
     ]),
     HttpModule,
+    CommonModule
   ],
   controllers: [PedidosController, MetodosPagoController, MetodosEnvioController],
   providers: [PedidosService, MetodosEnvioService],
