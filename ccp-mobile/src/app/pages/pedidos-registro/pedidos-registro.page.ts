@@ -1,17 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ProductosService } from '../../services/productos.service';
+import { Producto } from '../../interfaces/producto.interface';
+import { ProductoPedido } from '../../interfaces/producto-pedido.interface';
+import { ClienteService } from '../../services/cliente.service';
+import { Cliente } from '../../interfaces/cliente.interface';
 import { AlertController } from '@ionic/angular';
-
-interface Cliente {
-  id: number;
-  nombre: string;
-}
-
-interface Producto {
-  id: number;
-  nombre: string;
-  precio: number;
-}
+import { MetodosPagoService, MetodoPago } from '../../services/metodos-pago.service';
+import { v4 as uuidv4 } from 'uuid';
+import { PedidosService } from '../../services/pedidos.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-pedidos-registro',
@@ -21,81 +19,183 @@ interface Producto {
 })
 export class PedidosRegistroPage implements OnInit {
   pedidoForm: FormGroup;
-  clientes: Cliente[] = [
-    { id: 1, nombre: 'Juan Pérez' },
-    { id: 2, nombre: 'María García' },
-    { id: 3, nombre: 'Carlos López' },
-    { id: 4, nombre: 'Ana Martínez' },
-  ];
+  clientes: Cliente[] = [];
+  idPedido: string = '';
+  idUsuario: string = '';
 
-  productos: Producto[] = [
-    { id: 1, nombre: 'Producto A', precio: 10000 },
-    { id: 2, nombre: 'Producto B', precio: 20000 },
-    { id: 3, nombre: 'Producto C', precio: 30000 },
-    { id: 4, nombre: 'Producto D', precio: 40000 },
-  ];
-
+  productos: Producto[] = [];
   productosFiltrados: Producto[] = [];
-  productosSeleccionados: Producto[] = [];
-  mediosPago = ['Efectivo', 'Tarjeta de crédito'];
+  productosSeleccionados: ProductoPedido[] = [];
+  cantidadesSeleccionadas: { [key: string]: number } = {};
+  mediosPago: any[] = [];
+  metodosEnvio: any[] = [];
   fechaMinima = new Date().toISOString();
   mostrarBusquedaProductos = false;
   mostrarCalendario = false;
   terminoBusqueda = '';
+  mostrarMensajeNoResultados = false;
 
   constructor(
+    private productosService: ProductosService,
     private formBuilder: FormBuilder,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private metodosPagoService: MetodosPagoService,
+    private clienteService: ClienteService,
+    private pedidosService: PedidosService,
+    private router: Router
   ) {
     this.pedidoForm = this.formBuilder.group({
-      clienteId: ['', Validators.required],
+      id_cliente: ['', Validators.required],
       medioPago: ['', Validators.required],
-      fechaEntrega: ['', Validators.required]
+      fechaEntrega: ['', Validators.required],
+      id_metodo_envio: ['', Validators.required]
     });
-
-    // Set minimum date to today
-    this.fechaMinima = new Date().toISOString();
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.idPedido = uuidv4();
+    this.idUsuario = this.recuperarUsuario();
 
-  buscarProductos(evento: any) {
-    const termino = evento.target.value.toLowerCase();
-    this.terminoBusqueda = termino;
-    this.productosFiltrados = this.productos.filter(producto =>
-      producto.nombre.toLowerCase().includes(termino)
-    );
+    this.metodosPagoService.getMetodosPago().subscribe((metodos: MetodoPago[]) => {
+      console.log(metodos);
+      this.mediosPago = metodos;
+    });
+    this.clienteService.obtenerClientes(null).subscribe((clientes: Cliente[]) => {
+      console.log(clientes);
+      this.clientes = clientes;
+    });
+    this.pedidosService.getMetodosEnvio().subscribe((metodos: any[]) => {
+      this.metodosEnvio = metodos;
+    });
   }
 
-  seleccionarProducto(producto: Producto) {
-    if (!this.productosSeleccionados.find(p => p.id === producto.id)) {
-      this.productosSeleccionados.push(producto);
+  recuperarUsuario = (): string =>{
+    const usuarioStr = localStorage.getItem('usuario');
+    if (usuarioStr) {
+      const usuario = JSON.parse(usuarioStr);
+      return usuario.id;
     }
-    this.mostrarBusquedaProductos = false;
-    this.terminoBusqueda = '';
+    return '';
   }
 
-  removerProducto(productoId: number) {
+  async buscarProductos(evento: any) {
+    const termino = evento.target.value;
+    this.terminoBusqueda = termino;
+    this.mostrarMensajeNoResultados = false;
+
+    if (termino.length < 3) {
+      this.productosFiltrados = [];
+      return;
+    }
+
+    try {
+      const productos = await this.productosService.getInventario(termino).toPromise();
+      this.productosFiltrados = productos || [];
+      this.mostrarMensajeNoResultados = this.productosFiltrados.length === 0;
+    } catch (error) {
+      console.error('Error al buscar productos:', error);
+      this.productosFiltrados = [];
+      this.mostrarMensajeNoResultados = false;
+    }
+  }
+
+  agregarProducto(producto: Producto, cantidad: number) {
+    if (!this.productosSeleccionados.find(p => p.id_producto === producto.id_producto)) {
+      const productoPedido: ProductoPedido = {
+        ...producto,
+        cantidad_seleccionada: cantidad
+      };
+      this.productosSeleccionados.push(productoPedido);
+
+      // Llamada al orquestador para pre-reserva
+      const preReservaDto = {
+        idPedido: this.idPedido,
+        idUsuario: this.idUsuario,
+        idProducto: producto.id_producto,
+        cantidad: cantidad,
+        fechaRegistro: new Date().toISOString()
+      };
+      this.productosService.crearPreReserva(preReservaDto).subscribe({
+        next: (resp) => {
+          // Manejar respuesta si es necesario
+        },
+        error: (err) => {
+          console.error('Error creando pre-reserva:', err);
+        }
+      });
+    }
+    this.terminoBusqueda = '';
+    this.productosFiltrados = [];
+    this.cantidadesSeleccionadas = {};
+  }
+
+  eliminarProducto(producto: Producto) {
     this.productosSeleccionados = this.productosSeleccionados.filter(
-      p => p.id !== productoId
+      p => p.id_producto !== producto.id_producto
     );
+  }
+
+  calcularTotal(): number {
+    return this.productosSeleccionados.reduce(
+      (total, producto) => total + (producto.precio * producto.cantidad_seleccionada),
+      0
+    );
+  }
+
+  actualizarCantidad(producto: Producto, event: any) {
+    const cantidad = parseInt(event.target.value, 10);
+    if (cantidad > 0 && cantidad <= producto.inventario) {
+      this.cantidadesSeleccionadas[producto.id_producto] = cantidad;
+    }
+  }
+
+  // Constante base para el costo de envío por unidad
+  private readonly COSTO_ENVIO_BASE = 5;
+
+  calcularCostoEnvio(): number {
+    // Suma la cantidad total de unidades de todos los productos seleccionados
+    const totalUnidades = this.productosSeleccionados.reduce((acc, prod) => acc + (prod.cantidad_seleccionada || 1), 0);
+    return totalUnidades * this.COSTO_ENVIO_BASE;
   }
 
   async guardarPedido() {
     if (this.pedidoForm.valid && this.productosSeleccionados.length > 0) {
       const pedido = {
-        ...this.pedidoForm.value,
-        productos: this.productosSeleccionados
+        id_pedido: this.idPedido,
+        id_vendedor: this.idUsuario,
+        fecha_registro: new Date().toISOString(),
+        id_estado: 2,
+        descripcion: 'Pedido generado con ' + this.productosSeleccionados.length + ' productos',
+        id_cliente: this.pedidoForm.value.id_cliente,
+        id_metodo_pago: this.pedidoForm.value.medioPago,
+        estado_pago: 'Pendiente',
+        costo_envio: this.calcularCostoEnvio(),
+        id_metodo_envio: this.pedidoForm.value.id_metodo_envio
       };
 
-      const alert = await this.alertController.create({
-        header: 'Éxito',
-        message: 'Pedido guardado correctamente',
-        buttons: ['OK']
-      });
-
-      await alert.present();
-      console.log('Pedido guardado:', pedido);
+      try {
+        await this.pedidosService.createPedido(pedido).toPromise();
+        const alert = await this.alertController.create({
+          header: 'Éxito',
+          message: 'Pedido guardado correctamente',
+          buttons: ['OK']
+        });
+        await alert.present();
+        await alert.onDidDismiss();
+        this.pedidoForm.reset();
+        this.productosSeleccionados = [];
+        this.cantidadesSeleccionadas = {};
+        this.idPedido = uuidv4();
+        this.router.navigate(['/pedidos']);
+      } catch (error) {
+        const alert = await this.alertController.create({
+          header: 'Error',
+          message: 'No se pudo guardar el pedido. Intenta de nuevo.',
+          buttons: ['OK']
+        });
+        await alert.present();
+        console.error('Error al guardar pedido:', error);
+      }
     }
   }
 }

@@ -1,0 +1,35 @@
+.logo-img {
+    width: 50%;
+    display: block;
+    margin: 0 auto;
+    filter: drop-shadow(1px 1px 3px #724a00);
+}
+
+.logo-container {
+    background-color: var(--ion-color-warm-orange);
+    padding-bottom: 35vh;
+    padding-top: 10vh;
+}
+
+.register-card {
+    position: absolute;
+    top: 5%;
+    width: 95%;
+    min-height: 30vh;
+}
+
+.register-form {
+    margin-top: 2vh;
+    margin-bottom: 5vh;
+}
+
+.register-form-footer {
+    margin-top: 5vh;
+    margin-bottom: 2vh;
+}
+
+ion-note {
+    margin-left: 15px;
+    display: list-item;
+}
+
