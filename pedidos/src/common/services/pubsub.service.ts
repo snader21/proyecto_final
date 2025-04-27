@@ -41,7 +41,8 @@ export class PubSubService {
       this.logger.error('Intento de publicar mensaje con PubSub deshabilitado');
       return null;
     }
-
+    console.log("LLega a publicar topico");
+    
     try {
       const topic = this.pubSubClient.topic(TOPIC_NAME);
       const messageBuffer = Buffer.from(JSON.stringify(data));
