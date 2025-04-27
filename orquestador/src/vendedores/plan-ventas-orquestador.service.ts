@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable()
-export class TrimestresOrquestadorService {
+export class PlanVentasOrquestadorService {
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
