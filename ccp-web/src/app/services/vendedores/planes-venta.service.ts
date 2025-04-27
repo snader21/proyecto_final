@@ -1,15 +1,27 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, map, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export interface Trimestre {
   idQ: string;
   ano: number;
-  fechaInicio: string;
-  fechaFin: string;
-  meta?: number;
-  cumplimiento?: number;
+  nombre: string;
+}
+
+export interface MetaTrimestral {
+  idMeta?: number;
+  idPlan?: number;
+  idQ: string;
+  ano: number;
+  idVendedor: number;
+  metaVenta: number;
+}
+
+export interface PlanVentas {
+  ano: number;
+  idVendedor: number;
+  metas: MetaTrimestral[];
 }
 
 @Injectable({
@@ -20,24 +32,15 @@ export class PlanesVentaService {
 
   constructor(private http: HttpClient) {}
 
-  getTrimestres(ano: number): Observable<Trimestre[]> {
-    return this.http.get<Trimestre[]>(`${this.apiUrl}/vendedores/trimestres/${ano}`)
-      .pipe(
-        map(trimestres => trimestres.map(t => ({
-          ...t,
-          meta: 15000000, // Valor por defecto
-          cumplimiento: 10
-        }))),
-        catchError(error => {
-          console.error('Error al cargar trimestres:', error);
-          // Datos de ejemplo en caso de error
-          return of([
-            { idQ: 'Q1', ano, fechaInicio: `${ano-1}-12-31`, fechaFin: `${ano}-03-30`, meta: 15000000, cumplimiento: 0 },
-            { idQ: 'Q2', ano, fechaInicio: `${ano}-03-31`, fechaFin: `${ano}-06-29`, meta: 15000000, cumplimiento: 0 },
-            { idQ: 'Q3', ano, fechaInicio: `${ano}-06-30`, fechaFin: `${ano}-09-29`, meta: 15000000, cumplimiento: 10 },
-            { idQ: 'Q4', ano, fechaInicio: `${ano}-09-30`, fechaFin: `${ano}-12-30`, meta: 15000000, cumplimiento: 0 }
-          ]);
-        })
-      );
+  getTrimestresPorAno(ano: number): Observable<Trimestre[]> {
+    return this.http.get<Trimestre[]>(`${this.apiUrl}/plan-ventas/trimestres/${ano}`);
+  }
+
+  putMetaTrimestral(planVentas: PlanVentas): Observable<PlanVentas> {
+    return this.http.put<PlanVentas>(`${this.apiUrl}/plan-ventas`, planVentas);
+  }
+
+  getPlanVentas(idVendedor: number, ano: number): Observable<PlanVentas> {
+    return this.http.get<PlanVentas>(`${this.apiUrl}/plan-ventas/${idVendedor}/${ano}`);
   }
 }

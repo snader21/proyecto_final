@@ -2,26 +2,29 @@
   header="Plan de ventas"
   [(visible)]="visible"
   [modal]="true"
-  [style]="{ width: '50vw' }"
+  [style]="{ width: '50vw', height: '80vh' }"
+  [contentStyle]="{ height: 'calc(100% - 125px)' }"
   [draggable]="false"
   [resizable]="false"
   (onHide)="onDialogHide()"
 >
-  <div class="flex flex-col">
-    <p-tabView [(activeIndex)]="activeTabIndex">
+  <div class="flex flex-col h-full">
+    <p-tabView [(activeIndex)]="activeTabIndex" class="h-full">
       <p-tabPanel header="Clientes asociados">
         <div class="flex justify-between items-center mb-4">
           <div class="flex items-center gap-2">
-            <span class="p-input-icon-left">
+            <span class="p-input-icon-left w-96">
               <i class="pi pi-search"></i>
-              <input 
-                type="text" 
-                pInputText 
-                [(ngModel)]="filtroCliente" 
-                (input)="filtrarClientes()"
-                placeholder="Clientes" 
-                class="w-96"
-              />
+              <p-autoComplete
+                [(ngModel)]="clienteSeleccionado"
+                [suggestions]="clientesFiltrados"
+                (completeMethod)="filtrarClientes($event)"
+                field="nombre"
+                placeholder="Buscar cliente"
+                [dropdown]="true"
+                styleClass="w-full"
+                [inputStyleClass]="'w-full'"
+              ></p-autoComplete>
             </span>
           </div>
           <p-button
@@ -29,10 +32,11 @@
             icon="pi pi-plus"
             styleClass="bg-slate-700 text-white"
             (click)="agregarCliente()"
+            [disabled]="!clienteSeleccionado"
           ></p-button>
         </div>
-        
-        <p-table [value]="clientesAsociados">
+
+        <p-table [value]="clientesAsociados" [scrollable]="true" scrollHeight="calc(100vh - 400px)">
           <ng-template pTemplate="header">
             <tr>
               <th class="w-16"></th>
@@ -64,11 +68,11 @@
         <div class="flex flex-col gap-8">
           <div *ngFor="let trimestre of trimestres" class="flex flex-col gap-4">
             <div class="flex flex-col">
-              <label class="text-lg font-medium mb-2">Meta {{ trimestre.idQ }}</label>
-              <p-inputNumber 
-                [(ngModel)]="trimestre.meta"
-                mode="currency" 
-                currency="COP" 
+              <label class="text-lg font-medium mb-2">Meta {{ trimestre.nombre }}</label>
+              <p-inputNumber
+                [(ngModel)]="metasPorTrimestre[trimestre.idQ]"
+                mode="currency"
+                currency="COP"
                 locale="es-CO"
                 [minFractionDigits]="0"
                 [maxFractionDigits]="0"
@@ -81,7 +85,7 @@
               <label class="text-base mb-1">Cumplimiento</label>
               <div class="flex items-center gap-2">
                 <div class="bg-blue-500 text-white px-4 py-1 rounded-full">
-                  {{ trimestre.cumplimiento }}%
+                  {{ metasPorTrimestre[trimestre.idQ] }}%
                 </div>
               </div>
             </div>
@@ -99,6 +103,7 @@
         styleClass="p-button-text"
       ></p-button>
       <p-button
+        *ngIf="activeTabIndex === 1"
         label="Guardar"
         (click)="onSave()"
         styleClass="bg-slate-700 text-white"
