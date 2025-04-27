@@ -11,11 +11,14 @@ import { FormsModule } from '@angular/forms';
 import { PlanesVentaService, Trimestre, PlanVentas, MetaTrimestral } from '../../../services/vendedores/planes-venta.service';
 import { ClientesService, Cliente } from '../../../services/clientes/clientes.service';
 import { firstValueFrom } from 'rxjs';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-vendedores-plan',
   templateUrl: './vendedores-plan.component.html',
   standalone: true,
+  providers: [MessageService],
   imports: [
     CommonModule,
     ButtonModule,
@@ -25,7 +28,8 @@ import { firstValueFrom } from 'rxjs';
     InputTextModule,
     InputNumberModule,
     AutoCompleteModule,
-    FormsModule
+    FormsModule,
+    ToastModule
   ]
 })
 export class VendedoresPlanComponent implements OnInit, OnChanges {
@@ -44,7 +48,8 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
 
   constructor(
     private planesVentaService: PlanesVentaService,
-    private clientesService: ClientesService
+    private clientesService: ClientesService,
+    private messageService: MessageService
   ) {}
 
   ngOnInit() {
@@ -119,7 +124,11 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
       console.log('=== FIN cargarDatos ===');
     } catch (error) {
       console.error('Error en cargarDatos:', error);
-      console.log('=== FIN cargarDatos con ERROR ===');
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Error al cargar los datos del plan de ventas'
+      });
     }
   }
 
@@ -132,6 +141,11 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
           },
           error: (error) => {
             console.error('Error al cargar clientes:', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Error al cargar los clientes asociados'
+            });
           }
         });
     } else {
@@ -156,9 +170,24 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
 
     if (!this.clientesAsociados.some(c => c.id_cliente === this.clienteSeleccionado?.id_cliente)) {
       this.clientesService.asignarClienteVendedor(this.clienteSeleccionado.id_cliente, this.vendedor.usuario_id)
-        .subscribe(() => {
-          this.cargarClientesAsociados();
-          this.clienteSeleccionado = null;
+        .subscribe({
+          next: () => {
+            this.cargarClientesAsociados();
+            this.clienteSeleccionado = null;
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Éxito',
+              detail: 'Cliente asociado correctamente'
+            });
+          },
+          error: (error) => {
+            console.error('Error al asociar cliente:', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Error al asociar el cliente'
+            });
+          }
         });
     }
   }
@@ -173,8 +202,23 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
     }
 
     this.clientesService.eliminarClienteVendedor(cliente.id_cliente)
-      .subscribe(() => {
-        this.cargarClientesAsociados();
+      .subscribe({
+        next: () => {
+          this.cargarClientesAsociados();
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Cliente desasociado correctamente'
+          });
+        },
+        error: (error) => {
+          console.error('Error al desasociar cliente:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al desasociar el cliente'
+          });
+        }
       });
   }
 
@@ -197,11 +241,21 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
       .subscribe({
         next: (response) => {
           console.log('Plan de ventas guardado:', response);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Plan de ventas guardado correctamente'
+          });
           this.success.emit(true);
           this.closeDialog();
         },
         error: (error) => {
           console.error('Error al guardar plan de ventas:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al guardar el plan de ventas'
+          });
         }
       });
   }
