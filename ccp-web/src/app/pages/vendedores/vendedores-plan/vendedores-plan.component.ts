@@ -10,6 +10,7 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { FormsModule } from '@angular/forms';
 import { PlanesVentaService, Trimestre, PlanVentas, MetaTrimestral } from '../../../services/vendedores/planes-venta.service';
 import { ClientesService, Cliente } from '../../../services/clientes/clientes.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-vendedores-plan',
@@ -50,14 +51,75 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
     if (this.visible && this.vendedor) {
       this.cargarClientesAsociados();
     }
-    this.cargarTrimestres();
-    this.cargarPlanVentas();
+    this.cargarDatos();
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['visible'] && changes['visible'].currentValue === true && this.vendedor) {
       this.cargarClientesAsociados();
-      this.cargarPlanVentas();
+      this.cargarDatos();
+    }
+  }
+
+  async cargarDatos() {
+    console.log('=== INICIO cargarDatos ===');
+    console.log('Vendedor:', this.vendedor);
+    
+    if (!this.vendedor?.id) {
+      console.log('No hay vendedor o no tiene ID');
+      return;
+    }
+    
+    const currentYear = new Date().getFullYear();
+    console.log('Año actual:', currentYear);
+
+    try {
+      // 1. Esperar a que se carguen los trimestres
+      console.log('1. Cargando trimestres...');
+      this.trimestres = await firstValueFrom(
+        this.planesVentaService.getTrimestresPorAno(currentYear)
+      );
+      console.log('Trimestres cargados:', JSON.stringify(this.trimestres, null, 2));
+
+      // 2. Esperar a que se cargue el plan
+      console.log('2. Cargando plan de ventas...');
+      const planes = await firstValueFrom(
+        this.planesVentaService.getPlanVentas(this.vendedor.id, currentYear)
+      );
+      console.log('Planes recibidos:', JSON.stringify(planes, null, 2));
+
+      // 3. Asignar valores
+      console.log('3. Asignando valores...');
+      this.metasPorTrimestre = {};
+      
+      // Tomamos el primer plan si existe
+      const plan = Array.isArray(planes) && planes.length > 0 ? planes[0] : null;
+      console.log('Plan seleccionado:', JSON.stringify(plan, null, 2));
+
+      if (plan?.metas) {
+        this.planVentas = {
+          ano: plan.ano,
+          idVendedor: Number(plan.idVendedor),
+          metas: plan.metas
+        };
+        
+        plan.metas.forEach(meta => {
+          const valor = Number(meta.metaVenta);
+          console.log(`Asignando meta para trimestre ${meta.idQ}:`, {
+            valorOriginal: meta.metaVenta,
+            valorConvertido: valor
+          });
+          this.metasPorTrimestre[meta.idQ] = valor;
+        });
+      } else {
+        console.log('No se encontraron metas en el plan');
+      }
+
+      console.log('Estado final de metasPorTrimestre:', this.metasPorTrimestre);
+      console.log('=== FIN cargarDatos ===');
+    } catch (error) {
+      console.error('Error en cargarDatos:', error);
+      console.log('=== FIN cargarDatos con ERROR ===');
     }
   }
 
@@ -75,38 +137,6 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
     } else {
       console.warn('No se encontró usuario_id en el vendedor');
     }
-  }
-
-  cargarPlanVentas() {
-    const currentYear = new Date().getFullYear();
-    if (this.vendedor?.id) {
-      this.planesVentaService.getPlanVentas(this.vendedor.id, currentYear)
-        .subscribe(plan => {
-          console.log("Consultando planes de venta", plan);
-          this.planVentas = plan;
-          // Inicializar las metas por trimestre
-          this.metasPorTrimestre = {};
-          if (plan?.metas) {
-            plan.metas.forEach(meta => {
-              this.metasPorTrimestre[meta.idQ] = meta.metaVenta;
-            });
-          }
-        });
-    }
-  }
-
-  cargarTrimestres() {
-    const currentYear = new Date().getFullYear();
-    this.planesVentaService.getTrimestresPorAno(currentYear)
-      .subscribe(trimestres => {
-        this.trimestres = trimestres;
-        // Inicializar metas en 0 si no existen
-        trimestres.forEach(trimestre => {
-          if (!this.metasPorTrimestre[trimestre.idQ]) {
-            this.metasPorTrimestre[trimestre.idQ] = 0;
-          }
-        });
-      });
   }
 
   filtrarClientes(event: any) {
