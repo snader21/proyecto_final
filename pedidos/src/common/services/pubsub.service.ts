@@ -3,7 +3,7 @@ import { PubSub, Subscription } from '@google-cloud/pubsub';
 import { GCPConfigService } from './gcp-config.service';
 
 const TOPIC_NAME =
-  'projects/intense-guru-453022-j0/topics/proyecto-final-topic';
+  'projects/intense-guru-453022-j0/topics/proyecto_final_reservas';
 
 @Injectable()
 export class PubSubService {
