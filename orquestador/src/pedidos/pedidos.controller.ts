@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { PedidosService } from './pedidos.service';
 
 @Controller('pedidos')
@@ -8,5 +8,10 @@ export class PedidosController {
   @Post()
   crearPedido(@Body() dto: any) {
     return this.pedidosService.crearPedido(dto);
+  }
+
+  @Get(':idVendedor')
+  async findByIdVendedor(@Param('idVendedor') idVendedor: string) {
+    return await this.pedidosService.findByIdVendedor(idVendedor);
   }
 }
