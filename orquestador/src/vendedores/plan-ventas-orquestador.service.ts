@@ -19,4 +19,24 @@ export class PlanVentasOrquestadorService {
       throw new HttpException('Error consultando trimestres en vendedores', 502);
     }
   }
+
+  async getPlanVentas(ano: number) {
+    try {
+      const api = this.configService.get<string>('URL_VENDEDORES') || 'http://localhost:3000';
+      const { data } = await firstValueFrom(this.httpService.get(`${api}/plan-ventas/${ano}`));
+      return data;
+    } catch (error) {
+      throw new HttpException('Error consultando planes de venta en vendedores', 502);
+    }
+  }
+
+  async createOrUpdatePlanVentas(planVentasDto: any) {
+    try {
+      const api = this.configService.get<string>('URL_VENDEDORES') || 'http://localhost:3000';
+      const { data } = await firstValueFrom(this.httpService.put(`${api}/plan-ventas`, planVentasDto));
+      return data;
+    } catch (error) {
+      throw new HttpException('Error actualizando plan de ventas en vendedores', 502);
+    }
+  }
 }

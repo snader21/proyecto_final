@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectRepository, InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PlanVentasEntity } from './entities/plan-ventas.entity';
 import { MetaTrimestralEntity } from './entities/meta-trimestral.entity';
@@ -8,6 +8,7 @@ import { TrimestreEntity } from './entities/trimestre.entity';
 
 @Injectable()
 export class PlanVentasService {
+
   constructor(
     @InjectRepository(PlanVentasEntity)
     private readonly planVentasRepository: Repository<PlanVentasEntity>,
@@ -24,7 +25,16 @@ export class PlanVentasService {
     });
   }
 
-  async createOrUpdatePlanVentas(planVentasDto: PlanVentasDto): Promise<PlanVentasEntity> {
+  async getPlanVentas(ano: number) {
+    return this.planVentasRepository.find({
+      where: { ano },
+      relations: ['metas'],
+    });
+  }
+
+  async createOrUpdatePlanVentas(
+    planVentasDto: PlanVentasDto,
+  ): Promise<PlanVentasEntity> {
     // Primero verificamos que existan los trimestres
     for (const meta of planVentasDto.metas) {
       const trimestre = await this.trimestreRepository.findOne({

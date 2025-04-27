@@ -15,4 +15,9 @@ export class PlanVentasController {
   async updatePlanVentas(@Body() planVentasDto: PlanVentasDto) {
     return this.planVentasService.createOrUpdatePlanVentas(planVentasDto);
   }
+
+  @Get(':ano')
+  async getPlanVentas(@Param('ano', ParseIntPipe) ano: number) {
+    return this.planVentasService.getPlanVentas(ano);
+  }
 }
