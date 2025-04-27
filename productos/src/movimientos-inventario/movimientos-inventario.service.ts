@@ -20,7 +20,7 @@ interface MensajeConfirmacionPreReserva {
   idPedido: string;
 }
 const SUBSCRIPTION_NAME =
-  'projects/intense-guru-453022-j0/subscriptions/proyecto-final-confirmar-reserva-sub';
+  'projects/intense-guru-453022-j0/subscriptions/proyecto_final_reservas-sub';
 
 @Injectable()
 export class MovimientosInventarioService
