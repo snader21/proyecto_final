@@ -6,11 +6,15 @@ import { PedidoEntity } from './entities/pedido.entity';
 import { EstadoPedidoEntity } from './entities/estado-pedido.entity';
 import { MetodoEnvioEntity } from './entities/metodo-envio.entity';
 import { MetodoPagoEntity } from './entities/metodo-pago.entity';
+import { PubSubService } from '../common/services/pubsub.service';
 
 describe('PedidosService', () => {
   let service: PedidosService;
 
   beforeEach(async () => {
+    const mockPubSubService = {
+      publishMessage: jest.fn(),
+    } as any;
     const module: TestingModule = await Test.createTestingModule({
       imports: [HttpModule],
       providers: [
@@ -30,6 +34,10 @@ describe('PedidosService', () => {
         {
           provide: getRepositoryToken(MetodoPagoEntity),
           useValue: {},
+        },
+        {
+          provide: PubSubService,
+          useValue: mockPubSubService,
         },
       ],
     }).compile();

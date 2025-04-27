@@ -7,11 +7,15 @@ import { PedidoEntity } from './entities/pedido.entity';
 import { MetodoEnvioEntity } from './entities/metodo-envio.entity';
 import { MetodoPagoEntity } from './entities/metodo-pago.entity';
 import { EstadoPedidoEntity } from './entities/estado-pedido.entity';
+import { PubSubService } from '../common/services/pubsub.service';
 
 describe('PedidosController', () => {
   let controller: PedidosController;
 
   beforeEach(async () => {
+    const mockPubSubService = {
+      publishMessage: jest.fn(),
+    } as any;
     const module: TestingModule = await Test.createTestingModule({
       imports: [HttpModule],
       controllers: [PedidosController],
@@ -32,6 +36,10 @@ describe('PedidosController', () => {
         {
           provide: getRepositoryToken(MetodoPagoEntity),
           useValue: {},
+        },
+        {
+          provide: PubSubService,
+          useValue: mockPubSubService,
         },
       ],
     }).compile();
