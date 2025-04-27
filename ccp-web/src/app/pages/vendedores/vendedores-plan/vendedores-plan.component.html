@@ -69,7 +69,7 @@
         <div class="flex flex-col gap-8">
           <div *ngFor="let trimestre of trimestres" class="flex flex-col gap-4">
             <div class="flex flex-col">
-              <label class="text-lg font-medium mb-2">Meta {{ trimestre.nombre }}</label>
+              <label class="text-lg font-medium mb-2">Meta {{ trimestre.idQ }}</label>
               <p-inputNumber
                 [(ngModel)]="metasPorTrimestre[trimestre.idQ]"
                 mode="currency"
@@ -81,7 +81,7 @@
                 inputStyleClass="w-full"
               ></p-inputNumber>
             </div>
-
+<!--
             <div class="flex flex-col">
               <label class="text-base mb-1">Cumplimiento</label>
               <div class="flex items-center gap-2">
@@ -90,6 +90,7 @@
                 </div>
               </div>
             </div>
+-->
           </div>
         </div>
       </p-tabPanel>
