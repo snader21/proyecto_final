@@ -8,7 +8,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { FormsModule } from '@angular/forms';
-import { PlanesVentaService, Trimestre } from '../../../services/vendedores/planes-venta.service';
+import { PlanesVentaService, Trimestre, PlanVentas, MetaTrimestral } from '../../../services/vendedores/planes-venta.service';
 import { ClientesService, Cliente } from '../../../services/clientes/clientes.service';
 
 @Component({
@@ -38,6 +38,8 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
   public clientesFiltrados: Cliente[] = [];
   public clienteSeleccionado: Cliente | null = null;
   public trimestres: Trimestre[] = [];
+  public metasPorTrimestre: { [key: string]: number } = {};
+  public planVentas: PlanVentas | null = null;
 
   constructor(
     private planesVentaService: PlanesVentaService,
@@ -47,14 +49,16 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
   ngOnInit() {
     if (this.visible && this.vendedor) {
       this.cargarClientesAsociados();
+      this.cargarPlanVentas();
     }
     this.cargarTrimestres();
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['visible'] && changes['visible'].currentValue === true && this.vendedor) {
-      console.log('Modal abierto - cargando clientes');
+      console.log('Modal abierto - cargando datos');
       this.cargarClientesAsociados();
+      this.cargarPlanVentas();
     }
   }
 
@@ -83,11 +87,34 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
     }
   }
 
+  cargarPlanVentas() {
+    const currentYear = new Date().getFullYear();
+    if (this.vendedor?.id) {
+      this.planesVentaService.getPlanVentas(this.vendedor.id, currentYear)
+        .subscribe(plan => {
+          this.planVentas = plan;
+          // Inicializar las metas por trimestre
+          this.metasPorTrimestre = {};
+          if (plan?.metas) {
+            plan.metas.forEach(meta => {
+              this.metasPorTrimestre[meta.idQ] = meta.metaVenta;
+            });
+          }
+        });
+    }
+  }
+
   cargarTrimestres() {
     const currentYear = new Date().getFullYear();
-    this.planesVentaService.getTrimestres(currentYear)
+    this.planesVentaService.getTrimestresPorAno(currentYear)
       .subscribe(trimestres => {
         this.trimestres = trimestres;
+        // Inicializar metas en 0 si no existen
+        trimestres.forEach(trimestre => {
+          if (!this.metasPorTrimestre[trimestre.idQ]) {
+            this.metasPorTrimestre[trimestre.idQ] = 0;
+          }
+        });
       });
   }
 
@@ -143,6 +170,35 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
       });
   }
 
+  onSave() {
+    console.log('Guardando cambios...');
+    if (!this.vendedor?.id) return;
+
+    const currentYear = new Date().getFullYear();
+    const planVentas: PlanVentas = {
+      ano: currentYear,
+      idVendedor: this.vendedor.id,
+      metas: this.trimestres.map(trimestre => ({
+        idQ: trimestre.idQ,
+        ano: currentYear,
+        idVendedor: this.vendedor.id,
+        metaVenta: this.metasPorTrimestre[trimestre.idQ] || 0
+      }))
+    };
+
+    this.planesVentaService.putMetaTrimestral(planVentas)
+      .subscribe({
+        next: (response) => {
+          console.log('Plan de ventas guardado:', response);
+          this.success.emit(true);
+          this.closeDialog();
+        },
+        error: (error) => {
+          console.error('Error al guardar plan de ventas:', error);
+        }
+      });
+  }
+
   onDialogHide() {
     this.visible = false;
     this.visibleChange.emit(false);
@@ -151,12 +207,5 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
   closeDialog() {
     this.visible = false;
     this.visibleChange.emit(false);
-  }
-
-  onSave() {
-    console.log('Guardando cambios...');
-    // Add save logic here
-    this.success.emit(true);
-    this.closeDialog();
   }
 }

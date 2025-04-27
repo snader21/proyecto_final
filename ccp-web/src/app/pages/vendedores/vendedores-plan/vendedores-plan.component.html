@@ -68,9 +68,9 @@
         <div class="flex flex-col gap-8">
           <div *ngFor="let trimestre of trimestres" class="flex flex-col gap-4">
             <div class="flex flex-col">
-              <label class="text-lg font-medium mb-2">Meta {{ trimestre.idQ }}</label>
+              <label class="text-lg font-medium mb-2">Meta {{ trimestre.nombre }}</label>
               <p-inputNumber
-                [(ngModel)]="trimestre.meta"
+                [(ngModel)]="metasPorTrimestre[trimestre.idQ]"
                 mode="currency"
                 currency="COP"
                 locale="es-CO"
@@ -85,7 +85,7 @@
               <label class="text-base mb-1">Cumplimiento</label>
               <div class="flex items-center gap-2">
                 <div class="bg-blue-500 text-white px-4 py-1 rounded-full">
-                  {{ trimestre.cumplimiento }}%
+                  {{ metasPorTrimestre[trimestre.idQ] }}%
                 </div>
               </div>
             </div>

@@ -1,5 +1,6 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Put } from '@nestjs/common';
 import { PlanVentasService } from './plan-ventas.service';
+import { PlanVentasDto } from './dtos/plan-ventas.dto';
 
 @Controller('plan-ventas')
 export class PlanVentasController {
@@ -10,9 +11,10 @@ export class PlanVentasController {
     return this.planVentasService.getTrimestresPorAno(ano);
   }
 
-  @Put(':ano')
-  async updatePlanVentas(@Param('ano', ParseIntPipe) ano: number) {
-    return this.planVentasService.updatePlanVentas(ano);
+  @Put()
+  async updatePlanVentas(
+    @Body() planVentasDto: PlanVentasDto
+  ) {
+    return this.planVentasService.createOrUpdatePlanVentas(planVentasDto);
   }
-
 }
