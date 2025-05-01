@@ -232,13 +232,17 @@ export class ProductosService implements OnModuleInit {
       {
         id_bodega: '550e8400-e29b-41d4-a716-446655440010',
         nombre: 'Bodega Central',
-        direccion: 'Av. Central 123, Ciudad de México',
+        direccion: 'Calle 128 # 7D 60, Bogotá',
+        latitud: 4.7079712,
+        longitud: -74.0343878,
         capacidad: 100,
       },
       {
         id_bodega: '550e8400-e29b-41d4-a716-446655440011',
         nombre: 'Bodega Norte',
-        direccion: 'Calle Norte 456, Monterrey',
+        direccion: 'Carrera 1 # 18A-12, Bogotá',
+        latitud: 4.6014581,
+        longitud: -74.2185687,
         capacidad: 150,
       },
     ];
