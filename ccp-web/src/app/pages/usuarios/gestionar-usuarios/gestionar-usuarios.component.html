@@ -1,12 +1,16 @@
 <p-toast position="top-right"></p-toast>
 <p-dialog
-    header="Agregar Usuario"
+    [header]="selectedUsuario ? 'Editar Usuario' : 'Agregar Usuario'"
     [modal]="true"
     [(visible)]="visible"
     (onHide)="closeModal()"
-    [style]="{ width: '40rem' }">
-    
+    [style]="{ 
+      width: '40rem', 
+      minHeight: selectedUsuario ? '28rem' : '42rem'
+    }">
+
     <form [formGroup]="userForm" class="flex flex-col gap-4">
+        <!-- Campos comunes para creación y edición de usuario -->
         <div class="flex flex-col gap-2">
             <label for="nombre" class="font-light">Nombre</label>
             <input placeholder="Nombre" pInputText id="nombre" formControlName="nombre" class="w-full" autocomplete="off" />
@@ -17,21 +21,39 @@
             <input placeholder="Correo" pInputText id="correo" formControlName="correo" class="w-full" autocomplete="off" />
             <small class="text-red-500" *ngIf="userForm.get('correo')?.invalid && userForm.get('correo')?.touched">Este campo es requerido</small>
         </div>
-        <div class="flex flex-col gap-2">
-            <label for="contrasena" class="font-light">Contraseña</label>
-            <input placeholder="Contraseña" pInputText id="contrasena" type="password" formControlName="contrasena" class="w-full" autocomplete="off" />
-            <small class="text-red-500" *ngIf="userForm.get('contrasena')?.invalid && userForm.get('contrasena')?.touched">Este campo es requerido</small>
-        </div>
-        <div class="flex flex-col gap-2">
-          <label for="repassword" class="font-light">Confirmar Contraseña</label>
-          <input placeholder="Confirmar Contraseña" pInputText id="repassword" type="password" formControlName="repassword" class="w-full" autocomplete="off" />
-          <small class="text-red-500" *ngIf="userForm.get('repassword')?.invalid && userForm.get('repassword')?.touched">Este campo es requerido</small>
-          <small class="text-red-500" *ngIf="userForm.hasError('passwordsMismatch') && userForm.get('repassword')?.touched">
-            Las contraseñas no coinciden
-          </small>
-        </div>
 
+        <!-- Campos solo para creación de usuario -->
+        <ng-container *ngIf="!selectedUsuario">
+            <div class="flex flex-col gap-2">
+                <label for="contrasena" class="font-light">Contraseña</label>
+                <input placeholder="Contraseña" pInputText id="contrasena" type="password" formControlName="contrasena" class="w-full" autocomplete="off" />
+                <small class="text-red-500" *ngIf="userForm.get('contrasena')?.invalid && userForm.get('contrasena')?.touched">Este campo es requerido</small>
+            </div>
+            <div class="flex flex-col gap-2">
+                <label for="repassword" class="font-light">Confirmar Contraseña</label>
+                <input placeholder="Confirmar Contraseña" pInputText id="repassword" type="password" formControlName="repassword" class="w-full" autocomplete="off" />
+                <small class="text-red-500" *ngIf="userForm.get('repassword')?.invalid && userForm.get('repassword')?.touched">Este campo es requerido</small>
+                <small class="text-red-500" *ngIf="userForm.hasError('passwordsMismatch') && userForm.get('repassword')?.touched">
+                    Las contraseñas no coinciden
+                </small>
+            </div>
+            <div class="flex flex-col gap-2">
+                <label for="rol" class="font-light">Rol</label>
+                <p-select
+                    [options]="roles"
+                    formControlName="rol"
+                    optionLabel="nombre"
+                    optionValue="id"
+                    [filter]="false"
+                    [showClear]="true"
+                    appendTo="body"
+                    placeholder="Seleccione"
+                    class="w-full">
+                </p-select>
+            </div>
+        </ng-container>
 
+        <!-- Campo de estado (visible en ambos modos) -->
         <div class="flex flex-col gap-2">
             <label for="estado" class="font-light">Estado</label>
             <p-select
@@ -40,27 +62,13 @@
                 optionLabel="label"
                 optionValue="value"
                 [filter]="false"
-                placeholder="Seleccione un estado"
+                appendTo="body"
+                placeholder="Seleccione estado"
                 class="w-full">
             </p-select>
         </div>
-
-        <div class="flex flex-col gap-2">
-          <label for="rol" class="font-light">Rol</label>
-          <p-select
-              [options]="roles"
-              appendTo="body"
-              formControlName="rol"
-              optionLabel="nombre"
-              optionValue="id"
-              [filter]="false"
-              [showClear]="true"
-              placeholder="Seleccione"
-              class="w-full">
-          </p-select>
-      </div>
-
     </form>
+
     <div class="flex justify-end gap-2 mt-4">
         <p-button label="Cancelar" severity="secondary" (click)="closeModal()" />
         <p-button label="Guardar usuario" [disabled]="userForm.invalid" styleClass="bg-slate-700 text-white" (click)="onSubmit()" />

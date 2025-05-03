@@ -51,7 +51,7 @@
                 </p-tag>
               </td>
               <td>
-                <p-button label="Editar" icon="pi pi-pencil" [disabled]="true" pTooltip="Función no disponible" tooltipPosition="top" />
+                <p-button label="Editar" icon="pi pi-pencil" (click)="editarUsuario(usuario)" pTooltip="Editar usuario" tooltipPosition="top" />
               </td>
           </tr>
       </ng-template>
