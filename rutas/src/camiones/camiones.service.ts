@@ -4,7 +4,6 @@ import { UpdateCamionDto } from './dto/update-camion.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CamionEntity } from './entities/camion.entity';
 import { Repository } from 'typeorm';
-
 @Injectable()
 export class CamionesService implements OnModuleInit {
   constructor(
@@ -12,13 +11,15 @@ export class CamionesService implements OnModuleInit {
     private readonly camionRepository: Repository<CamionEntity>,
   ) {}
   async onModuleInit() {
-    await this.camionRepository.save({
-      id: 1,
-      placa: 'AAA111',
-      anio: 1980,
-      nombre_conductor: 'Juan Perez',
-      capacidad: 10000,
-    });
+    const numCamiones = 10;
+    for (let i = 0; i < numCamiones; i++) {
+      await this.camionRepository.save({
+        placa: `AAA${(i + 1).toString().padStart(3, '0')}`,
+        nombre_conductor: `Conductor${i + 1}`,
+        celular_conductor: `32056667${(i + 1).toString().padStart(2, '0')}`,
+        capacidad: 100000,
+      });
+    }
   }
   create(createCamioneDto: CreateCamionDto) {
     return 'This action adds a new camione';
@@ -28,8 +29,8 @@ export class CamionesService implements OnModuleInit {
     return this.camionRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} camione`;
+  findOne(id: string) {
+    return this.camionRepository.findOne({ where: { id } });
   }
 
   update(id: number, updateCamioneDto: UpdateCamionDto) {

@@ -4,7 +4,7 @@ import { UpdateTipoRutaDto } from './dto/update-tipo-ruta.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TipoRutaEntity } from './entities/tipo-ruta.entity';
 import { Repository } from 'typeorm';
-
+import { v4 as uuidv4 } from 'uuid';
 @Injectable()
 export class TiposRutasService implements OnModuleInit {
   constructor(
@@ -14,11 +14,9 @@ export class TiposRutasService implements OnModuleInit {
 
   async onModuleInit() {
     await this.tipoRutaRepository.save({
-      id: 1,
       tipo_ruta: 'Entrega de pedido',
     });
     await this.tipoRutaRepository.save({
-      id: 2,
       tipo_ruta: 'Visita a cliente',
     });
   }

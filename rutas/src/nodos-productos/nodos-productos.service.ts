@@ -21,7 +21,6 @@ export class NodosProductosService {
     const productosEntities = productosDtos.map((dto) => {
       return this.nodoProductoRepository.create({
         producto_id: dto.productoId,
-        pedido_id: dto.pedidoId,
         nodo_ruta: nodoRuta,
       });
     });

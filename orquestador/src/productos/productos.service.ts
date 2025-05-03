@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { map, tap } from 'rxjs/operators';
-import { firstValueFrom, Observable } from 'rxjs';
+import { async, firstValueFrom, Observable } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { AxiosError } from 'axios';
 import { CreateEntradaInventarioDto } from './dto/create-entrada-inventario.dto';
@@ -28,6 +28,12 @@ export interface IRespuestaProducto {
   ancho: number;
   peso: number;
   cantidad: number;
+  tipo_movimiento: string;
+  id_bodega: string;
+  nombre_bodega: string;
+  direccion: string;
+  latitud: number;
+  longitud: number;
 }
 
 @Injectable()
@@ -39,13 +45,20 @@ export class ProductosService {
     private readonly configService: ConfigService,
   ) {}
 
-  obtenerProductosDePedidos(id: string): Observable<IRespuestaProducto[]> {
+  obtenerProductosDePedidosConfirmados(
+    id_pedido: string,
+  ): Observable<IRespuestaProducto[]> {
     const api = this.configService.get<string>('URL_PRODUCTOS');
-    const apiEndPoint = `${api}/productos/${id}`;
+    const apiEndPoint = `${api}/productos/${id_pedido}`;
 
-    return this.httpService
-      .get<IRespuestaProducto[]>(apiEndPoint)
-      .pipe(map((respuesta) => respuesta.data));
+    return this.httpService.get<IRespuestaProducto[]>(apiEndPoint).pipe(
+      map((respuesta) => respuesta.data),
+      map((productos) =>
+        productos.filter(
+          (producto) => producto.tipo_movimiento === 'Reserva Confirmada',
+        ),
+      ),
+    );
   }
 
   async crearEntradaInventario(dto: CreateEntradaInventarioDto) {

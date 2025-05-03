@@ -232,13 +232,17 @@ export class ProductosService implements OnModuleInit {
       {
         id_bodega: '550e8400-e29b-41d4-a716-446655440010',
         nombre: 'Bodega Central',
-        direccion: 'Av. Central 123, Ciudad de México',
+        direccion: 'Calle 128 # 7D 60, Bogotá',
+        latitud: 4.7079712,
+        longitud: -74.0343878,
         capacidad: 100,
       },
       {
         id_bodega: '550e8400-e29b-41d4-a716-446655440011',
         nombre: 'Bodega Norte',
-        direccion: 'Calle Norte 456, Monterrey',
+        direccion: 'Carrera 1 # 18A-12, Bogotá',
+        latitud: 4.6014581,
+        longitud: -74.2185687,
         capacidad: 150,
       },
     ];
@@ -290,6 +294,8 @@ export class ProductosService implements OnModuleInit {
     const productosConPedido = await this.movimientoInventarioRepository
       .createQueryBuilder('movimiento')
       .innerJoinAndSelect('movimiento.producto', 'producto')
+      .innerJoinAndSelect('movimiento.ubicacion', 'ubicacion')
+      .innerJoinAndSelect('ubicacion.bodega', 'bodega')
       .where('movimiento.id_pedido = :idPedido', { idPedido })
       .select([
         'producto.id_producto',
@@ -302,6 +308,14 @@ export class ProductosService implements OnModuleInit {
         'producto.ancho',
         'producto.peso',
         'movimiento.cantidad',
+        'movimiento.tipo_movimiento',
+        'ubicacion.nombre',
+        'ubicacion.descripcion',
+        'bodega.nombre',
+        'bodega.id_bodega',
+        'bodega.direccion',
+        'bodega.latitud',
+        'bodega.longitud',
       ])
       .getMany();
 
@@ -312,12 +326,18 @@ export class ProductosService implements OnModuleInit {
           nombre: movimiento.producto.nombre,
           descripcion: movimiento.producto.descripcion,
           sku: movimiento.producto.sku,
+          tipo_movimiento: movimiento.tipo_movimiento,
           precio: movimiento.producto.precio,
           alto: movimiento.producto.alto,
           largo: movimiento.producto.largo,
           ancho: movimiento.producto.ancho,
           peso: movimiento.producto.peso,
           cantidad: movimiento.cantidad,
+          id_bodega: movimiento.ubicacion.bodega.id_bodega,
+          nombre_bodega: movimiento.ubicacion.bodega.nombre,
+          direccion: movimiento.ubicacion.bodega.direccion,
+          latitud: movimiento.ubicacion.bodega.latitud,
+          longitud: movimiento.ubicacion.bodega.longitud,
         };
       },
     );

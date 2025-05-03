@@ -24,7 +24,13 @@ export class NodosRutasService {
       this.nodoRutaRepository.create({
         numero_nodo_programado: dto.numeroNodoProgramado,
         latitud: dto.latitud,
+        hora_llegada: dto.hora_llegada,
+        hora_salida: dto.hora_salida,
         longitud: dto.longitud,
+        direccion: dto.direccion,
+        ...(dto.id_cliente && { id_cliente: dto.id_cliente }),
+        ...(dto.id_pedido && { id_pedido: dto.id_pedido }),
+        ...(dto.id_bodega && { id_bodega: dto.id_bodega }),
         ruta,
       }),
     );

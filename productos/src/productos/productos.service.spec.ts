@@ -16,6 +16,7 @@ import { FileGCP } from './utils/file-gcp.service';
 import { PubSubService } from '../common/services/pubsub.service';
 import { NotFoundException } from '@nestjs/common';
 import { UploadedFile } from './interfaces/uploaded-file.interface';
+import { faker } from '@faker-js/faker';
 
 const PRODUCTS_TOPIC_NAME =
   'projects/intense-guru-453022-j0/topics/proyecto-final-topic';
@@ -68,6 +69,8 @@ const mockBodega = {
   ubicaciones: [],
   fecha_creacion: new Date(),
   fecha_actualizacion: new Date(),
+  latitud: faker.location.latitude(),
+  longitud: faker.location.longitude(),
 } as BodegaEntity;
 
 const mockUbicacion = {

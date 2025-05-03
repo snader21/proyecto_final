@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Patch } from '@nestjs/common';
 import { VendedoresService } from './vendedores.service';
 import { CreateVendedorDto } from './dto/create-vendedor.dto';
 
@@ -29,5 +29,13 @@ export class VendedoresController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.vendedoresService.remove(id);
+  }
+
+  @Patch(':id/usuario')
+  updateUserVendedor(
+    @Param('id') id: string,
+    @Body() updateUserVendedorDto: any,
+  ) {
+    return this.vendedoresService.updateUserVendedor(id, updateUserVendedorDto);
   }
 }

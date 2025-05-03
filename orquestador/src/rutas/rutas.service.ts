@@ -1,164 +1,164 @@
-import { Injectable } from '@nestjs/common';
-import {
-  tap,
-  catchError,
-  concatMap,
-  map,
-  filter,
-  toArray,
-  switchMap,
-} from 'rxjs/operators';
-import { from, of } from 'rxjs';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { map } from 'rxjs/operators';
+import { firstValueFrom } from 'rxjs';
 import { ProveedorAiService } from '../proveedor-ai/proveedor-ai.service';
 import { generarPromptOptimizacionRutas } from './calculo-ruta.promt';
 import { ProductosService } from '../productos/productos.service';
-import { IRespuestaPedido, PedidosService } from '../pedidos/pedidos.service';
+import { PedidosService } from '../pedidos/pedidos.service';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
-
-interface IRespuestaProducto {
-  id_producto: string;
-  alto: number;
-  largo: number;
-  ancho: number;
-  cantidad: number;
-}
-
-export interface IPoint {
-  lat: number;
-  lng: number;
-}
-
-interface IPedidoTransformado {
-  id: string;
-  lat: number;
-  lng: number;
-  productos: {
-    id: string;
-    volumen: number;
-  }[];
-}
-
-export interface IDatosRuta {
-  departure: IPoint;
-  orders: IPedidoTransformado[];
-  truckCapacity: number;
-}
+import { ClienteService } from 'src/clientes/services/cliente.service';
 
 export interface CreateNodoProductoDto {
-  productoId: number;
-  pedidoId: string;
+  productoId: string;
+  cantidad: number;
 }
 
 export interface CreateNodoRutaDto {
   numeroNodoProgramado: number;
   latitud: number;
   longitud: number;
+  hora_llegada?: string;
+  hora_salida?: string;
+  id_bodega?: string | null;
+  nombre_bodega?: string | null;
+  id_cliente?: string | null;
+  id_pedido?: string | null;
   productos: CreateNodoProductoDto[];
 }
 
-export interface CreateRutaDto {
-  fecha: string;
+export interface RutaDto {
   duracionEstimada: number;
+  fecha: string;
   distanciaTotal: number;
-  tipoRutaId: number;
-  camionId: number;
+  camionId: string;
   nodos: CreateNodoRutaDto[];
+}
+
+export interface OptimizedRoutesResponse {
+  camiones_insuficientes: boolean;
+  rutas: RutaDto[];
 }
 
 @Injectable()
 export class RutasService {
   constructor(
     private readonly aiProviderService: ProveedorAiService,
+    private readonly clientesService: ClienteService,
     private readonly productosService: ProductosService,
     private readonly pedidosService: PedidosService,
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
   ) {}
 
-  calcularYGuardarRuta() {
-    const capacidadCamion = 10000000;
-    const puntoPartida = {
-      lat: 19.4326,
-      lng: -99.1332,
-    };
-
-    return this.pedidosService.obtenerPedidosParaManiana().pipe(
-      tap(() => console.log('Pedidos obtenidos')),
-      concatMap((pedidos: IRespuestaPedido[]) => from(pedidos)),
-      concatMap((pedido) =>
-        this.productosService
-          .obtenerProductosDePedidos(pedido.id_pedido)
-          .pipe(
-            map((productos: IRespuestaProducto[]) => ({ pedido, productos })),
-          ),
-      ),
-      tap(() => console.log('Productos obtenidos')),
-      filter(({ productos }) => productos && productos.length > 0),
-      map(({ pedido, productos }) => {
-        const lat = this.generarCoordenadaAleatoria(19.0, 20.0);
-        const lng = this.generarCoordenadaAleatoria(-99.5, -98.5);
-
-        const productosFormateados = productos.map((producto) => {
-          const volumen =
-            producto.alto * producto.largo * producto.ancho * producto.cantidad;
-
-          return {
-            id: producto.id_producto,
-            volumen: volumen,
-          };
-        });
-
-        return {
-          id: pedido.id_pedido,
-          lat,
-          lng,
-          productos: productosFormateados,
-        };
-      }),
-      toArray(),
-      map((pedidosTransformados) => {
-        const datosRuta: IDatosRuta = {
-          departure: puntoPartida,
-          orders: pedidosTransformados,
-          truckCapacity: capacidadCamion,
-        };
-        return datosRuta;
-      }),
-      tap(() => console.log('Calculando ruta')),
-      switchMap(this.calcularRuta.bind(this)),
-      tap(() => console.log('Ruta calculada. Se procederá a guardarla')),
-      switchMap(this.actualizarRuta.bind(this)),
-      tap(() => console.log('Ruta guardada')),
-
-      catchError((error) => {
-        console.error('Error en la cadena de observables:', error);
-        return of(null);
-      }),
-    );
+  private obtenerCamiones() {
+    const api = this.configService.get<string>('URL_RUTAS');
+    const apiEndPoint = `${api}/camiones`;
+    return this.httpService
+      .get(apiEndPoint)
+      .pipe(map((response) => response.data));
   }
 
-  private generarCoordenadaAleatoria(min: number, max: number): number {
-    return min + Math.random() * (max - min);
+  async calcularYGuardarRuta() {
+    try {
+      const pedidosParaManiana = await firstValueFrom(
+        this.pedidosService.obtenerPedidosRegistradosHoy(),
+      );
+
+      if (pedidosParaManiana.length === 0) {
+        throw new Error('No hay pedidos para mañana');
+      }
+
+      const camiones = await firstValueFrom(this.obtenerCamiones());
+
+      const productosPorDespachar: any[] = [];
+
+      for (const pedido of pedidosParaManiana) {
+        const productos = await firstValueFrom(
+          this.productosService.obtenerProductosDePedidosConfirmados(
+            pedido.id_pedido,
+          ),
+        );
+
+        if (productos && productos.length > 0) {
+          const cliente = await this.clientesService.findOne(pedido.id_cliente);
+
+          const productosFormateados = productos.map((producto) => {
+            const volumen =
+              producto.alto *
+              producto.largo *
+              producto.ancho *
+              producto.cantidad;
+
+            return {
+              producto: {
+                id_producto: producto.id_producto,
+                nombre: producto.nombre,
+                volumen_total: volumen,
+                cantidad: producto.cantidad,
+                id_pedido: pedido.id_pedido,
+              },
+              cliente: {
+                id_cliente: pedido.id_cliente,
+                nombre: cliente.nombre,
+                direccion: cliente.direccion,
+                coordenadas_cliente: {
+                  lat: cliente.lat,
+                  lng: cliente.lng,
+                },
+              },
+              bodega: {
+                id_bodega: producto.id_bodega,
+                nombre_bodega: producto.nombre_bodega,
+                direccion: producto.direccion,
+                coordenadas_bodega: {
+                  lat: producto.latitud,
+                  lng: producto.longitud,
+                },
+              },
+            };
+          });
+
+          productosPorDespachar.push(productosFormateados);
+        }
+      }
+      console.log(
+        '🚀 ~ RutasService ~ calcularYGuardarRuta ~ productosPorDespachar:',
+        JSON.stringify(productosPorDespachar, null, 2),
+      );
+
+      const rutas = await this.calcularRuta({
+        productosPorDespachar,
+        camiones,
+      });
+
+      if (rutas?.camiones_insuficientes) {
+        throw new Error('No hay camiones suficientes');
+      }
+
+      if (rutas) {
+        await firstValueFrom(this.actualizarRuta(rutas.rutas));
+      }
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   async calcularRuta({
-    departure,
-    orders,
-    truckCapacity,
-  }: IDatosRuta): Promise<CreateRutaDto | null> {
+    productosPorDespachar,
+    camiones,
+  }: any): Promise<OptimizedRoutesResponse | null> {
     const prompt = generarPromptOptimizacionRutas({
-      departure,
-      orders,
-      truckCapacity,
+      productosPorDespachar,
+      camiones,
     });
     const respuesta = await this.aiProviderService.enviarPrompt(prompt);
 
     if (respuesta?.content) {
       try {
-        const ruta: CreateRutaDto = JSON.parse(
+        const ruta: OptimizedRoutesResponse = JSON.parse(
           respuesta.content,
-        ) as CreateRutaDto;
+        ) as OptimizedRoutesResponse;
         return ruta;
       } catch (error) {
         throw new Error('Error parsing AI response: ' + error);
@@ -167,12 +167,16 @@ export class RutasService {
     return null;
   }
 
-  actualizarRuta(createRutaDto: CreateRutaDto) {
+  actualizarRuta(createRutaDto: RutaDto[]) {
+    console.log(
+      '🚀 ~ RutasService ~ actualizarRuta ~ createRutaDto:',
+      JSON.stringify(createRutaDto, null, 2),
+    );
     const api = this.configService.get<string>('URL_RUTAS');
     const apiEndPoint = `${api}/rutas`;
 
     return this.httpService
-      .post<CreateRutaDto>(apiEndPoint, createRutaDto)
+      .post<any>(apiEndPoint, createRutaDto)
       .pipe(map((response) => response.data));
   }
 }

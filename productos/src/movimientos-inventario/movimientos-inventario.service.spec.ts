@@ -120,6 +120,8 @@ const mockBodegaService = {
         id_bodega: bodegaId,
         nombre: nombreBodega,
         direccion: direccionBodega,
+        latitud: faker.location.latitude(),
+        longitud: faker.location.longitude(),
         capacidad: capacidadBodega,
       });
     }
@@ -209,6 +211,8 @@ const poblarBaseDeDatos = async () => {
     nombre: nombreBodega,
     direccion: direccionBodega,
     capacidad: capacidadBodega,
+    latitud: faker.location.latitude(),
+    longitud: faker.location.longitude(),
   });
   bodegaId = entidadBodega.id_bodega;
 

@@ -272,6 +272,8 @@ const poblarBaseDeDatos = async (conInventario: boolean) => {
       nombre: faker.commerce.department(),
       direccion: faker.location.streetAddress(),
       capacidad: faker.number.int({ min: 1, max: 1000 }),
+      latitud: faker.location.latitude(),
+      longitud: faker.location.longitude(),
     });
     const bodegaId = entidadBodega.id_bodega;
 
