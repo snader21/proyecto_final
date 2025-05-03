@@ -16,7 +16,7 @@ export class RutasController {
   constructor(private readonly rutasService: RutasService) {}
 
   @Post()
-  create(@Body() createRutaDto: CreateRutaDto) {
+  create(@Body() createRutaDto: CreateRutaDto[]) {
     return this.rutasService.create(createRutaDto);
   }
 
@@ -27,7 +27,7 @@ export class RutasController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.rutasService.findOne(+id);
+    return this.rutasService.findOne(id);
   }
 
   @Patch(':id')

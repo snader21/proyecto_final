@@ -38,6 +38,24 @@ export class NodoRutaEntity {
   @Column({ type: 'decimal', precision: 10, scale: 6 })
   longitud: number;
 
+  @Column()
+  direccion: string;
+
+  @Column({
+    nullable: true,
+  })
+  id_cliente: string;
+
+  @Column({
+    nullable: true,
+  })
+  id_pedido: string;
+
+  @Column({
+    nullable: true,
+  })
+  id_bodega: string;
+
   @Column({ nullable: true })
   hora_llegada: Date;
 
