@@ -9,6 +9,7 @@ import { Usuario } from '../entities/usuario.entity';
 import { CreateUsuarioDto, EstadoUsuario } from '../dto/create-usuario.dto';
 import { Rol } from '../entities/rol.entity';
 import * as bcrypt from 'bcrypt';
+import { UpdateUsuarioDto } from 'src/dto/update-usuario.dto';
 
 @Injectable()
 export class UsuarioService {
@@ -66,6 +67,48 @@ export class UsuarioService {
       contrasena_hash: hashedPassword,
       estado: estado === EstadoUsuario.ACTIVE,
     });
+
+    if (roles && roles.length > 0) {
+      const rolesEntities = await Promise.all(
+        roles.map(async (rolId) => {
+          const rol = await this.rolRepository.findOneBy({ id: rolId });
+          if (!rol) {
+            throw new NotFoundException(`El rol con id: ${rolId} no existe`);
+          }
+          return rol;
+        }),
+      );
+      usuario.roles = rolesEntities;
+    }
+
+    const usuarioGuardado = await this.usuarioRepository.save(usuario);
+
+    const usuarioConRoles = (await this.usuarioRepository.findOne({
+      where: { id: usuarioGuardado.id },
+      relations: ['roles'],
+    })) as Usuario;
+    return usuarioConRoles;
+  }
+
+  async update(
+    id: string,
+    updateUsuarioDto: UpdateUsuarioDto,
+  ): Promise<Usuario> {
+    const usuario = await this.usuarioRepository.findOne({
+      where: { id },
+      relations: ['roles'],
+    });
+
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    const { contrasena, roles, ...userData } = updateUsuarioDto;
+    if (contrasena) {
+      const hashedPassword = await bcrypt.hash(contrasena, 10);
+      usuario.contrasena_hash = hashedPassword;
+    }
+    usuario.estado = userData.estado === EstadoUsuario.ACTIVE;
 
     if (roles && roles.length > 0) {
       const rolesEntities = await Promise.all(

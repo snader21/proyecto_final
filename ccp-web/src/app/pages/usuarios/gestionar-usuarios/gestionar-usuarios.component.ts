@@ -17,7 +17,7 @@ import { PrimeNG } from 'primeng/config';
 import { EventsService } from '../../../services/events/events.service';
 import { UsuariosService } from '../../../services/usuarios/usuarios.service';
 import { RolesService } from '../../../services/roles/roles.service';
-import { Rol } from '../../../interfaces/user.interfaces';
+import { Rol, UpdateUsuario, Usuario } from '../../../interfaces/user.interfaces';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 @Component({
@@ -188,4 +188,18 @@ export class GestionarUsuariosComponent implements OnInit {
     }
     return null;
   };
+
+  private editarUsuario = (usuario: UpdateUsuario) => {
+    this.selectedUsuario = usuario;
+    this.userForm.patchValue({
+      nombre: usuario.nombre,
+      correo: usuario.correo,
+      contrasena: usuario.contrasena,
+      rol: usuario.roles[0],
+      estado: usuario.estado
+    });
+  };
+
+  private selectedUsuario: UpdateUsuario | null = null;
+
 }
