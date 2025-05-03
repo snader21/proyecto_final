@@ -7,7 +7,7 @@ import { ProductosService } from '../productos/productos.service';
 import { PedidosService } from '../pedidos/pedidos.service';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
-import { ClienteService } from 'src/clientes/services/cliente.service';
+import { ClienteService } from '../clientes/services/cliente.service';
 
 export interface CreateNodoProductoDto {
   productoId: string;
