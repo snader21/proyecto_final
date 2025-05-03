@@ -5,9 +5,16 @@ import { ConfigModule } from '@nestjs/config';
 import { ProductosModule } from '../productos/productos.module';
 import { PedidosModule } from '../pedidos/pedidos.module';
 import { ProveedorAiService } from '../proveedor-ai/proveedor-ai.service';
+import { ClienteService } from '../clientes/services/cliente.service';
 
 describe('RutasService', () => {
   let service: RutasService;
+
+  const mockClienteService = {
+    obtenerCliente: jest
+      .fn()
+      .mockResolvedValue({ id: '1', nombre: 'Cliente 1' }),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -19,6 +26,10 @@ describe('RutasService', () => {
       ],
       providers: [
         RutasService,
+        {
+          provide: ClienteService,
+          useValue: mockClienteService,
+        },
         {
           provide: ProveedorAiService,
           useValue: {
