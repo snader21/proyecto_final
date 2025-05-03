@@ -8,10 +8,14 @@ export class ModalService {
   private modalState = new BehaviorSubject<boolean>(false);
   modalState$ = this.modalState.asObservable();
 
+  private modalData = new BehaviorSubject<any>(null);
+  modalData$ = this.modalData.asObservable();
+
   private bulkModalState = new BehaviorSubject<boolean>(false);
   bulkModalState$ = this.bulkModalState.asObservable();
 
-  openModal() {
+  openModal(data?: any) {
+    this.modalData.next(data);
     this.modalState.next(true);
   }
 
@@ -21,6 +25,7 @@ export class ModalService {
 
   closeModal() {
     this.modalState.next(false);
+    this.modalData.next(null);
   }
 
   closeBulkModal() {

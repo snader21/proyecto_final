@@ -102,4 +102,20 @@ export class VendedoresService {
     );
     return zonas;
   }
+
+  async updateUserVendedor(id: string, updateUserVendedorDto: any) {
+    const apiEndPoint = `${this.apiVendedores}/vendedores/${id}/usuario`;
+    try {
+      const { data: vendedor } = await firstValueFrom(
+        this.httpService.patch<VendedorDto>(apiEndPoint, updateUserVendedorDto),
+      );
+      return vendedor;
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      if (axiosError?.response?.status === 404) {
+        throw new NotFoundException(axiosError?.response?.data?.message);
+      }
+      throw new BadRequestException(axiosError?.response?.data?.message);
+    }
+  }
 }
