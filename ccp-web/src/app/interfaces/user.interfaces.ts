@@ -17,11 +17,11 @@ export interface CreateUsuario {
 
 export interface UpdateUsuario {
   id: string;
-  nombre: string;
-  correo: string;
-  contrasena: string;
-  roles: string[];
-  estado: 'active' | 'inactive';
+  nombre?: string;
+  correo?: string;
+  contrasena?: string;
+  roles?: string[];
+  estado?: 'active' | 'inactive';
 }
 
 export interface Usuario {

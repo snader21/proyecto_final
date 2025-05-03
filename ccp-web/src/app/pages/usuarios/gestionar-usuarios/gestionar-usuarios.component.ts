@@ -17,7 +17,7 @@ import { PrimeNG } from 'primeng/config';
 import { EventsService } from '../../../services/events/events.service';
 import { UsuariosService } from '../../../services/usuarios/usuarios.service';
 import { RolesService } from '../../../services/roles/roles.service';
-import { Rol, UpdateUsuario, Usuario } from '../../../interfaces/user.interfaces';
+import { Rol, UpdateUsuario, Usuario, CreateUsuario } from '../../../interfaces/user.interfaces';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 @Component({
@@ -38,14 +38,15 @@ import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
     InputSwitchModule],
   providers: [MessageService],
   templateUrl: './gestionar-usuarios.component.html',
-  styleUrl: './gestionar-usuarios.component.scss'
+  styleUrls: ['./gestionar-usuarios.component.scss']
 })
 
 export class GestionarUsuariosComponent implements OnInit {
   visible = false;
   userForm!: FormGroup;
   selectedRoleId: string | null = null;
-  selectedStatus: string | null = null;
+  selectedStatus: boolean | null = null;
+  selectedUsuario: UpdateUsuario | null = null;
 
   roles: Rol[] = [];
 
@@ -64,8 +65,19 @@ export class GestionarUsuariosComponent implements OnInit {
     private rolesService: RolesService
   ) {
     this.modalService.modalState$.subscribe(state => {
-      console.log('state', state);
+      console.log('Modal state changed:', state);
+      console.log('selectedUsuario:', this.selectedUsuario);
       this.visible = state;
+      if (!state) {
+        this.resetForm();
+      }
+    });
+
+    this.modalService.modalData$.subscribe(data => {
+      console.log('Modal data received:', data);
+      if (data) {
+        this.editarUsuario(data as Usuario);
+      }
     });
   }
 
@@ -79,7 +91,7 @@ export class GestionarUsuariosComponent implements OnInit {
     });
 
     this.userForm.get('estado')?.valueChanges.subscribe(value => {
-      this.selectedStatus = value;
+      this.selectedStatus = value === 'active';
     });
   }
 
@@ -90,94 +102,120 @@ export class GestionarUsuariosComponent implements OnInit {
   }
 
   private initForm() {
-    this.userForm = this.fb.group(
-      {
-        nombre: ['', Validators.required],
-        correo: ['', Validators.required],
-        contrasena: [null, [Validators.required, Validators.minLength(6)]],
-        repassword: [null, Validators.required],
-        rol: ['', Validators.required],
-        estado: ['active', Validators.required]
-      },
-      { validators: this.passwordsMatchValidator }
-    );
+    const passwordValidators = this.selectedUsuario ? [] : [Validators.required, Validators.minLength(6)];
+    const formValidators = this.selectedUsuario ? [] : [this.passwordsMatchValidator];
+
+    const baseForm = {
+      nombre: ['', Validators.required],
+      correo: ['', [Validators.required, Validators.email]],
+      estado: ['active', Validators.required]
+    };
+
+    if (!this.selectedUsuario) {
+      // Campos adicionales solo para creación
+      Object.assign(baseForm, {
+        contrasena: [null, passwordValidators],
+        repassword: [null, [Validators.required]],
+        rol: ['', Validators.required]
+      });
+    }
+
+    this.userForm = this.fb.group(baseForm, { validators: formValidators });
+  }
+
+  onSubmit() {
+    if (this.userForm.valid) {
+      const formData = this.userForm.value;
+      console.log('Datos del formulario:', formData);
+
+      const userData: Partial<CreateUsuario> = {
+        nombre: formData.nombre,
+        correo: formData.correo,
+        estado: formData.estado
+      };
+
+      if (this.selectedUsuario) {
+        console.log('Modo edición - Usuario seleccionado:', this.selectedUsuario);
+        const updateData = {
+          ...userData,
+          id: this.selectedUsuario.id,
+        } as UpdateUsuario;
+        console.log('Datos de actualización:', updateData);
+
+        this.usuariosService.editarUsuario(updateData).subscribe({
+          next: (response) => {
+            console.log('Respuesta exitosa de actualización:', response);
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Éxito',
+              detail: 'Usuario actualizado correctamente'
+            });
+            this.eventsService.refreshUsers();
+            this.modalService.closeModal();
+          },
+          error: (error) => {
+            console.error('Error detallado al actualizar usuario:', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: error.error?.message || 'Error al actualizar el usuario'
+            });
+          }
+        });
+      } else {
+        // Modo creación - agregar campos adicionales
+        userData.contrasena = formData.contrasena;
+        userData.roles = [formData.rol];
+
+        this.usuariosService.crearUsuario(userData as CreateUsuario).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Éxito',
+              detail: 'Usuario creado correctamente'
+            });
+            this.eventsService.refreshUsers();
+            this.modalService.closeModal();
+          },
+          error: (error) => {
+            console.error('Error al crear usuario:', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: error.error?.message || 'Error al crear el usuario'
+            });
+          }
+        });
+      }
+    }
+  }
+
+  private resetForm() {
+    this.selectedUsuario = null;
+    if (this.userForm) {
+      this.initForm();
+    }
+  }
+
+  private editarUsuario(usuario: Usuario) {
+    this.selectedUsuario = {
+      id: usuario.id,
+      nombre: usuario.nombre,
+      correo: usuario.correo,
+      estado: usuario.estado ? 'active' : 'inactive'
+    };
+
+    this.initForm();
+    this.userForm.patchValue({
+      nombre: usuario.nombre,
+      correo: usuario.correo,
+      estado: usuario.estado ? 'active' : 'inactive'
+    });
   }
 
   closeModal = () => {
     this.modalService.closeModal();
     this.resetForm();
-  }
-
-  resetForm = () => this.userForm.reset();
-
-  onSubmit = () => {
-    if (this.userForm.valid) {
-      this.saveUser();
-    } else {
-      Object.keys(this.userForm.controls).forEach(key => {
-        const control = this.userForm.get(key);
-        if (control?.invalid) {
-          control.markAsTouched();
-        }
-      });
-    }
-  }
-
-  private saveUser = () => {
-    const formData = this.userForm.value;
-    const usuario = {
-      nombre: formData.nombre,
-      correo: formData.correo,
-      contrasena: formData.contrasena,
-      roles: this.selectedRoleId ? [this.selectedRoleId] : [],
-      estado: formData.estado
-    };
-    console.log('usuario a guardar:', usuario);
-    this.usuariosService.crearUsuario(usuario).subscribe(
-      savedUser => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: 'El usuario se ha guardado correctamente',
-          life: 3000
-        });
-        this.eventsService.refreshUsers();
-        this.closeModal();
-      },
-      (error: any) => {
-        console.error('Error del backend:', error);
-        // Si el error viene como un objeto con message
-        if (error.error?.message) {
-          if (Array.isArray(error.error.message)) {
-            // Si es un array de errores de validación
-            error.error.message.forEach((message: string) => {
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Error de validación',
-                detail: message,
-                life: 5000
-              });
-            });
-          } else {
-            // Si es un mensaje de error simple
-            this.messageService.add({
-              severity: 'error',
-              summary: error.error.error || 'Error',
-              detail: error.error.message,
-              life: 5000
-            });
-          }
-        } else {
-          // Si es un error general
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Error al guardar el usuario',
-            life: 3000
-          });
-        }
-      }
-    );
   }
 
   passwordsMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
@@ -188,18 +226,4 @@ export class GestionarUsuariosComponent implements OnInit {
     }
     return null;
   };
-
-  private editarUsuario = (usuario: UpdateUsuario) => {
-    this.selectedUsuario = usuario;
-    this.userForm.patchValue({
-      nombre: usuario.nombre,
-      correo: usuario.correo,
-      contrasena: usuario.contrasena,
-      rol: usuario.roles[0],
-      estado: usuario.estado
-    });
-  };
-
-  private selectedUsuario: UpdateUsuario | null = null;
-
 }

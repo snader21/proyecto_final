@@ -83,11 +83,11 @@ export class UsuarioService {
 
     const usuarioGuardado = await this.usuarioRepository.save(usuario);
 
-    const usuarioConRoles = (await this.usuarioRepository.findOne({
+    const usuarioActualizado = (await this.usuarioRepository.findOne({
       where: { id: usuarioGuardado.id },
       relations: ['roles'],
     })) as Usuario;
-    return usuarioConRoles;
+    return usuarioActualizado;
   }
 
   async update(
@@ -103,32 +103,25 @@ export class UsuarioService {
       throw new NotFoundException('Usuario no encontrado');
     }
 
-    const { contrasena, roles, ...userData } = updateUsuarioDto;
-    if (contrasena) {
-      const hashedPassword = await bcrypt.hash(contrasena, 10);
-      usuario.contrasena_hash = hashedPassword;
-    }
-    usuario.estado = userData.estado === EstadoUsuario.ACTIVE;
+    console.log('Datos recibidos para actualización:', updateUsuarioDto);
 
-    if (roles && roles.length > 0) {
-      const rolesEntities = await Promise.all(
-        roles.map(async (rolId) => {
-          const rol = await this.rolRepository.findOneBy({ id: rolId });
-          if (!rol) {
-            throw new NotFoundException(`El rol con id: ${rolId} no existe`);
-          }
-          return rol;
-        }),
-      );
-      usuario.roles = rolesEntities;
+    // Actualizar los campos básicos del usuario
+    if (updateUsuarioDto.nombre) {
+      usuario.nombre = updateUsuarioDto.nombre;
     }
-
+    if (updateUsuarioDto.correo) {
+      usuario.correo = updateUsuarioDto.correo;
+    }
+    if (updateUsuarioDto.estado) {
+      usuario.estado = updateUsuarioDto.estado === EstadoUsuario.ACTIVE;
+    }
+    console.log('Usuario después de actualizar campos:', usuario);
     const usuarioGuardado = await this.usuarioRepository.save(usuario);
 
-    const usuarioConRoles = (await this.usuarioRepository.findOne({
+    const usuarioActualizado = (await this.usuarioRepository.findOne({
       where: { id: usuarioGuardado.id },
       relations: ['roles'],
     })) as Usuario;
-    return usuarioConRoles;
+    return usuarioActualizado;
   }
 }

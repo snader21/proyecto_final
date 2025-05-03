@@ -1,5 +1,4 @@
 import {
-  IsArray,
   IsEmail,
   IsEnum,
   IsOptional,
@@ -17,15 +16,6 @@ export class UpdateUsuarioDto {
   @IsEmail()
   @IsOptional()
   correo?: string;
-
-  @MinLength(6)
-  @IsOptional()
-  contrasena?: string;
-
-  @IsOptional()
-  @IsArray()
-  @IsOptional()
-  roles?: string[];
 
   @IsEnum(EstadoUsuario)
   @IsOptional()

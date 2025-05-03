@@ -24,7 +24,10 @@ export class UsuariosService {
   }
 
   editarUsuario(usuario: UpdateUsuario): Observable<Usuario> {
-    return this.http.put<Usuario>(`${this.apiUrl}/usuarios/${usuario.id}`, usuario);
+    console.log('Enviando actualización al backend:', usuario);
+    return this.http.put<Usuario>(`${this.apiUrl}/usuarios/${usuario.id}`, usuario).pipe(
+      tap(response => console.log('Respuesta del servidor (edición):', response))
+    );
   }
 
 }
