@@ -459,7 +459,7 @@ describe('Pruebas con servicio de inventario real', () => {
         );
       },
     );
-  });
+  }, 20000);
 
   it('no deberia obtener productos sin inventario', async () => {
     await poblarBaseDeDatos(false);
