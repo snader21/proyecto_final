@@ -294,6 +294,8 @@ export class ProductosService implements OnModuleInit {
     const productosConPedido = await this.movimientoInventarioRepository
       .createQueryBuilder('movimiento')
       .innerJoinAndSelect('movimiento.producto', 'producto')
+      .innerJoinAndSelect('movimiento.ubicacion', 'ubicacion')
+      .innerJoinAndSelect('ubicacion.bodega', 'bodega')
       .where('movimiento.id_pedido = :idPedido', { idPedido })
       .select([
         'producto.id_producto',
@@ -306,6 +308,14 @@ export class ProductosService implements OnModuleInit {
         'producto.ancho',
         'producto.peso',
         'movimiento.cantidad',
+        'movimiento.tipo_movimiento',
+        'ubicacion.nombre',
+        'ubicacion.descripcion',
+        'bodega.nombre',
+        'bodega.id_bodega',
+        'bodega.direccion',
+        'bodega.latitud',
+        'bodega.longitud',
       ])
       .getMany();
 
@@ -316,12 +326,18 @@ export class ProductosService implements OnModuleInit {
           nombre: movimiento.producto.nombre,
           descripcion: movimiento.producto.descripcion,
           sku: movimiento.producto.sku,
+          tipo_movimiento: movimiento.tipo_movimiento,
           precio: movimiento.producto.precio,
           alto: movimiento.producto.alto,
           largo: movimiento.producto.largo,
           ancho: movimiento.producto.ancho,
           peso: movimiento.producto.peso,
           cantidad: movimiento.cantidad,
+          id_bodega: movimiento.ubicacion.bodega.id_bodega,
+          nombre_bodega: movimiento.ubicacion.bodega.nombre,
+          direccion: movimiento.ubicacion.bodega.direccion,
+          latitud: movimiento.ubicacion.bodega.latitud,
+          longitud: movimiento.ubicacion.bodega.longitud,
         };
       },
     );

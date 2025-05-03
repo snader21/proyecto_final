@@ -28,7 +28,9 @@ export class VisitaService {
 
   async obtenerVisitasCliente(id_cliente: string) {
     const { data } = await firstValueFrom(
-      this.httpService.get(`${this.clientesApiUrl}/visitas/cliente/${id_cliente}`),
+      this.httpService.get(
+        `${this.clientesApiUrl}/visitas/cliente/${id_cliente}`,
+      ),
     );
     return data;
   }

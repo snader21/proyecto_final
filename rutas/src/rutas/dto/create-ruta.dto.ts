@@ -1,10 +1,9 @@
 import { CreateNodoRutaDto } from '../../nodos-rutas/dto/create-nodo-ruta.dto';
 
 export class CreateRutaDto {
-  fecha: string;
   duracionEstimada: number;
+  fecha: string;
   distanciaTotal: number;
-  tipoRutaId: number;
-  camionId: number;
+  camionId: string;
   nodos: CreateNodoRutaDto[];
 }
