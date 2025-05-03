@@ -5,7 +5,6 @@ import {
   IsNotEmpty,
   IsString,
   IsUUID,
-  MinLength,
 } from 'class-validator';
 
 export class CreateVendedorDto {

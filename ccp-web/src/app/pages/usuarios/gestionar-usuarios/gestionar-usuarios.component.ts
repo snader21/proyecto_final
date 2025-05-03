@@ -17,6 +17,7 @@ import { PrimeNG } from 'primeng/config';
 import { EventsService } from '../../../services/events/events.service';
 import { UsuariosService } from '../../../services/usuarios/usuarios.service';
 import { RolesService } from '../../../services/roles/roles.service';
+import { VendedoresService } from '../../../services/vendedores/vendedores.service';
 import { Rol, UpdateUsuario, Usuario, CreateUsuario } from '../../../interfaces/user.interfaces';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
@@ -62,7 +63,8 @@ export class GestionarUsuariosComponent implements OnInit {
     private fb: FormBuilder,
     private usuariosService: UsuariosService,
     private eventsService: EventsService,
-    private rolesService: RolesService
+    private rolesService: RolesService,
+    private vendedoresService: VendedoresService
   ) {
     this.modalService.modalState$.subscribe(state => {
       console.log('Modal state changed:', state);
@@ -97,7 +99,7 @@ export class GestionarUsuariosComponent implements OnInit {
 
   private cargarRoles() {
     this.rolesService.obtenerRoles().subscribe(roles => {
-      this.roles = roles;
+      this.roles = roles.filter(rol => rol.nombre.toLowerCase() !== 'vendedor');
     });
   }
 
@@ -145,6 +147,10 @@ export class GestionarUsuariosComponent implements OnInit {
         this.usuariosService.editarUsuario(updateData).subscribe({
           next: (response) => {
             console.log('Respuesta exitosa de actualización:', response);
+
+            // Verificar si el usuario es un vendedor
+            this.updateVendedor(response);
+
             this.messageService.add({
               severity: 'success',
               summary: 'Éxito',
@@ -187,6 +193,23 @@ export class GestionarUsuariosComponent implements OnInit {
           }
         });
       }
+    }
+  }
+
+  private updateVendedor(response: Usuario) {
+    const isVendedor = response.roles.some(rol => rol.nombre.toLowerCase() === 'vendedor');
+
+    if (isVendedor) {
+      console.log('Actualizando datos de vendedor...');
+      // Actualizar los datos del vendedor
+      this.vendedoresService.updateUserVendedor(response.id, {
+        nombre: response.nombre,
+        correo: response.correo,
+      }).then(() => {
+        console.log('Datos de vendedor actualizados correctamente');
+      }).catch(error => {
+        console.error('Error al actualizar datos de vendedor:', error);
+      });
     }
   }
 
