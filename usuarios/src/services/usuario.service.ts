@@ -103,9 +103,6 @@ export class UsuarioService {
       throw new NotFoundException('Usuario no encontrado');
     }
 
-    console.log('Datos recibidos para actualización:', updateUsuarioDto);
-
-    // Actualizar los campos básicos del usuario
     if (updateUsuarioDto.nombre) {
       usuario.nombre = updateUsuarioDto.nombre;
     }
@@ -115,7 +112,6 @@ export class UsuarioService {
     if (updateUsuarioDto.estado) {
       usuario.estado = updateUsuarioDto.estado === EstadoUsuario.ACTIVE;
     }
-    console.log('Usuario después de actualizar campos:', usuario);
     const usuarioGuardado = await this.usuarioRepository.save(usuario);
 
     const usuarioActualizado = (await this.usuarioRepository.findOne({
