@@ -30,4 +30,22 @@ export class ProductoPorPedidoDto {
 
   @IsNumber()
   cantidad: number;
+
+  @IsString()
+  id_bodega: string;
+
+  @IsString()
+  nombre_bodega: string;
+
+  @IsString()
+  direccion: string;
+
+  @IsNumber()
+  latitud: number;
+
+  @IsNumber()
+  longitud: number;
+
+  @IsString()
+  tipo_movimiento: string;
 }

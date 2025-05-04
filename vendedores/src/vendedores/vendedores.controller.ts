@@ -11,6 +11,7 @@ import { VendedoresService } from './vendedores.service';
 import { CreateVendedorDto } from './dto/create-vendedor.dto';
 import { UpdateVendedorDto } from './dto/update-vendedore.dto';
 import { UUIDParamDto } from '../shared/dto/id-param.dto';
+import { UserVendedorDto } from './dto/update-user-vendedor.dto';
 
 @Controller('vendedores')
 export class VendedoresController {
@@ -42,5 +43,16 @@ export class VendedoresController {
   @Delete(':id')
   remove(@Param() params: UUIDParamDto) {
     return this.vendedoresService.remove(params.id);
+  }
+
+  @Patch(':id/usuario')
+  updateUserVendedor(
+    @Param() params: UUIDParamDto,
+    @Body() updateUserVendedorDto: UserVendedorDto,
+  ) {
+    return this.vendedoresService.updateUserVendedor(
+      params.id,
+      updateUserVendedorDto,
+    );
   }
 }

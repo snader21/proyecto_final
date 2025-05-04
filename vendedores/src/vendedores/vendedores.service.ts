@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ZonasService } from '../zonas/zonas.service';
 import { UpdateVendedorDto } from './dto/update-vendedore.dto';
+import { UserVendedorDto } from './dto/update-user-vendedor.dto';
 
 @Injectable()
 export class VendedoresService {
@@ -71,6 +72,23 @@ export class VendedoresService {
       telefono: updateVendedorDto.telefono || vendedor.telefono,
       zona,
     });
+  }
+
+  async updateUserVendedor(id: string, updateUserVendedorDto: UserVendedorDto) {
+    const vendedor = await this.repository.findOne({
+      where: { usuario_id: id },
+    });
+
+    if (!vendedor) {
+      throw new NotFoundException('Vendedor no encontrado');
+    }
+
+    const updateData = {
+      nombre: updateUserVendedorDto.nombre,
+      correo: updateUserVendedorDto.correo,
+    };
+
+    return this.repository.update(vendedor.id, updateData);
   }
 
   async remove(id: string) {

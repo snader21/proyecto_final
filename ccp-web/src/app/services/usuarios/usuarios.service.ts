@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { CreateUsuario, Usuario } from '../../interfaces/user.interfaces';
+import { CreateUsuario, UpdateUsuario, Usuario } from '../../interfaces/user.interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +20,13 @@ export class UsuariosService {
   obtenerUsuarios(): Observable<Usuario[]> {
     return this.http.get<Usuario[]>(`${this.apiUrl}/usuarios`).pipe(
       tap(response => console.log('Respuesta del servidor:', response))
+    );
+  }
+
+  editarUsuario(usuario: UpdateUsuario): Observable<Usuario> {
+    console.log('Enviando actualización al backend:', usuario);
+    return this.http.put<Usuario>(`${this.apiUrl}/usuarios/${usuario.id}`, usuario).pipe(
+      tap(response => console.log('Respuesta del servidor (edición):', response))
     );
   }
 

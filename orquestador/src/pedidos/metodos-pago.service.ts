@@ -12,7 +12,12 @@ export class MetodosPagoService {
 
   findAll() {
     const api = this.configService.get<string>('URL_PEDIDOS');
+    console.log('🚀 ~ MetodosPagoService ~ findAll ~ api:', api);
     const apiEndPoint = `${api}/metodos-pago`;
     return this.httpService.get(apiEndPoint).pipe(map((resp) => resp.data));
+    console.log(
+      '🚀 ~ MetodosPagoService ~ findAll ~ apiEndPoint:',
+      apiEndPoint,
+    );
   }
 }

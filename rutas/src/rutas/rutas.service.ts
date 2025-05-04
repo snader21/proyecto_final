@@ -23,12 +23,14 @@ export class RutasService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async create(createRutaDto: CreateRutaDto) {
+  async create(createRutaDto: CreateRutaDto[]) {
+    console.log(
+      '🚀 ~ RutasService ~ create ~ CreateRutaDto:',
+      JSON.stringify(createRutaDto, null, 2),
+    );
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-
-    const camion = (await this.camionesService.findAll()).at(-1);
 
     const tipoRuta = (await this.tiposRutasService.findAll())?.find(
       (tipoRuta: TipoRutaEntity) => tipoRuta.tipo_ruta === 'Entrega de pedido',
@@ -38,33 +40,49 @@ export class RutasService {
       (estadoRuta: EstadoRutaEntity) => estadoRuta.estado_ruta === 'Programada',
     );
 
-    try {
-      const ruta = this.rutaRepository.create({
-        fecha: createRutaDto.fecha,
-        tipo_ruta: tipoRuta,
-        duracion_estimada: createRutaDto.duracionEstimada,
-        distancia_total: createRutaDto.distanciaTotal,
-        camion,
-        estado_ruta: estadoRuta,
+    const fechas = [...new Set(createRutaDto.map((dto) => dto.fecha))];
+    for (const fecha of fechas) {
+      await queryRunner.manager.delete(RutaEntity, {
+        fecha,
       });
+    }
 
-      const savedRuta = await queryRunner.manager.save(RutaEntity, ruta);
+    try {
+      const savedRutas: RutaEntity[] = [];
+      for (const dto of createRutaDto) {
+        const camion = await this.camionesService.findOne(dto.camionId);
 
-      if (createRutaDto.nodos?.length) {
-        await this.nodosRutasService.bulkCreateNodos(
-          createRutaDto.nodos,
-          savedRuta,
-          queryRunner.manager,
-        );
+        if (!camion) {
+          throw new BadRequestException('Camion no encontrado');
+        }
+
+        const ruta = this.rutaRepository.create({
+          fecha: dto.fecha,
+          tipo_ruta: tipoRuta,
+          duracion_estimada: dto.duracionEstimada,
+          distancia_total: dto.distanciaTotal,
+          camion,
+          estado_ruta: estadoRuta,
+        });
+
+        const savedRuta = await queryRunner.manager.save(RutaEntity, ruta);
+        savedRutas.push(savedRuta);
+        if (dto.nodos?.length) {
+          await this.nodosRutasService.bulkCreateNodos(
+            dto.nodos,
+            savedRuta,
+            queryRunner.manager,
+          );
+        }
       }
 
       await queryRunner.commitTransaction();
 
-      return this.findOne(savedRuta.id);
+      return Promise.all(savedRutas.map((r) => this.findOne(r.id)));
     } catch (error) {
       console.error(error);
       await queryRunner.rollbackTransaction();
-      throw new BadRequestException('Failed to create route');
+      throw new BadRequestException('Failed to create routes');
     } finally {
       await queryRunner.release();
     }
@@ -76,7 +94,7 @@ export class RutasService {
     });
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return this.rutaRepository.findOne({
       where: { id },
       relations: ['nodos_rutas', 'nodos_rutas.productos'],

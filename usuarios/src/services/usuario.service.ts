@@ -9,6 +9,7 @@ import { Usuario } from '../entities/usuario.entity';
 import { CreateUsuarioDto, EstadoUsuario } from '../dto/create-usuario.dto';
 import { Rol } from '../entities/rol.entity';
 import * as bcrypt from 'bcrypt';
+import { UpdateUsuarioDto } from 'src/dto/update-usuario.dto';
 
 @Injectable()
 export class UsuarioService {
@@ -82,10 +83,45 @@ export class UsuarioService {
 
     const usuarioGuardado = await this.usuarioRepository.save(usuario);
 
-    const usuarioConRoles = (await this.usuarioRepository.findOne({
+    const usuarioActualizado = (await this.usuarioRepository.findOne({
       where: { id: usuarioGuardado.id },
       relations: ['roles'],
     })) as Usuario;
-    return usuarioConRoles;
+    return usuarioActualizado;
+  }
+
+  async update(
+    id: string,
+    updateUsuarioDto: UpdateUsuarioDto,
+  ): Promise<Usuario> {
+    const usuario = await this.usuarioRepository.findOne({
+      where: { id },
+      relations: ['roles'],
+    });
+
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    console.log('Datos recibidos para actualización:', updateUsuarioDto);
+
+    // Actualizar los campos básicos del usuario
+    if (updateUsuarioDto.nombre) {
+      usuario.nombre = updateUsuarioDto.nombre;
+    }
+    if (updateUsuarioDto.correo) {
+      usuario.correo = updateUsuarioDto.correo;
+    }
+    if (updateUsuarioDto.estado) {
+      usuario.estado = updateUsuarioDto.estado === EstadoUsuario.ACTIVE;
+    }
+    console.log('Usuario después de actualizar campos:', usuario);
+    const usuarioGuardado = await this.usuarioRepository.save(usuario);
+
+    const usuarioActualizado = (await this.usuarioRepository.findOne({
+      where: { id: usuarioGuardado.id },
+      relations: ['roles'],
+    })) as Usuario;
+    return usuarioActualizado;
   }
 }

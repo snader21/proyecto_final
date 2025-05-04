@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { map } from 'rxjs/operators';
+import { map, filter } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
@@ -36,19 +36,28 @@ export class PedidosService {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {}
-  obtenerPedidosParaManiana(): Observable<IRespuestaPedido[]> {
+  obtenerPedidosRegistradosHoy(): Observable<IRespuestaPedido[]> {
     const api = this.configService.get<string>('URL_PEDIDOS');
     const apiEndPoint = `${api}/pedidos`;
 
-    return this.httpService
-      .get<IRespuestaPedido[]>(apiEndPoint)
-      .pipe(map((respuesta) => respuesta.data));
+    return this.httpService.get<IRespuestaPedido[]>(apiEndPoint).pipe(
+      map((respuesta) => respuesta.data),
+      map((pedidos) =>
+        pedidos.filter((pedido) => {
+          const hoy = new Date().toISOString().split('T')[0];
+          const fechaPedido = pedido.fecha_registro.split('T')[0];
+          return fechaPedido === hoy;
+        }),
+      ),
+    );
   }
 
   crearPedido(dto: any): Observable<IRespuestaPedido> {
     const api = this.configService.get<string>('URL_PEDIDOS');
     const apiEndPoint = `${api}/pedidos`;
-    return this.httpService.post<IRespuestaPedido>(apiEndPoint, dto).pipe(map(res => res.data));
+    return this.httpService
+      .post<IRespuestaPedido>(apiEndPoint, dto)
+      .pipe(map((res) => res.data));
   }
 
   findByIdVendedor(idVendedor: string, params?: { numeroPedido?: string; estado?: number; fechaInicio?: string; fechaFin?: string }): Observable<IRespuestaPedido[]> {

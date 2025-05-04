@@ -4,6 +4,11 @@ import { environment } from "../../../environments/environment";
 import { firstValueFrom } from "rxjs";
 import { Vendedor, Zona } from "../../interfaces/vendedor.interface";
 
+interface UpdateUserVendedor {
+  nombre: string;
+  correo: string;
+}
+
 @Injectable({
   providedIn: "root",
 })
@@ -40,5 +45,11 @@ export class VendedoresService {
 
   getZonas(): Promise<Zona[]> {
     return this.fetchData<Zona[]>(`${this.API_URL}/zonas`);
+  }
+
+  updateUserVendedor(id: string, updateUserVendedorDto: UpdateUserVendedor): Promise<Vendedor> {
+    return firstValueFrom(
+      this.http.patch<Vendedor>(`${this.API_URL}/${id}/usuario`, updateUserVendedorDto)
+    );
   }
 }

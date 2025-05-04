@@ -12,6 +12,12 @@ export class BodegaEntity {
   @Column()
   direccion: string;
 
+  @Column('float')
+  latitud: number;
+
+  @Column('float')
+  longitud: number;
+
   @Column('int')
   capacidad: number;
 

@@ -14,7 +14,7 @@ import { TagModule } from 'primeng/tag';
 import { GestionarUsuariosComponent } from './gestionar-usuarios/gestionar-usuarios.component';
 import { ModalService } from '../../services/productos/modal.service';
 import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';  
+import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 @Component({
   selector: 'app-usuarios',
@@ -25,6 +25,7 @@ import { InputTextModule } from 'primeng/inputtext';
 })
 
 export class UsuariosComponent implements OnInit {
+
 
   usuarios: Usuario[] = [];
   loading = false;
@@ -60,6 +61,10 @@ export class UsuariosComponent implements OnInit {
 
   openModal() {
     this.modalService.openModal();
+  }
+
+  editarUsuario(usuario: Usuario) {
+    this.modalService.openModal(usuario);
   }
 
 }

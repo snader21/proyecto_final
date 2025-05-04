@@ -7,9 +7,11 @@ import {
   Param,
   HttpCode,
   HttpStatus,
+  Put,
 } from '@nestjs/common';
 import { UsuarioService } from '../services/usuario.service';
 import { CreateUsuarioDto } from '../dto/create-usuario.dto';
+import { UpdateUsuarioDto } from 'src/dto/update-usuario.dto';
 
 @Controller('usuarios')
 export class UsuarioController {
@@ -35,5 +37,13 @@ export class UsuarioController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id') id: string) {
     await this.usuarioService.remove(id);
+  }
+
+  @Put(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() updateUsuarioDto: UpdateUsuarioDto,
+  ) {
+    return this.usuarioService.update(id, updateUsuarioDto);
   }
 }
