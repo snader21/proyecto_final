@@ -16,6 +16,7 @@ export class FabricantesService {
       this.configService.get<string>('URL_FABRICANTES') || '';
   }
   async getFabricante(id: string) {
+    console.log(id);
     const response = await firstValueFrom(
       this.httpService.get(`${this.fabricantesServiceUrl}/fabricantes/${id}`),
     );
