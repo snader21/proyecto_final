@@ -8,7 +8,7 @@ import { ClientesVisitaPageRoutingModule } from './clientes-visita-routing.modul
 
 import { ClientesVisitaPage } from './clientes-visita.page';
 import { ReactiveFormsModule } from '@angular/forms';
-
+import { VideoRecorderComponent } from '../../components/video-recorder/video-recorder.component';
 
 @NgModule({
   imports: [
@@ -16,7 +16,8 @@ import { ReactiveFormsModule } from '@angular/forms';
     FormsModule,
     IonicModule,
     ClientesVisitaPageRoutingModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    VideoRecorderComponent
   ],
   declarations: [ClientesVisitaPage]
 })

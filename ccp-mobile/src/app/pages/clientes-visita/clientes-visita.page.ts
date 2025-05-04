@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { VisitaService } from '../../services/visita.service';
-import { AlertController } from '@ionic/angular';
+import { AlertController, ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Cliente } from 'src/app/interfaces/cliente.interface';
 import { CreateVisitaDto } from 'src/app/interfaces/visita.interface';
+import { VideoRecorderComponent } from '../../components/video-recorder/video-recorder.component';
 
 @Component({
   selector: 'app-clientes-visita',
@@ -15,12 +16,14 @@ import { CreateVisitaDto } from 'src/app/interfaces/visita.interface';
 export class ClientesVisitaPage implements OnInit {
   visitaForm: FormGroup;
   cliente: Cliente | null = null;
+  recordedVideoUrl: string | null = null;
 
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
     private visitaService: VisitaService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private modalCtrl: ModalController
   ) {
     this.visitaForm = this.formBuilder.group({
       fecha: ['', Validators.required],
@@ -44,14 +47,18 @@ export class ClientesVisitaPage implements OnInit {
     });
   }
 
-  grabarVideo() {
-    console.log('Iniciando grabación de video...');
-    // Aquí iría la lógica para grabar video
-  }
+  async grabarVideo() {
+    const modal = await this.modalCtrl.create({
+      component: VideoRecorderComponent,
+      cssClass: 'modal-fullscreen'
+    });
 
-  subirVideo() {
-    console.log('Subiendo video...');
-    // Aquí iría la lógica para subir video
+    await modal.present();
+
+    const { data } = await modal.onWillDismiss();
+    if (data) {
+      this.recordedVideoUrl = data;
+    }
   }
 
   async onSubmit() {
@@ -65,7 +72,7 @@ export class ClientesVisitaPage implements OnInit {
         observaciones: formValue.observaciones || undefined,
         realizo_pedido: formValue.realizo_pedido,
         key_object_storage: null,
-        url: null
+        url: this.recordedVideoUrl || null
       };
 
       try {

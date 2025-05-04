@@ -40,27 +40,23 @@
     </ion-item>
 
     <ion-item>
-      <ion-label>¿Realizar pedido?</ion-label>
-      <ion-toggle formControlName="realizo_pedido" size="small"></ion-toggle>
+      <ion-toggle formControlName="realizo_pedido" justify="space-between" size="small" color="blue-gray">¿Realizar pedido?</ion-toggle>
     </ion-item>
 
-    <div class="ion-padding-top">
-      <ion-grid>
-        <ion-row>
-          <ion-col>
-            <ion-button expand="block" (click)="grabarVideo()" color="primary" size="small">
-              <ion-icon slot="start" name="videocam-outline"></ion-icon>
-              Grabar video
-            </ion-button>
-          </ion-col>
-          <ion-col>
-            <ion-button expand="block" (click)="onSubmit()" color="primary" size="small">
-              <ion-icon slot="start" name="cloud-upload-outline" type="submit"></ion-icon>
-              Subir video
-            </ion-button>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
+    <!-- Mostrar el video grabado si existe -->
+    <div *ngIf="recordedVideoUrl" class="ion-padding">
+      <video [src]="recordedVideoUrl" controls style="width: 100%; border-radius: 8px;"></video>
     </div>
+
+    <ion-button expand="block" fill="clear" (click)="grabarVideo()" color="blue-gray" class="ion-margin-top">
+      <ion-icon slot="start" name="videocam-outline"></ion-icon>
+      Grabar video
+    </ion-button>
+
+    <ion-button expand="block" (click)="onSubmit()" color="blue-gray">
+      <ion-icon slot="start" name="cloud-upload-outline" type="submit"></ion-icon>
+      Registrar visita
+    </ion-button>
+
   </form>
 </ion-content>
