@@ -9,8 +9,20 @@ import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [HttpModule],
-  controllers: [PedidosController, MetodosPagoController, MetodosEnvioController],
-  providers: [PedidosService, MetodosPagoService, MetodosEnvioService],
-  exports: [PedidosService, MetodosPagoService, MetodosEnvioService],
+  controllers: [
+    PedidosController,
+    MetodosPagoController,
+    MetodosEnvioController,
+  ],
+  providers: [
+    PedidosService,
+    MetodosPagoService,
+    MetodosEnvioService,
+  ],
+  exports: [
+    PedidosService,
+    MetodosPagoService,
+    MetodosEnvioService,
+  ],
 })
 export class PedidosModule {}
