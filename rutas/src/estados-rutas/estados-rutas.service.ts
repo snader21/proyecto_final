@@ -13,15 +13,12 @@ export class EstadosRutasService implements OnModuleInit {
   ) {}
   async onModuleInit() {
     await this.estadoRutaRepository.save({
-      id: 1,
       estado_ruta: 'Programada',
     });
     await this.estadoRutaRepository.save({
-      id: 2,
       estado_ruta: 'En curso',
     });
     await this.estadoRutaRepository.save({
-      id: 3,
       estado_ruta: 'Finalizada',
     });
   }

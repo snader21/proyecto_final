@@ -13,11 +13,14 @@ import {
 
 @Entity('ruta')
 export class RutaEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @Column()
-  fecha: Date;
+  @Column({ type: 'int', generated: 'increment', unique: true })
+  numero_ruta: number;
+
+  @Column({ type: 'date' })
+  fecha: string;
 
   @ManyToOne(() => TipoRutaEntity, (tipo_ruta) => tipo_ruta.rutas, {
     nullable: false,

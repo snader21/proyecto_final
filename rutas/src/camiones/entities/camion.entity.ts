@@ -3,17 +3,17 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('camion')
 export class CamionEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   placa: string;
 
   @Column()
-  anio: number;
+  nombre_conductor: string;
 
   @Column()
-  nombre_conductor: string;
+  celular_conductor: string;
 
   @Column()
   capacidad: number;

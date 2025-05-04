@@ -9,8 +9,8 @@ import {
 
 @Entity('nodo_producto')
 export class NodoProductoEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @ManyToOne(() => NodoRutaEntity, (nodo_ruta) => nodo_ruta.productos, {
     nullable: false,
@@ -21,7 +21,4 @@ export class NodoProductoEntity {
 
   @Column()
   producto_id: string;
-
-  @Column()
-  pedido_id: string;
 }

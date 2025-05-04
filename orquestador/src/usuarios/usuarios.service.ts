@@ -49,4 +49,12 @@ export class UsuariosService {
     const { data } = await firstValueFrom(this.httpService.get(`${api}/roles`));
     return data;
   }
+
+  async actualizarUsuario(id: string, usuario: any) {
+    const api = this.configService.get<string>('URL_USUARIOS');
+    const { data } = await firstValueFrom(
+      this.httpService.put(`${api}/usuarios/${id}`, usuario),
+    );
+    return data;
+  }
 }

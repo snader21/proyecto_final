@@ -23,8 +23,15 @@ import { CommonModule } from '../common/common.module';
     HttpModule,
     CommonModule
   ],
-  controllers: [PedidosController, MetodosPagoController, MetodosEnvioController],
-  providers: [PedidosService, MetodosEnvioService],
+  controllers: [
+    PedidosController,
+    MetodosPagoController,
+    MetodosEnvioController,
+  ],
+  providers: [
+    PedidosService,
+    MetodosEnvioService,
+  ],
   exports: [PedidosService],
 })
 export class PedidosModule {}
