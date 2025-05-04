@@ -60,11 +60,64 @@ export class PedidosService {
       .pipe(map((res) => res.data));
   }
 
-  findByIdVendedor(idVendedor: string): Observable<IRespuestaPedido[]> {
+  findByIdVendedor(idVendedor: string, params?: { numeroPedido?: string; estado?: number; fechaInicio?: string; fechaFin?: string }): Observable<IRespuestaPedido[]> {
     const api = this.configService.get<string>('URL_PEDIDOS');
-    const apiEndPoint = `${api}/pedidos/${idVendedor}`;
-    return this.httpService
-      .get<IRespuestaPedido[]>(apiEndPoint)
-      .pipe(map((res) => res.data));
+    let apiEndPoint = `${api}/pedidos/vendedor/${idVendedor}`;
+
+    if (params) {
+      const queryParams = new URLSearchParams();
+      if (params.numeroPedido) queryParams.append('numeroPedido', params.numeroPedido);
+      if (params.estado) queryParams.append('estado', params.estado.toString());
+      if (params.fechaInicio) queryParams.append('fechaInicio', params.fechaInicio);
+      if (params.fechaFin) queryParams.append('fechaFin', params.fechaFin);
+      if (queryParams.toString()) {
+        apiEndPoint += `?${queryParams.toString()}`;
+      }
+    }
+
+    return this.httpService.get<IRespuestaPedido[]>(apiEndPoint).pipe(map((res) => res.data));
+  }
+
+  findByIdCliente(idCliente: string, params?: { numeroPedido?: string; estado?: number; fechaInicio?: string; fechaFin?: string }): Observable<IRespuestaPedido[]> {
+    const api = this.configService.get<string>('URL_PEDIDOS');
+    let apiEndPoint = `${api}/pedidos/cliente/${idCliente}`;
+
+    if (params) {
+      const queryParams = new URLSearchParams();
+      if (params.numeroPedido) queryParams.append('numeroPedido', params.numeroPedido);
+      if (params.estado) queryParams.append('estado', params.estado.toString());
+      if (params.fechaInicio) queryParams.append('fechaInicio', params.fechaInicio);
+      if (params.fechaFin) queryParams.append('fechaFin', params.fechaFin);
+      if (queryParams.toString()) {
+        apiEndPoint += `?${queryParams.toString()}`;
+      }
+    }
+
+    return this.httpService.get<IRespuestaPedido[]>(apiEndPoint).pipe(map((res) => res.data));
+  }
+
+  findAll(params?: { numeroPedido?: string; estado?: number; fechaInicio?: string; fechaFin?: string }): Observable<IRespuestaPedido[]> {
+    const api = this.configService.get<string>('URL_PEDIDOS');
+    let apiEndPoint = `${api}/pedidos`;
+
+    if (params) {
+      const queryParams = new URLSearchParams();
+      if (params.numeroPedido) queryParams.append('numeroPedido', params.numeroPedido);
+      if (params.estado) queryParams.append('estado', params.estado.toString());
+      if (params.fechaInicio) queryParams.append('fechaInicio', params.fechaInicio);
+      if (params.fechaFin) queryParams.append('fechaFin', params.fechaFin);
+      if (queryParams.toString()) {
+        apiEndPoint += `?${queryParams.toString()}`;
+      }
+      console.log(apiEndPoint);
+    }
+
+    return this.httpService.get<IRespuestaPedido[]>(apiEndPoint).pipe(map((res) => res.data));
+  }
+
+  findAllEstadoPedido(): Observable<IRespuestaPedido[]> {
+    const api = this.configService.get<string>('URL_PEDIDOS');
+    const apiEndPoint = `${api}/pedidos/estado-pedido`;
+    return this.httpService.get<IRespuestaPedido[]>(apiEndPoint).pipe(map((res) => res.data));
   }
 }
