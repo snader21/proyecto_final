@@ -37,7 +37,6 @@ import { NodoProductoEntity } from './nodos-productos/entities/nodo-producto.ent
         TipoRutaEntity,
         NodoProductoEntity,
       ],
-      dropSchema: true,
       synchronize: true,
     }),
     CamionesModule,
