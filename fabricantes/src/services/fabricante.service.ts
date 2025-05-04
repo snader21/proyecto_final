@@ -92,6 +92,8 @@ export class FabricanteService {
       throw new NotFoundException('Fabricante no encontrado');
     }
 
+    console.log('Datos recibidos para actualización:', updateFabricanteDto);
+
     const updatedData = {
       ...updateFabricanteDto,
       lugar_id: updateFabricanteDto.ciudad_id,
