@@ -99,10 +99,44 @@ export class PedidosService implements OnModuleInit {
     ]);
   }
 
-  async findAll(): Promise<PedidoEntity[]> {
-    return await this.pedidoRepository.find({
-      relations: ['estado', 'pago', 'envio'],
-    });
+  async findAll(filters?: {
+    numeroPedido?: string;
+    estado?: number;
+    fechaInicio?: string;
+    fechaFin?: string;
+  }): Promise<PedidoEntity[]> {
+    console.log(filters);
+    const queryBuilder = this.pedidoRepository
+      .createQueryBuilder('pedido')
+      .leftJoinAndSelect('pedido.estado', 'estado')
+      .leftJoinAndSelect('pedido.pago', 'pago')
+      .leftJoinAndSelect('pedido.envio', 'envio');
+
+    if (filters) {
+      if (filters.numeroPedido?.trim()) {
+        queryBuilder.andWhere('CAST(pedido.id_pedido AS TEXT) LIKE :numeroPedido', {
+          numeroPedido: `%${filters.numeroPedido.trim()}%`,
+        });
+      }
+
+      if (filters.estado && filters.estado !== -1) {
+        queryBuilder.andWhere('pedido.id_estado = :estado', {
+          estado: filters.estado,
+        });
+      }
+
+      if (filters.fechaInicio && filters.fechaFin) {
+        queryBuilder.andWhere(
+          'pedido.fecha_registro BETWEEN :fechaInicio AND :fechaFin',
+          {
+            fechaInicio: filters.fechaInicio,
+            fechaFin: filters.fechaFin,
+          },
+        );
+      }
+    }
+
+    return await queryBuilder.getMany();
   }
 
   async findAllMetodosPago() {
@@ -132,24 +166,99 @@ export class PedidosService implements OnModuleInit {
         }
       );
     } catch (error) {
-      console.log(error);      
+      console.log(error);
     }
-    
+
     return found;
   }
 
-  async findByIdVendedor(idVendedor: string): Promise<PedidoEntity[]> {
-    try {
-      console.log('Buscando pedidos para vendedor:', idVendedor);
-      const pedidos = await this.pedidoRepository.find({
-        where: { id_vendedor: idVendedor },
-        relations: ['estado', 'pago', 'envio'],
-      });
-      console.log('Pedidos encontrados:', pedidos);
-      return pedidos;
-    } catch (error) {
-      console.error('Error al buscar pedidos:', error);
-      throw error;
+  async findByIdVendedor(
+    idVendedor: string,
+    filters?: {
+      numeroPedido?: string;
+      estado?: number;
+      fechaInicio?: string;
+      fechaFin?: string;
+    },
+  ): Promise<PedidoEntity[]> {
+    const queryBuilder = this.pedidoRepository
+      .createQueryBuilder('pedido')
+      .leftJoinAndSelect('pedido.estado', 'estado')
+      .leftJoinAndSelect('pedido.pago', 'pago')
+      .leftJoinAndSelect('pedido.envio', 'envio')
+      .where('pedido.id_vendedor = :idVendedor', { idVendedor });
+
+    if (filters) {
+      if (filters.numeroPedido?.trim()) {
+        queryBuilder.andWhere('CAST(pedido.id_pedido AS TEXT) LIKE :numeroPedido', {
+          numeroPedido: `%${filters.numeroPedido.trim()}%`,
+        });
+      }
+
+      if (filters.estado && filters.estado !== -1) {
+        queryBuilder.andWhere('pedido.id_estado = :estado', {
+          estado: filters.estado,
+        });
+      }
+
+      if (filters.fechaInicio && filters.fechaFin) {
+        queryBuilder.andWhere(
+          'pedido.fecha_registro BETWEEN :fechaInicio AND :fechaFin',
+          {
+            fechaInicio: filters.fechaInicio,
+            fechaFin: filters.fechaFin,
+          },
+        );
+      }
     }
+
+    return await queryBuilder.getMany();
+  }
+
+  async findByIdCliente(
+    idCliente: string,
+    filters?: {
+      numeroPedido?: string;
+      estado?: number;
+      fechaInicio?: string;
+      fechaFin?: string;
+    },
+  ): Promise<PedidoEntity[]> {
+    const queryBuilder = this.pedidoRepository
+      .createQueryBuilder('pedido')
+      .leftJoinAndSelect('pedido.estado', 'estado')
+      .leftJoinAndSelect('pedido.pago', 'pago')
+      .leftJoinAndSelect('pedido.envio', 'envio')
+      .where('pedido.id_cliente = :idCliente', { idCliente });
+
+    if (filters) {
+      if (filters.numeroPedido?.trim()) {
+        queryBuilder.andWhere('CAST(pedido.id_pedido AS TEXT) LIKE :numeroPedido', {
+          numeroPedido: `%${filters.numeroPedido.trim()}%`,
+        });
+      }
+
+      if (filters.estado && filters.estado !== -1) {
+        queryBuilder.andWhere('pedido.id_estado = :estado', {
+          estado: filters.estado,
+        });
+      }
+
+      if (filters.fechaInicio && filters.fechaFin) {
+        queryBuilder.andWhere(
+          'pedido.fecha_registro BETWEEN :fechaInicio AND :fechaFin',
+          {
+            fechaInicio: filters.fechaInicio,
+            fechaFin: filters.fechaFin,
+          },
+        );
+      }
+    }
+
+    return await queryBuilder.getMany();
+  }
+
+  async findAllEstadoPedido(): Promise<EstadoPedidoEntity[]> {
+    return await this.estadoPedidoRepository.find();
   }
 }
