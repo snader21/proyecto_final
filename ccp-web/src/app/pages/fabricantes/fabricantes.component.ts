@@ -80,6 +80,7 @@ export class FabricantesComponent implements OnInit {
   public onSuccess(success: boolean) {
     if (success) {
       this.listarFabricantes();
+      console.log('Fabricante guardado exitosamente');
     }
   }
 }
