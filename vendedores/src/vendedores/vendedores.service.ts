@@ -83,6 +83,8 @@ export class VendedoresService {
       throw new NotFoundException('Vendedor no encontrado');
     }
 
+    console.log('Datos recibidos para actualización:', updateUserVendedorDto);
+
     const updateData = {
       nombre: updateUserVendedorDto.nombre,
       correo: updateUserVendedorDto.correo,
