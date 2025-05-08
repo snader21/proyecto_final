@@ -38,16 +38,19 @@ export class FabricantesFormComponent implements OnInit {
   ciudades: any[] = [];
   paises: any[] = [];
   estados = [
-    { label: 'Activo', value: 'activo' },
-    { label: 'Inactivo', value: 'inactivo' }
+    { label: $localize`:@@estadoActivo:Activo`, value: 'activo' },
+    { label: $localize`:@@estadoInactivo:Inactivo`, value: 'inactivo' }
   ];
   esPrimeraCarga = true;
+  dialogTitleAdd: string = $localize`:@@tituloAgregarFabricante:Agregar fabricante`;
+  dialogTitleEdit: string = $localize`:@@tituloEditarFabricante:Editar fabricante`;
+
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly fabricantesService: FabricantesService,
     private readonly messageService: MessageService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.initForm();
@@ -116,7 +119,7 @@ export class FabricantesFormComponent implements OnInit {
   async onSubmit() {
     if (this.form.invalid) {
       this.markFormGroupTouched(this.form);
-      this.showErrorMessage('Por favor complete todos los campos correctamente');
+      this.showErrorMessage($localize`:@@formularioFabricanteInvalido:Por favor complete todos los campos correctamente`);
       return;
     }
     try {
@@ -125,7 +128,7 @@ export class FabricantesFormComponent implements OnInit {
       } else {
         await this.fabricantesService.createFabricante(this.form.value);
       }
-      this.showSuccessMessage('El fabricante se ha guardado correctamente');
+      this.showSuccessMessage($localize`:@@fabricanteGuardado:El fabricante se ha guardado correctamente`);
       this.success.emit(true);
       this.hideDialog();
     } catch (error: any) {
@@ -146,7 +149,7 @@ export class FabricantesFormComponent implements OnInit {
     this.messageService.add({
       key: 'error',
       severity: 'error',
-      summary: 'Error',
+      summary: $localize`:@@tituloDeErrorFabricante:Error`,
       detail
     });
   }
@@ -155,7 +158,7 @@ export class FabricantesFormComponent implements OnInit {
     this.messageService.add({
       key: 'success',
       severity: 'success',
-      summary: 'Éxito',
+      summary: $localize`:@@tituloDeExitoFabricante:Éxito`,
       detail,
       life: 3000
     });
@@ -164,10 +167,18 @@ export class FabricantesFormComponent implements OnInit {
   getErrorMessage(controlName: string): string {
     const control = this.form.get(controlName);
     if (!control) return '';
-    if (control.hasError('required')) return 'Este campo es requerido';
-    if (control.hasError('email')) return 'Por favor ingrese un correo electrónico válido';
-    if (control.hasError('minlength')) return `El campo debe tener al menos ${control.errors?.['minlength'].requiredLength} caracteres`;
-    if (control.hasError('pattern')) return 'Por favor ingrese un número de teléfono válido (10 dígitos)';
+    if (control.hasError('required')) {
+      return $localize`:@@campoFabricanteRequerido:Este campo es requerido`;
+    }
+    if (control.hasError('email')) {
+      return $localize`:@@validacionCorreoFabricante:Por favor ingrese un correo electrónico válido`;
+    }
+    if (control.hasError('minlength')) {
+      return $localize`:@@validacionLongitudMinimaFabricante:El campo debe tener al menos ${control.errors?.['minlength'].requiredLength} caracteres`;
+    }
+    if (control.hasError('pattern')) {
+      return $localize`:@@validaciontelefonoFabricante:Por favor ingrese un número de teléfono válido (10 dígitos)`;
+    }
     return '';
   }
 

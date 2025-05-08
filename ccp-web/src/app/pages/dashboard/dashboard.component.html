@@ -1,92 +1,93 @@
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-10 h-full">
-  <!-- Tarjeta grande: Fabricantes y Productos -->
   <div
     class="bg-gray-700 text-white p-6 rounded-xl shadow-lg flex flex-col justify-end h-[40vh] gap-4"
     [ngClass]="{'div-oscuro': divApagado(['/fabricantes', '/productos'])}"
   >
-    <h3 class="text-lg font-semibold">Gestión de fabricantes y productos</h3>
+    <h3 class="text-lg font-semibold" i18n="dashboardManufacturersProductsTitle">Gestión de fabricantes y productos</h3>
     <div class="flex space-x-2">
       <p-button
         styleClass="px-10 py-2 bg-gray-900 text-white rounded-[100px]"
         label="Fabricantes"
+        i18n-label="dashboardManufacturersButton"
         (click)="navigateTo('/fabricantes')"
         [disabled]="!tieneAcceso('/fabricantes')"
       />
       <p-button
         styleClass="px-10 py-2 bg-gray-300 text-black rounded-[100px]"
         label="Productos"
+        i18n-label="dashboardProductsButton"
         (click)="navigateTo('/productos')"
         [disabled]="!tieneAcceso('/productos')"
       />
     </div>
   </div>
 
-  <!-- Tarjeta grande: Vendedores y Reportes -->
   <div
     class="bg-black text-white p-6 rounded-xl shadow-lg flex flex-col justify-end h-[40vh] gap-4"
     [ngClass]="{'div-oscuro': divApagado(['/vendedores', '/reportes'])}"
   >
-    <h3 class="text-lg font-semibold">Gestión de vendedores y reportes</h3>
+    <h3 class="text-lg font-semibold" i18n="dashboardSellersReportsTitle">Gestión de vendedores y reportes</h3>
     <div class="flex space-x-2">
       <p-button
         styleClass="px-10 py-2 bg-slate-700 text-white rounded-[100px]"
         label="Vendedores"
+        i18n-label="dashboardSellersButton"
         (click)="navigateTo('/vendedores')"
         [disabled]="!tieneAcceso('/vendedores')"
       />
       <p-button
         styleClass="px-10 py-2 bg-gray-300 text-black rounded-[100px]"
         label="Reportes"
+        i18n-label="dashboardReportsButton"
         (click)="navigateTo('/reportes')"
         [disabled]="!tieneAcceso('/reportes')"
       />
     </div>
   </div>
 </div>
-<!-- Tarjetas pequeñas -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full px-10">
-  <!-- Usuarios -->
   <div
     class="bg-black text-white p-6 rounded-xl shadow-lg flex flex-col justify-end h-[40vh] gap-4"
     [ngClass]="{'div-oscuro': divApagado(['/usuarios'])}"
   >
-    <h3 class="text-lg font-semibold">Gestión de usuarios</h3>
+    <h3 class="text-lg font-semibold" i18n="dashboardUsersTitle">Gestión de usuarios</h3>
     <div class="flex space-x-2">
       <p-button
         styleClass="px-10 py-2 bg-slate-700 text-white rounded-[100px]"
         label="Usuarios"
+        i18n-label="dashboardUsersButton"
         (click)="navigateTo('/usuarios')"
         [disabled]="!tieneAcceso('/usuarios')"
       />
     </div>
   </div>
 
-  <!-- Pedidos -->
   <div
     class="bg-gray-700 text-white p-6 rounded-xl shadow-lg flex flex-col justify-end h-[40vh] gap-4"
     [ngClass]="{'div-oscuro': divApagado(['/pedidos'])}"
   >
-    <h3 class="text-lg font-semibold">Gestión de pedidos</h3>
+    <h3 class="text-lg font-semibold" i18n="dashboardOrdersTitle">Gestión de pedidos</h3>
     <div class="flex space-x-2">
       <p-button
         styleClass="px-10 py-2 bg-slate-900 text-white rounded-[100px]"
         label="Pedidos"
+        i18n-label="dashboardOrdersButton"
         (click)="navigateTo('/pedidos')"
         [disabled]="!tieneAcceso('/pedidos')"
       />
     </div>
   </div>
 
-  <!-- Logística -->
   <div
     class="bg-gray-900 text-white p-6 rounded-xl shadow-lg flex flex-col justify-end h-[40vh] gap-4"
     [ngClass]="{'div-oscuro': divApagado(['/rutas'])}"
   >
-    <h3 class="text-lg font-semibold">Gestión de logística</h3>
+    <h3 class="text-lg font-semibold" i18n="dashboardLogisticsTitle">Gestión de logística</h3>
     <div class="flex space-x-2">
       <p-button
         styleClass="px-10 py-2 bg-slate-700 text-white rounded-[100px]"
         label="Logística"
+        i18n-label="dashboardLogisticsButton"
         (click)="navigateTo('/rutas')"
         [disabled]="!tieneAcceso('/rutas')"
       />
