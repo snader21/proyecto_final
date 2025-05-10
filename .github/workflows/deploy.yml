@@ -41,12 +41,15 @@ jobs:
           done
         working-directory: ccp-web
 
-      - name: Create .nojekyll in each locale and list contents
+      - name: Create .nojekyll in each locale and confirm creation
         run: |
           for locale in en es; do
-            touch dist/ccp-web/browser/$locale/.nojekyll
-            echo "Created .nojekyll in $locale"
-            ls -la dist/ccp-web/browser/$locale/
+            target_dir="dist/ccp-web/browser/$locale"
+            echo "Checking directory: $target_dir"
+            mkdir -p "$target_dir"  # por si por alguna razón no existe aún
+            touch "$target_dir/.nojekyll"
+            echo ".nojekyll created in $locale"
+            ls -la "$target_dir"
           done
         working-directory: ccp-web
 
