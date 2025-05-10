@@ -22,17 +22,23 @@ export class LocaleService {
 
   // Cambiar el idioma y guardar el valor
   switchLocale(locale: string) {
+    console.log('Cambiando idioma...');    
     const baseHref = document.getElementsByTagName('base')[0]?.getAttribute('href') || '/';
+    console.log("🚀 ~ LocaleService ~ switchLocale ~ baseHref:", baseHref)
     const currentPath = this.location.path();
+    console.log("🚀 ~ LocaleService ~ switchLocale ~ currentPath:", currentPath)
   
     // Limpiar la ruta del idioma actual y agregar el nuevo idioma
     const cleanPath = currentPath.replace(/^\/(en|es)/, '');
-    const newLocalePath = locale === 'en' ? `/en${cleanPath}` : `/es${cleanPath}`;
+    console.log("🚀 ~ LocaleService ~ switchLocale ~ cleanPath:", cleanPath)
+    const newLocalePath = locale === 'en' ? `/en/#${cleanPath}` : `/es/#${cleanPath}`;
   
+    console.log("🚀 ~ LocaleService ~ switchLocale ~ newLocalePath:", newLocalePath)
     // Actualizar el idioma en el store
     this.currentLocale = locale;
     localStorage.setItem('locale', locale);
 
+    console.log("🚀 ~ LocaleService ~ switchLocale ~ `${baseHref.replace(/\/$/, '')}${newLocalePath}`:", `${baseHref.replace(/\/$/, '')}${newLocalePath}`)
     window.location.href = `${baseHref.replace(/\/$/, '')}${newLocalePath}`;
   }
 
