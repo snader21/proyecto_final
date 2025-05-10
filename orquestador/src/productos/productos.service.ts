@@ -197,6 +197,13 @@ export class ProductosService {
       .pipe(map((respuesta) => respuesta.data));
   }
 
+  async getBodega(id: string) {
+    const apiEndPoint = `${this.apiProductos}/bodegas/${id}`;
+    return this.httpService
+      .get<any[]>(apiEndPoint)
+      .pipe(map((respuesta) => respuesta.data));
+  }
+
   async uploadImages(files: any[]) {
     console.log('Iniciando uploadImages con:', files.length, 'archivos');
     const apiEndPoint = `${this.apiProductos}/productos/upload-images`;

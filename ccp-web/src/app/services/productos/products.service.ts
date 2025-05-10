@@ -82,4 +82,8 @@ export class ProductsService {
       movimiento
     );
   }
+
+  getBodega(idBodega: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/productos/bodegas/${idBodega}`);
+  }
 }

@@ -8,6 +8,7 @@ import { PedidosService } from '../pedidos/pedidos.service';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { ClienteService } from '../clientes/services/cliente.service';
+import { Cron } from '@nestjs/schedule';
 
 export interface CreateNodoProductoDto {
   productoId: string;
@@ -59,14 +60,14 @@ export class RutasService {
       .pipe(map((response) => response.data));
   }
 
-  async calcularYGuardarRuta() {
+  async calcularYGuardarRutaDeEntregaDePedidos() {
     try {
       const pedidosParaManiana = await firstValueFrom(
         this.pedidosService.obtenerPedidosRegistradosHoy(),
       );
 
       if (pedidosParaManiana.length === 0) {
-        throw new Error('No hay pedidos para mañana');
+        return 'No hay pedidos para mañana';
       }
 
       const camiones = await firstValueFrom(this.obtenerCamiones());
@@ -177,6 +178,16 @@ export class RutasService {
 
     return this.httpService
       .post<any>(apiEndPoint, createRutaDto)
+      .pipe(map((response) => response.data));
+  }
+
+  // // cron every 5 seconds
+  // @Cron('*/5 * * * * *')
+  obtenerListaRutas() {
+    const api = this.configService.get<string>('URL_RUTAS');
+    const apiEndPoint = `${api}/rutas`;
+    return this.httpService
+      .get(apiEndPoint)
       .pipe(map((response) => response.data));
   }
 }

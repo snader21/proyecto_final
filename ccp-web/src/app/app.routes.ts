@@ -7,26 +7,48 @@ import { UsuariosComponent } from "./pages/usuarios/usuarios.component";
 import { FabricantesComponent } from "./pages/fabricantes/fabricantes.component";
 import { ProductsComponent } from "./pages/products/products.component";
 import { VendedoresComponent } from "./pages/vendedores/vendedores.component";
+import { RutasComponent } from "./pages/rutas/rutas.component";
 
 export const routes: Routes = [
   {
-    path: ':lang',
+    path: ":lang",
     canActivate: [LanguagePrefixGuard],
     children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'login', component: LoginComponent, canActivate: [AuthGuard] },
-      { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-      { path: 'usuarios', component: UsuariosComponent, canActivate: [AuthGuard] },
-      { path: 'productos', component: ProductsComponent, canActivate: [AuthGuard] },
-      { path: 'fabricantes', component: FabricantesComponent, canActivate: [AuthGuard] },
-      { path: 'vendedores', component: VendedoresComponent, canActivate: [AuthGuard] },
-      { path: '**', redirectTo: 'dashboard' }
-    ]
+      { path: "", redirectTo: "dashboard", pathMatch: "full" },
+      { path: "login", component: LoginComponent, canActivate: [AuthGuard] },
+      {
+        path: "dashboard",
+        component: DashboardComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: "usuarios",
+        component: UsuariosComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: "productos",
+        component: ProductsComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: "fabricantes",
+        component: FabricantesComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: "vendedores",
+        component: VendedoresComponent,
+        canActivate: [AuthGuard],
+      },
+      { path: "rutas", component: RutasComponent, canActivate: [AuthGuard] },
+      { path: "**", redirectTo: "dashboard" },
+    ],
   },
   // Ruta sin lang (opcionalmente, por compatibilidad)
   {
-    path: '',
-    redirectTo: 'es',
-    pathMatch: 'full'
-  }
+    path: "",
+    redirectTo: "es",
+    pathMatch: "full",
+  },
 ];

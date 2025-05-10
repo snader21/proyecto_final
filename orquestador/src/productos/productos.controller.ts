@@ -105,4 +105,9 @@ export class ProductosController {
   async getImageFiles() {
     return this.productosService.getImageFiles();
   }
+
+  @Get('bodegas/:id')
+  async getBodega(@Param('id') id: string) {
+    return this.productosService.getBodega(id);
+  }
 }
