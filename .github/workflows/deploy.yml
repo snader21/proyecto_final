@@ -34,24 +34,6 @@ jobs:
         run: npm run build -- --configuration=production --localize --base-href /proyecto_final/
         working-directory: ccp-web
 
-      - name: Copy index.html to 404.html in each locale
-        run: |
-          for locale in en es; do
-            cp dist/ccp-web/browser/$locale/index.html dist/ccp-web/browser/$locale/404.html
-          done
-        working-directory: ccp-web
-
-      - name: Create .nojekyll in each locale and confirm creation
-        run: |
-          for locale in en es; do
-            target_dir="dist/ccp-web/browser/$locale"
-            echo "Checking directory: $target_dir"
-            mkdir -p "$target_dir"  # por si por alguna razón no existe aún
-            touch "$target_dir/.nojekyll"
-            echo ".nojekyll created in $locale"
-            ls -la "$target_dir"
-          done
-        working-directory: ccp-web
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
