@@ -22,24 +22,36 @@ export class LocaleService {
 
   // Cambiar el idioma y guardar el valor
   switchLocale(locale: string) {
-    console.log('Cambiando idioma...');    
-    const baseHref = document.getElementsByTagName('base')[0]?.getAttribute('href') || '/';
-    console.log("🚀 ~ LocaleService ~ switchLocale ~ baseHref:", baseHref)
+    console.log('Cambiando idioma...');
+
+    // Detectar y limpiar el idioma del baseHref si está presente
+    const rawBaseHref = document.getElementsByTagName('base')[0]?.getAttribute('href') || '/';
+    console.log("Raw baseHref:", rawBaseHref);
+
+    // Elimina cualquier /en/ o /es/ del baseHref
+    const cleanedBaseHref = rawBaseHref.replace(/\/(en|es)\/?$/, '').replace(/\/$/, '');
+    console.log("Cleaned baseHref:", cleanedBaseHref);
+
+    // Obtener la ruta actual sin el idioma al principio
     const currentPath = this.location.path();
-    console.log("🚀 ~ LocaleService ~ switchLocale ~ currentPath:", currentPath)
-  
-    // Limpiar la ruta del idioma actual y agregar el nuevo idioma
+    console.log("Current path:", currentPath);
+
+    // Limpiar idioma inicial en el path, si existe
     const cleanPath = currentPath.replace(/^\/(en|es)/, '');
-    console.log("🚀 ~ LocaleService ~ switchLocale ~ cleanPath:", cleanPath)
-    const newLocalePath = locale === 'en' ? `/en/#${cleanPath}` : `/es/#${cleanPath}`;
-  
-    console.log("🚀 ~ LocaleService ~ switchLocale ~ newLocalePath:", newLocalePath)
-    // Actualizar el idioma en el store
+    console.log("Clean path:", cleanPath);
+
+    // Construir la nueva ruta con hash
+    const newLocalePath = `/${locale}/#${cleanPath}`;
+    console.log("New locale path:", newLocalePath);
+
+    // Guardar en localStorage
     this.currentLocale = locale;
     localStorage.setItem('locale', locale);
 
-    console.log("🚀 ~ LocaleService ~ switchLocale ~ `${baseHref.replace(/\/$/, '')}${newLocalePath}`:", `${baseHref.replace(/\/$/, '')}${newLocalePath}`)
-    window.location.href = `${baseHref.replace(/\/$/, '')}${newLocalePath}`;
+    // Redirigir
+    const newUrl = `${cleanedBaseHref}${newLocalePath}`;
+    console.log("Redirecting to:", newUrl);
+    window.location.href = newUrl;
   }
 
   // Detectar el idioma en la URL (para el guard)
