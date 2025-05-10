@@ -25,7 +25,6 @@ export class DashboardComponent implements OnInit {
   }
 
   navigateTo(path: string) {
-    // const currentLocale = this.localeService.getCurrentLocale();
     this.router.navigate([`${path}`]);
   }
 

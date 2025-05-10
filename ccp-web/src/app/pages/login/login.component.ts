@@ -8,6 +8,7 @@ import { InputIcon } from 'primeng/inputicon';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
+import { LocaleService } from '../../services/locale.service';
 
 @Component({
   selector: 'app-login',
@@ -25,8 +26,8 @@ import { CommonModule } from '@angular/common';
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
-  public languages = [{name: 'Español'}, {name: 'English'}];
-  public language = this.languages[0];
+  public languages = [{name: 'Español', value: 'es'}, {name: 'English', value: 'en'}];
+  public language;
   
   public loginForm = {
     email: '',
@@ -38,9 +39,11 @@ export class LoginComponent {
 
   constructor(
     private readonly authService: AuthService,
-    private readonly router: Router
-  ) {}
-
+    private readonly router: Router,
+    private readonly localeService: LocaleService
+  ) {
+    this.language = this.languages.find(l => l.value === this.localeService.getCurrentLocale()) || this.languages[0];
+  }
   async onSubmit() {
     if (!this.loginForm.email || !this.loginForm.password) {
       this.errorMessage = 'Por favor, complete todos los campos';
@@ -58,5 +61,9 @@ export class LoginComponent {
     } finally {
       this.isLoading = false;
     }
+  }
+
+  onLanguageChange() {
+    if (this.language) this.localeService.switchLocale(this.language.value);
   }
 }
