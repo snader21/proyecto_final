@@ -41,8 +41,11 @@ jobs:
           done
         working-directory: ccp-web
 
-      - name: Create .nojekyll
-        run: touch dist/ccp-web/browser/.nojekyll
+      - name: Create .nojekyll in each locale
+        run: |
+          for locale in en es; do
+            touch dist/ccp-web/browser/$locale/.nojekyll
+          done
         working-directory: ccp-web
 
       - name: Deploy to GitHub Pages
