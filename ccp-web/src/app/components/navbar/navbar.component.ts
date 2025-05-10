@@ -72,7 +72,7 @@ export class NavbarComponent implements OnInit {
     const currentLocale = this.localeService.getCurrentLocale(); // Obtener el idioma actual
 
     // Verificar si la ruta actual es el dashboard
-    const isDashboard = this.location.path() === `/${currentLocale}/dashboard`;
+    const isDashboard = this.location.path() === `/dashboard`;
 
     if (!isDashboard) {
       // Usuarios
@@ -80,7 +80,7 @@ export class NavbarComponent implements OnInit {
         menuItems.push({
           label: $localize`:@@navbarUsuarios:Usuarios`,
           icon: 'pi pi-users',
-          routerLink: `/${currentLocale}/usuarios`
+          routerLink: `/usuarios`
         });
       }
 
@@ -89,13 +89,13 @@ export class NavbarComponent implements OnInit {
       if (rutasPermitidas.includes(`/fabricantes`)) {
         fabricantesProductosItems.push({
           label: $localize`:@@navbarFabricantes:Fabricantes`,
-          routerLink: `/${currentLocale}/fabricantes`
+          routerLink: `/fabricantes`
         });
       }
       if (rutasPermitidas.includes(`/productos`)) {
         fabricantesProductosItems.push({
           label: $localize`:@@navbarProductos:Productos`,
-          routerLink: `/${currentLocale}/productos`
+          routerLink: `/productos`
         });
       }
       if (fabricantesProductosItems.length > 0) {
@@ -111,13 +111,13 @@ export class NavbarComponent implements OnInit {
       if (rutasPermitidas.includes(`/vendedores`)) {
         vendedoresItems.push({
           label: $localize`:@@navbarVendedores:Vendedores`,
-          routerLink: `/${currentLocale}/vendedores`
+          routerLink: `/vendedores`
         });
       }
       if (rutasPermitidas.includes(`/reportes`)) {
         vendedoresItems.push({
           label: $localize`:@@navbarReportes:Reportes`,
-          routerLink: `/${currentLocale}/reportes`
+          routerLink: `/reportes`
         });
       }
       if (vendedoresItems.length > 0) {
@@ -133,7 +133,7 @@ export class NavbarComponent implements OnInit {
         menuItems.push({
           label: $localize`:@@navbarPedidos:Pedidos`,
           icon: 'pi pi-shopping-cart',
-          routerLink: `/${currentLocale}/pedidos`
+          routerLink: `/pedidos`
         });
       }
 
@@ -142,7 +142,7 @@ export class NavbarComponent implements OnInit {
         menuItems.push({
           label: $localize`:@@navbarLogistica:Logística`,
           icon: 'pi pi-map-marker',
-          routerLink: `/${currentLocale}/rutas`
+          routerLink: `/rutas`
         });
       }
     }
