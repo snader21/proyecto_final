@@ -6,6 +6,7 @@ import { UsuariosComponent } from "./pages/usuarios/usuarios.component";
 import { FabricantesComponent } from "./pages/fabricantes/fabricantes.component";
 import { ProductsComponent } from "./pages/products/products.component";
 import { VendedoresComponent } from "./pages/vendedores/vendedores.component";
+import { RutasComponent } from "./pages/rutas/rutas.component";
 
 export const routes: Routes = [
   { path: "", redirectTo: "dashboard", pathMatch: "full" },
@@ -33,6 +34,11 @@ export const routes: Routes = [
   {
     path: "vendedores",
     component: VendedoresComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: "rutas",
+    component: RutasComponent,
     canActivate: [AuthGuard],
   },
   { path: "**", redirectTo: "dashboard" },

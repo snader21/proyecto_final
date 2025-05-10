@@ -16,8 +16,8 @@ export class RutasController {
   constructor(private readonly rutasService: RutasService) {}
 
   @Post()
-  create(@Body() createRutaDto: CreateRutaDto[]) {
-    return this.rutasService.create(createRutaDto);
+  createRutaDeEntregaDePedidos(@Body() createRutaDto: CreateRutaDto[]) {
+    return this.rutasService.createRutaDeEntregaDePedidos(createRutaDto);
   }
 
   @Get()

@@ -1,0 +1,61 @@
+<p-dialog
+  [header]="routeTitle"
+  [modal]="true"
+  [(visible)]="visible"
+  [style]="{ width: '40rem' }"
+  (onHide)="hideDialog()"
+>
+  <ng-container *ngIf="stops && stops.length > 0 && !loading; else noStops">
+    <p-stepper [(value)]="activeStep">
+      <p-step-item *ngFor="let stop of stops; let i = index" [value]="i + 1">
+        <p-step>{{ "Parada " + (i + 1) }}</p-step>
+        <p-step-panel>
+          <ng-template #content let-activateCallback="activateCallback">
+            <div class="p-4 space-y-2">
+              <div *ngIf="stop.id_bodega">
+                <strong>Bodega: </strong>
+                {{ bodegaMap[stop.id_bodega]?.nombre }}
+              </div>
+              <div *ngIf="stop.id_cliente">
+                <strong>Cliente: </strong>
+                {{ clienteMap[stop.id_cliente]?.nombre }}
+              </div>
+              <div *ngIf="stop.id_pedido">
+                <strong>Número de pedido: </strong> {{ stop.id_pedido }}
+              </div>
+              <div *ngIf="stop.direccion">
+                <strong>Dirección: </strong> {{ stop.direccion }}
+              </div>
+              <div *ngIf="stop.hora_llegada">
+                <strong>Hora de llegada:</strong>
+                {{ stop.hora_llegada | date : "dd/MM/yyyy, h:mm a" }}
+              </div>
+              <div>
+                <strong>Estado: </strong>
+                <span>Pendiente</span>
+              </div>
+            </div>
+
+            <div class="flex justify-between pt-4">
+              <p-button
+                *ngIf="i > 0"
+                label="Anterior"
+                severity="secondary"
+                (onClick)="activateCallback(i)"
+              />
+              <p-button
+                *ngIf="i < stops.length - 1"
+                label="Siguiente"
+                (onClick)="activateCallback(i + 2)"
+              />
+            </div>
+          </ng-template>
+        </p-step-panel>
+      </p-step-item>
+    </p-stepper>
+  </ng-container>
+
+  <ng-template #noStops>
+    <div class="text-center p-3">No hay paradas definidas para esta ruta.</div>
+  </ng-template>
+</p-dialog>

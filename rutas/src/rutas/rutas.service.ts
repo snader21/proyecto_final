@@ -10,7 +10,6 @@ import { EstadosRutasService } from '../estados-rutas/estados-rutas.service';
 import { CamionesService } from '../camiones/camiones.service';
 import { TipoRutaEntity } from '../tipos-rutas/entities/tipo-ruta.entity';
 import { EstadoRutaEntity } from '../estados-rutas/entities/estado-ruta.entity';
-
 @Injectable()
 export class RutasService {
   constructor(
@@ -23,7 +22,7 @@ export class RutasService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async create(createRutaDto: CreateRutaDto[]) {
+  async createRutaDeEntregaDePedidos(createRutaDto: CreateRutaDto[]) {
     console.log(
       '🚀 ~ RutasService ~ create ~ CreateRutaDto:',
       JSON.stringify(createRutaDto, null, 2),
@@ -88,9 +87,10 @@ export class RutasService {
     }
   }
 
+  // cron every 5 seconds
   findAll() {
     return this.rutaRepository.find({
-      relations: ['nodos_rutas', 'nodos_rutas.productos'],
+      relations: ['tipo_ruta', 'estado_ruta', 'camion', 'nodos_rutas'],
     });
   }
 

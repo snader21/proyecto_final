@@ -1,0 +1,77 @@
+<p-card class="flex flex-col p-8">
+  <div class="flex flex-row justify-between mb-3">
+    <h1 class="text-4xl font-bold">Rutas</h1>
+  </div>
+  <div class="flex flex-col">
+    <p-table [value]="rutas" [tableStyle]="{ 'min-width': '50rem' }">
+      <ng-template #caption>
+        <div class="flex items-center justify-between">
+          <span class="text-xl font-bold">Listado de rutas</span>
+          <p-iconfield iconPosition="left" class="ml-auto">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input
+              pInputText
+              [(ngModel)]="filtro"
+              type="text"
+              placeholder="Buscar ruta"
+              (input)="filtrarRutas()"
+            />
+          </p-iconfield>
+        </div>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th scope="col" class="w-1/7">Número de ruta</th>
+          <th scope="col" class="w-1/7">Tipo</th>
+          <th scope="col" class="w-1/7">Contacto</th>
+          <th scope="col" class="w-1/7">Teléfono</th>
+          <th scope="col" class="w-1/7">Fecha</th>
+          <th scope="col" class="w-1/7">Estado</th>
+          <th scope="col" class="w-1/6"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-ruta>
+        <tr>
+          <td>{{ ruta.numero_ruta }}</td>
+          <td>{{ ruta.tipo_ruta.tipo_ruta }}</td>
+          <td>{{ ruta.camion.nombre_conductor }}</td>
+          <td>{{ ruta.camion.celular_conductor }}</td>
+          <td>{{ ruta.fecha }}</td>
+          <td>
+            <p-tag
+              [value]="ruta.estado_ruta.estado_ruta"
+              [severity]="
+                ruta.estado_ruta.estado_ruta === 'Finalizada'
+                  ? 'success'
+                  : 'info'
+              "
+              styleClass="w-24 text-center"
+            ></p-tag>
+          </td>
+          <td class="flex flex-row text-center gap-3">
+            <p-button
+              styleClass="bg-slate-700 text-white"
+              icon="pi pi-eye"
+              severity="secondary"
+              label="Ver detalles"
+              (click)="verDetalles(ruta)"
+            />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6">No se encontraron rutas.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-card>
+<app-rutas-details
+  *ngIf="dialogVisible"
+  [stops]="selectedRuta.nodos_rutas"
+  [ruta]="selectedRuta"
+  [(visible)]="dialogVisible"
+></app-rutas-details>
