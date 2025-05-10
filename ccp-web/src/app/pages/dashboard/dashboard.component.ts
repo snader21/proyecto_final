@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { Usuario } from '../../interfaces/permiso.interface';
 import { NgClass } from '@angular/common';
+import { LocaleService } from '../../services/locale.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -13,7 +14,7 @@ import { NgClass } from '@angular/common';
 export class DashboardComponent implements OnInit {
   rutasPermitidas: string[] = [];
 
-  constructor(private readonly router: Router) {}
+  constructor(private readonly router: Router, private readonly localeService: LocaleService) {}
 
   ngOnInit() {
     const usuarioStr = localStorage.getItem('usuario');
@@ -24,7 +25,8 @@ export class DashboardComponent implements OnInit {
   }
 
   navigateTo(path: string) {
-    this.router.navigate([path]);
+    const currentLocale = this.localeService.getCurrentLocale();
+    this.router.navigate([`${currentLocale}${path}`]);
   }
 
   tieneAcceso(path: string): boolean {
