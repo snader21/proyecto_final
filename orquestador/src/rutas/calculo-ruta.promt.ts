@@ -130,8 +130,13 @@ Only include the trucks that were assigned deliveries.
 
 ## 🚨 Rules Recap (DO NOT BREAK)
 - Do NOT split a single product unit between trucks.
+- You MUST use only one truck if any truck has enough capacity for the total volume.
+- Only use more than one truck if:
+  1. No single truck has the capacity.
+  2. Products are stored in different warehouses (i.e., different departure points).
 - Orders may be split, but products must remain whole.
 - Do NOT exceed truck capacity.
+- Among the sufficient trucks, choose the one with the **smallest sufficient capacity**.
 - Do NOT include text outside the JSON.
 - If no truck has sufficient capacity for the total volume: return \`{ "camiones_insuficientes": true, "rutas": [] }\`
 
@@ -146,6 +151,8 @@ Only include the trucks that were assigned deliveries.
 ## Your Responsibilities
 - Calculate the optimized routes for the minimum number of trucks needed from the sufficient trucks.
 - Among the sufficient trucks, select the one with the smallest capacity to assign deliveries to. If the smallest truck is not enough, select the next one with the next smallest capacity.
+- If all products are from the same warehouse and a truck has enough capacity, you MUST assign all products to that single truck.
+- You are NOT allowed to split across trucks unless products come from different warehouses or no truck can handle all products.
 - Assign products from orders to trucks without splitting any product.
 - Optimize the route for each truck using Manhattan distance, considering:
   1. Start at departure point (the warehouse where the products are located)
