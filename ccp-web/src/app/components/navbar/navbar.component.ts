@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
+import { LocaleService } from '../../services/locale.service';
 import { MenubarModule } from 'primeng/menubar';
 import { AvatarModule } from 'primeng/avatar';
 import { InputTextModule } from 'primeng/inputtext';
@@ -31,9 +32,16 @@ export class NavbarComponent implements OnInit {
     { label: 'Español', value: 'es' },
     { label: 'English', value: 'en' }
   ];
-  selectedLanguage: any = { label: 'Español', value: 'es' };
+  selectedLanguage: any;
 
-  constructor(private readonly authService: AuthService, private readonly location: Location, private readonly router: Router) {
+  constructor(
+    private readonly authService: AuthService,
+    private readonly location: Location,
+    private readonly router: Router,
+    private readonly localeService: LocaleService
+  ) {
+    const currentLocale = this.localeService.getCurrentLocale();
+    this.selectedLanguage = this.languages.find(lang => lang.value === currentLocale) || this.languages[0];
   }
 
   ngOnInit() {
@@ -61,36 +69,38 @@ export class NavbarComponent implements OnInit {
 
     const menuItems: MenuItem[] = [];
 
+    const currentLocale = this.localeService.getCurrentLocale(); // Obtener el idioma actual
+
     // Verificar si la ruta actual es el dashboard
-    const isDashboard = this.location.path() === '/dashboard';
+    const isDashboard = this.location.path() === `/${currentLocale}/dashboard`;
 
     if (!isDashboard) {
       // Usuarios
-      if (rutasPermitidas.includes('/usuarios')) {
+      if (rutasPermitidas.includes(`/usuarios`)) {
         menuItems.push({
-          label: 'Usuarios',
+          label: $localize`:@@navbarUsuarios:Usuarios`,
           icon: 'pi pi-users',
-          routerLink: '/usuarios'
+          routerLink: `/${currentLocale}/usuarios`
         });
       }
 
       // Fabricantes y Productos
       const fabricantesProductosItems: MenuItem[] = [];
-      if (rutasPermitidas.includes('/fabricantes')) {
+      if (rutasPermitidas.includes(`/fabricantes`)) {
         fabricantesProductosItems.push({
-          label: 'Fabricantes',
-          routerLink: '/fabricantes'
+          label: $localize`:@@navbarFabricantes:Fabricantes`,
+          routerLink: `/${currentLocale}/fabricantes`
         });
       }
-      if (rutasPermitidas.includes('/productos')) {
+      if (rutasPermitidas.includes(`/productos`)) {
         fabricantesProductosItems.push({
-          label: 'Productos',
-          routerLink: '/productos'
+          label: $localize`:@@navbarProductos:Productos`,
+          routerLink: `/${currentLocale}/productos`
         });
       }
       if (fabricantesProductosItems.length > 0) {
         menuItems.push({
-          label: 'Fabricantes y Productos',
+          label: $localize`:@@navbarFabricantesProductos:Fabricantes y Productos`,
           icon: 'pi pi-shopping-bag',
           items: fabricantesProductosItems
         });
@@ -98,63 +108,63 @@ export class NavbarComponent implements OnInit {
 
       // Vendedores
       const vendedoresItems: MenuItem[] = [];
-      if (rutasPermitidas.includes('/vendedores')) {
+      if (rutasPermitidas.includes(`/vendedores`)) {
         vendedoresItems.push({
-          label: 'Vendedores',
-          routerLink: '/vendedores'
+          label: $localize`:@@navbarVendedores:Vendedores`,
+          routerLink: `/${currentLocale}/vendedores`
         });
       }
-      if (rutasPermitidas.includes('/reportes')) {
+      if (rutasPermitidas.includes(`/reportes`)) {
         vendedoresItems.push({
-          label: 'Reportes',
-          routerLink: '/reportes'
+          label: $localize`:@@navbarReportes:Reportes`,
+          routerLink: `/${currentLocale}/reportes`
         });
       }
       if (vendedoresItems.length > 0) {
         menuItems.push({
-          label: 'Vendedores',
+          label: $localize`:@@navbarVendedoresGrupo:Vendedores`,
           icon: 'pi pi-id-card',
           items: vendedoresItems
         });
       }
 
       // Pedidos
-      if (rutasPermitidas.includes('/pedidos')) {
+      if (rutasPermitidas.includes(`/pedidos`)) {
         menuItems.push({
-          label: 'Pedidos',
+          label: $localize`:@@navbarPedidos:Pedidos`,
           icon: 'pi pi-shopping-cart',
-          routerLink: '/pedidos'
+          routerLink: `/${currentLocale}/pedidos`
         });
       }
 
       // Logística
-      if (rutasPermitidas.includes('/rutas')) {
+      if (rutasPermitidas.includes(`/rutas`)) {
         menuItems.push({
-          label: 'Logística',
+          label: $localize`:@@navbarLogistica:Logística`,
           icon: 'pi pi-map-marker',
-          routerLink: '/rutas'
+          routerLink: `/${currentLocale}/rutas`
         });
       }
     }
 
     // Agregar controles de idioma y logout (siempre visibles)
     menuItems.push({
-      label: this.selectedLanguage.label,
+      label: this.selectedLanguage.label, // Esto ya está dinámico
       icon: 'pi pi-globe',
       items: [
         {
-          label: 'Español',
+          label: $localize`:@@idiomaEspanol:Español`,
           command: () => this.onLanguageChange({ value: { label: 'Español', value: 'es' } })
         },
         {
-          label: 'English',
+          label: $localize`:@@idiomaIngles:English`,
           command: () => this.onLanguageChange({ value: { label: 'English', value: 'en' } })
         }
       ]
     });
 
     menuItems.push({
-      label: 'Salir',
+      label: $localize`:@@navbarSalir:Salir`,
       icon: 'pi pi-sign-out',
       command: () => this.logout(),
     });
@@ -169,7 +179,7 @@ export class NavbarComponent implements OnInit {
         languageItem.label = event.value.label;
       }
     }
-    console.log('Language changed to:', event.value);
+    this.localeService.switchLocale(event.value.value);
   }
 
   logout() {

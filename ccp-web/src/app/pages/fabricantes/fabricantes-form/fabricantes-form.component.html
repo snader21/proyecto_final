@@ -1,7 +1,7 @@
 <p-toast key="success" position="top-right"></p-toast>
 <p-toast key="error" position="top-right"></p-toast>
 <p-dialog
-  [header]="fabricante ? 'Editar fabricante' : 'Agregar fabricante'"
+  [header]="fabricante ? dialogTitleEdit : dialogTitleAdd"
   [modal]="true"
   [(visible)]="visible"
   [style]="{ width: '35rem' }"
@@ -16,11 +16,12 @@
   </div>
   <form *ngIf="!loading" [formGroup]="form" class="flex flex-col gap-4">
     <div class="flex flex-col gap-2">
-      <label for="nombre">Nombre</label>
+      <label for="nombre" i18n="manufacturerFormNameLabel">Nombre</label>
       <input
         pInputText
         id="nombre"
         formControlName="nombre"
+        i18n-placeholder="manufacturerFormNamePlaceholder"
         placeholder="Ingrese el nombre del fabricante"
         [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('nombre') }"
       />
@@ -29,11 +30,12 @@
       </small>
     </div>
     <div class="flex flex-col gap-2">
-      <label for="correo">Correo</label>
+      <label for="correo" i18n="manufacturerFormEmailLabel">Correo</label>
       <input
         pInputText
         id="correo"
         formControlName="correo"
+        i18n-placeholder="manufacturerFormEmailPlaceholder"
         placeholder="Ingrese el correo electrónico"
         [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('correo') }"
       />
@@ -42,11 +44,12 @@
       </small>
     </div>
     <div class="flex flex-col gap-2">
-      <label for="direccion">Dirección</label>
+      <label for="direccion" i18n="manufacturerFormAddressLabel">Dirección</label>
       <input
         pInputText
         id="direccion"
         formControlName="direccion"
+        i18n-placeholder="manufacturerFormAddressPlaceholder"
         placeholder="Ingrese la dirección"
         [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('direccion') }"
       />
@@ -56,10 +59,11 @@
     </div>
 
     <div class="flex flex-col gap-2">
-      <label for="pais_id">País</label>
+      <label for="pais_id" i18n="manufacturerFormCountryLabel">País</label>
       <p-select
         [options]="paises"
         formControlName="pais_id"
+        i18n-placeholder="manufacturerFormCountryPlaceholder"
         placeholder="Seleccione el país"
         class="w-full"
         appendTo="body"
@@ -71,10 +75,11 @@
       </small>
     </div>
     <div class="flex flex-col gap-2">
-      <label for="ciudad_id">Ciudad</label>
+      <label for="ciudad_id" i18n="manufacturerFormCityLabel">Ciudad</label>
       <p-select
         [options]="ciudades"
         formControlName="ciudad_id"
+        i18n-placeholder="manufacturerFormCityPlaceholder"
         placeholder="Seleccione la ciudad"
         class="w-full"
         appendTo="body"
@@ -85,11 +90,12 @@
       </small>
     </div>
     <div class="flex flex-col gap-2">
-      <label for="telefono">Teléfono</label>
+      <label for="telefono" i18n="manufacturerFormPhoneLabel">Teléfono</label>
       <input
         pInputText
         id="telefono"
         formControlName="telefono"
+        i18n-placeholder="manufacturerFormPhonePlaceholder"
         placeholder="Ingrese el número de teléfono"
         [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('telefono') }"
       />
@@ -98,10 +104,11 @@
       </small>
     </div>
     <div class="flex flex-col gap-2">
-      <label for="estado">Estado</label>
+      <label for="estado" i18n="manufacturerFormStatusLabel">Estado</label>
       <p-select
         [options]="estados"
         formControlName="estado"
+        i18n-placeholder="manufacturerFormStatusPlaceholder"
         placeholder="Seleccione el estado"
         class="w-full"
         appendTo="body"
@@ -114,9 +121,10 @@
   </form>
   <ng-template pTemplate="footer">
     <div class="flex justify-end gap-2">
-      <p-button label="Cancelar" severity="secondary" (click)="hideDialog()" />
+      <p-button label="Cancelar" i18n-label="cancelButton" severity="secondary" (click)="hideDialog()" />
       <p-button
         label="Guardar fabricante"
+        i18n-label="saveManufacturerButton"
         styleClass="bg-slate-700 text-white"
         (click)="onSubmit()"
       />
