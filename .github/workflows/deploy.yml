@@ -34,6 +34,19 @@ jobs:
         run: npm run build -- --configuration=production --localize --base-href /proyecto_final/
         working-directory: ccp-web
 
+      - name: Copy index.html to 404.html for each locale
+        run: |
+          # Lista de locales configurados en angular.json (asegúrate de que coincidan)
+          LOCALES=("en" "es")
+          BUILD_OUTPUT_DIR="dist/ccp-web/browser"
+
+          for locale in "${LOCALES[@]}"; do
+            echo "Copiando index.html a 404.html para locale: $locale"
+            # Copia el index.html DENTRO del directorio del locale
+            # al 404.html DENTRO del MISMO directorio del locale
+            cp "$BUILD_OUTPUT_DIR/$locale/index.html" "$BUILD_OUTPUT_DIR/$locale/404.html"
+          done
+        working-directory: ccp-web
 
       - name: Create .nojekyll
         run: touch dist/ccp-web/browser/.nojekyll
