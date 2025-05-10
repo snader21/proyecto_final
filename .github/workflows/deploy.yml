@@ -34,43 +34,6 @@ jobs:
         run: npm run build -- --configuration=production --localize --base-href /proyecto_final/
         working-directory: ccp-web
 
-      - name: Copy index.html to 404.html for each locale
-        # GitHub Pages usa 404.html para manejar el routing de SPAs.
-        # Necesitamos un 404.html dentro de cada carpeta de idioma.
-        run: |
-          # Lista de locales configurados en angular.json (asegúrate de que coincidan)
-          LOCALES=("en" "es")
-          BUILD_OUTPUT_DIR="dist/ccp-web/browser" # Ajusta si tu ruta de salida es diferente
-
-          for locale in "${LOCALES[@]}"; do
-            echo "Copiando index.html a 404.html para locale: $locale"
-            cp "$BUILD_OUTPUT_DIR/$locale/index.html" "$BUILD_OUTPUT_DIR/$locale/404.html"
-          done
-        working-directory: ccp-web
-
-      - name: Create root index.html for redirection
-        # Crea un index.html simple en la raíz que redirige basado en el idioma del navegador.
-        # Esto es para cuando alguien accede a https://<usuario>.github.io/proyecto_final/
-        run: |
-          echo "<!DOCTYPE html>
-          <html>
-          <head>
-            <script>
-              var userLang = navigator.language || navigator.userLanguage;
-              var lang = userLang.split('-')[0]; // 'en', 'es', etc.
-              var supportedLangs = ['en', 'es']; // Lista de idiomas que soportas
-
-              if (supportedLangs.includes(lang)) {
-                window.location.replace('/proyecto_final/' + lang + '/');
-              } else {
-                // Redirigir a un idioma por defecto si el idioma del navegador no es soportado
-                window.location.replace('/proyecto_final/en/'); // Redirige a inglés por defecto
-              }
-            </script>
-          </head>
-          <body></body>
-          </html>" > dist/ccp-web/browser/index.html
-        working-directory: ccp-web
 
       - name: Create .nojekyll
         run: touch dist/ccp-web/browser/.nojekyll
