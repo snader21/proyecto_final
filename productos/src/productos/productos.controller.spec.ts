@@ -18,7 +18,9 @@ describe('ProductosController', () => {
     obtenerArchivosCSV: jest.fn(),
     obtenerProductosPorPedido: jest.fn(),
     obtenerProductos: jest.fn(),
+    obtenerProducto: jest.fn(),
     GuardarProducto: jest.fn(),
+    actualizarProducto: jest.fn(),
     guardarArchivoCSV: jest.fn(),
   };
 
@@ -136,11 +138,106 @@ describe('ProductosController', () => {
 
   describe('uploadCSV', () => {
     it('should upload a CSV file', async () => {
-      const mockFile = { filename: 'test.csv' } as any;
+      const mockFile = { filename: 'test.csv', mimetype: 'text/csv' } as any;
       const result = { url: 'http://test.com/test.csv' };
 
       jest.spyOn(service, 'guardarArchivoCSV').mockResolvedValue(result);
       expect(await controller.uploadCSV([mockFile])).toBe(result);
+    });
+
+    it('should reject non-CSV files', async () => {
+      const mockFile = { filename: 'test.jpg', mimetype: 'image/jpeg' } as any;
+      await expect(controller.uploadCSV([mockFile])).rejects.toThrow('Solo se permiten archivos CSV');
+    });
+
+    it('should handle empty file array', async () => {
+      await expect(controller.uploadCSV([])).rejects.toThrow('No se ha proporcionado ningún archivo');
+    });
+  });
+
+  describe('obtenerProducto', () => {
+    it('should return a product by ID', async () => {
+      const mockProduct = {
+        id_producto: 'PROD-1',
+        nombre: 'Test Product',
+        descripcion: 'Test Description',
+      } as ProductoEntity;
+
+      jest.spyOn(service, 'obtenerProducto').mockResolvedValue(mockProduct);
+      expect(await controller.obtenerProducto('PROD-1')).toBe(mockProduct);
+      expect(service.obtenerProducto).toHaveBeenCalledWith('PROD-1');
+    });
+
+    it('should handle non-existent product', async () => {
+      jest.spyOn(service, 'obtenerProducto').mockRejectedValue(new Error('Producto no encontrado'));
+      await expect(controller.obtenerProducto('NON-EXISTENT')).rejects.toThrow('Producto no encontrado');
+    });
+  });
+
+  describe('actualizarProducto', () => {
+    it('should update a product with files', async () => {
+      const mockProduct = {
+        nombre: 'Updated Product',
+        descripcion: 'Updated Description',
+      };
+      const mockFiles = [{ filename: 'new-image.jpg' }] as any[];
+      const result = { id_producto: 'PROD-1', ...mockProduct } as ProductoEntity;
+
+      jest.spyOn(service, 'actualizarProducto').mockResolvedValue(result);
+      expect(
+        await controller.actualizarProducto(
+          'PROD-1',
+          JSON.stringify(mockProduct),
+          mockFiles,
+        ),
+      ).toBe(result);
+      expect(service.actualizarProducto).toHaveBeenCalledWith(
+        'PROD-1',
+        mockProduct,
+        mockFiles,
+      );
+    });
+
+    it('should update a product without files', async () => {
+      const mockProduct = {
+        nombre: 'Updated Product',
+        descripcion: 'Updated Description',
+      };
+      const result = { id_producto: 'PROD-1', ...mockProduct } as ProductoEntity;
+
+      jest.spyOn(service, 'actualizarProducto').mockResolvedValue(result);
+      expect(
+        await controller.actualizarProducto(
+          'PROD-1',
+          JSON.stringify(mockProduct),
+          [],
+        ),
+      ).toBe(result);
+      expect(service.actualizarProducto).toHaveBeenCalledWith(
+        'PROD-1',
+        mockProduct,
+        [],
+      );
+    });
+
+    it('should handle invalid JSON data', async () => {
+      const invalidJson = '{invalid:json';
+      await expect(
+        controller.actualizarProducto('PROD-1', invalidJson, []),
+      ).rejects.toThrow();
+    });
+  });
+
+  describe('Error handling', () => {
+    it('should handle service errors gracefully', async () => {
+      jest.spyOn(service, 'obtenerProductos').mockRejectedValue(new Error('Database error'));
+      await expect(controller.obtenerProductos()).rejects.toThrow('Database error');
+    });
+
+    it('should handle empty product data', async () => {
+      await expect(
+        controller.guardarProducto('', []),
+      ).rejects.toThrow('No se han proporcionado datos del producto');
     });
   });
 });
