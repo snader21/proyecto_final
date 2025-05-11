@@ -476,6 +476,12 @@ describe('ProductosService', () => {
       expect(result).toEqual(mockProducto);
       expect(mockProductoRepository.findOne).toHaveBeenCalledWith({
         where: { id_producto: 'PROD-1' },
+        relations: {
+          categoria: true,
+          unidad_medida: true,
+          marca: true,
+          imagenes: true,
+        },
       });
     });
 
@@ -487,6 +493,12 @@ describe('ProductosService', () => {
       );
       expect(mockProductoRepository.findOne).toHaveBeenCalledWith({
         where: { id_producto: 'PROD-1' },
+        relations: {
+          categoria: true,
+          unidad_medida: true,
+          marca: true,
+          imagenes: true,
+        },
       });
     });
   });
@@ -508,6 +520,94 @@ describe('ProductosService', () => {
           imagenes: true,
         },
         select: expect.any(Object),
+      });
+    });
+  });
+
+  describe('actualizarProducto', () => {
+    const productId = 'PROD-1';
+    const updateData = {
+      nombre: 'Updated Product',
+      descripcion: 'Updated Description',
+    };
+
+    it('should update product without files', async () => {
+      const updatedProduct = { ...mockProducto, ...updateData };
+      mockProductoRepository.findOne.mockResolvedValue(mockProducto);
+      mockProductoRepository.save.mockResolvedValue(updatedProduct);
+
+      const result = await service.actualizarProducto(productId, updateData);
+
+      expect(result).toEqual(updatedProduct);
+      expect(mockProductoRepository.findOne).toHaveBeenCalledWith({
+        where: { id_producto: productId },
+        relations: {
+          categoria: true,
+          unidad_medida: true,
+          marca: true,
+          imagenes: true,
+        },
+      });
+      expect(mockProductoRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ...mockProducto,
+          ...updateData,
+          fecha_actualizacion: expect.any(Date),
+        }),
+      );
+    });
+
+    it('should update product with files', async () => {
+      const mockFiles: UploadedFile[] = [
+        {
+          fieldname: 'file',
+          originalname: 'test.jpg',
+          encoding: '7bit',
+          mimetype: 'image/jpeg',
+          buffer: Buffer.from('test'),
+          size: 4,
+        },
+      ];
+      const updatedProduct = { ...mockProducto, ...updateData };
+      mockProductoRepository.findOne.mockResolvedValue(mockProducto);
+      mockProductoRepository.save.mockResolvedValue(updatedProduct);
+      mockFileGCP.save.mockResolvedValue('https://storage.googleapis.com/test-bucket/test.jpg');
+
+      const result = await service.actualizarProducto(productId, updateData, mockFiles);
+
+      expect(result).toEqual(expect.objectContaining({
+        ...updatedProduct,
+        fecha_actualizacion: expect.any(Date),
+      }));
+      expect(mockFileGCP.save).toHaveBeenCalledWith(
+        mockFiles[0],
+        `imagenes/${productId}/${mockFiles[0].originalname}`,
+      );
+      const saveCall = mockImagenProductoRepository.save.mock.calls[0][0];
+      expect(saveCall).toMatchObject({
+        key_object_storage: `imagenes/${productId}/${mockFiles[0].originalname}`,
+        url: 'https://storage.googleapis.com/test-bucket/test.jpg',
+      });
+      expect(saveCall.producto).toMatchObject({
+        ...mockProducto,
+        fecha_actualizacion: expect.any(Date),
+      });
+    });
+
+    it('should throw NotFoundException when product not found', async () => {
+      mockProductoRepository.findOne.mockResolvedValue(null);
+
+      await expect(service.actualizarProducto(productId, updateData)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(mockProductoRepository.findOne).toHaveBeenCalledWith({
+        where: { id_producto: productId },
+        relations: {
+          categoria: true,
+          unidad_medida: true,
+          marca: true,
+          imagenes: true,
+        },
       });
     });
   });

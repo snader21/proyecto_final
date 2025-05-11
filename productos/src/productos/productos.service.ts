@@ -415,11 +415,54 @@ export class ProductosService implements OnModuleInit {
   async obtenerProducto(id: string): Promise<ProductoEntity> {
     const producto = await this.productoRepository.findOne({
       where: { id_producto: id },
+      relations: {
+        categoria: true,
+        unidad_medida: true,
+        marca: true,
+        imagenes: true,
+      },
     });
     if (!producto) {
       throw new NotFoundException('Producto no encontrado');
     }
     return producto;
+  }
+
+  async actualizarProducto(
+    id: string,
+    productoData: Partial<ProductoEntity>,
+    files?: UploadedFile[],
+  ): Promise<ProductoEntity> {
+    const producto = await this.obtenerProducto(id);
+
+    // Update basic product information
+    Object.assign(producto, {
+      ...productoData,
+      fecha_actualizacion: new Date(),
+    });
+
+    const savedProduct = await this.productoRepository.save(producto);
+
+    // Handle file uploads if any
+    if (files && files.length > 0) {
+      for (const file of files) {
+        try {
+          const fileName = `imagenes/${producto.id_producto}/${file.originalname}`;
+          const url = await this.fileGCP.save(file, fileName);
+
+          await this.imagenProductoRepository.save({
+            key_object_storage: fileName,
+            url,
+            producto: savedProduct,
+          });
+        } catch (error) {
+          console.error(`Error uploading file ${file.originalname}:`, error);
+        }
+      }
+    }
+
+    // Save updated product
+    return savedProduct;
   }
 
   async obtenerProductos(): Promise<ProductoEntity[]> {

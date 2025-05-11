@@ -1,34 +1,48 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { Product } from '../../interfaces/product.interfaces';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class ModalService {
-  private modalState = new BehaviorSubject<boolean>(false);
-  modalState$ = this.modalState.asObservable();
+  private modalStateSubject = new BehaviorSubject<boolean>(false);
+  modalState$ = this.modalStateSubject.asObservable();
 
-  private modalData = new BehaviorSubject<any>(null);
-  modalData$ = this.modalData.asObservable();
+  private bulkModalStateSubject = new BehaviorSubject<boolean>(false);
+  bulkModalState$ = this.bulkModalStateSubject.asObservable();
 
-  private bulkModalState = new BehaviorSubject<boolean>(false);
-  bulkModalState$ = this.bulkModalState.asObservable();
+  private editProductSubject = new BehaviorSubject<Product | null>(null);
+  editProduct$ = this.editProductSubject.asObservable();
 
-  openModal(data?: any) {
-    this.modalData.next(data);
-    this.modalState.next(true);
+  private modalDataSubject = new BehaviorSubject<any | null>(null);
+  modalData$ = this.modalDataSubject.asObservable();
+
+  constructor() { }
+
+  openModal(product?: Product) {
+    if (product) {
+      this.editProductSubject.next(product);
+    } else {
+      this.editProductSubject.next(null);
+    }
+    this.modalStateSubject.next(true);
   }
 
-  openBulkModal() {
-    this.bulkModalState.next(true);
+  openModalUser(data?: any) {
+    this.modalDataSubject.next(data);
   }
 
   closeModal() {
-    this.modalState.next(false);
-    this.modalData.next(null);
+    this.modalStateSubject.next(false);
+    this.editProductSubject.next(null);
+  }
+
+  openBulkModal() {
+    this.bulkModalStateSubject.next(true);
   }
 
   closeBulkModal() {
-    this.bulkModalState.next(false);
+    this.bulkModalStateSubject.next(false);
   }
 }

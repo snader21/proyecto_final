@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Body,
   UseInterceptors,
   UploadedFiles,
@@ -69,6 +70,17 @@ export class ProductosController {
     @UploadedFiles() files: UploadedFile[],
   ): Promise<{ url: string }> {
     return this.productosService.guardarArchivoCSV(files[0]);
+  }
+
+  @Put(':id')
+  @UseInterceptors(FilesInterceptor('images'))
+  async actualizarProducto(
+    @Param('id') id: string,
+    @Body('product') productoStr: string,
+    @UploadedFiles() files: UploadedFile[],
+  ): Promise<ProductoEntity> {
+    const producto = JSON.parse(productoStr);
+    return this.productosService.actualizarProducto(id, producto, files);
   }
 
   @Post('upload-images')
