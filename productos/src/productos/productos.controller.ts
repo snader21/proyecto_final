@@ -42,11 +42,16 @@ export class ProductosController {
     return this.productosService.obtenerArchivosCSV();
   }
 
-  @Get(':idPedido')
+  @Get('pedido/:idPedido')
   async obtenerProductosPorPedido(
     @Param('idPedido') idPedido: string,
   ): Promise<ProductoPorPedidoDto[]> {
     return this.productosService.obtenerProductosPorPedido(idPedido);
+  }
+
+  @Get(':id')
+  async obtenerProducto(@Param('id') id: string): Promise<ProductoEntity> {
+    return this.productosService.obtenerProducto(id);
   }
 
   @Get()
@@ -60,6 +65,9 @@ export class ProductosController {
     @Body('product') productoStr: string,
     @UploadedFiles() files: UploadedFile[],
   ): Promise<ProductoEntity> {
+    if (!productoStr) {
+      throw new Error('No se han proporcionado datos del producto');
+    }
     const producto = JSON.parse(productoStr);
     return this.productosService.GuardarProducto(producto, files);
   }
@@ -69,7 +77,16 @@ export class ProductosController {
   async uploadCSV(
     @UploadedFiles() files: UploadedFile[],
   ): Promise<{ url: string }> {
-    return this.productosService.guardarArchivoCSV(files[0]);
+    if (!files || files.length === 0) {
+      throw new Error('No se ha proporcionado ningún archivo');
+    }
+
+    const file = files[0];
+    if (!file.mimetype || !file.mimetype.includes('csv')) {
+      throw new Error('Solo se permiten archivos CSV');
+    }
+
+    return this.productosService.guardarArchivoCSV(file);
   }
 
   @Put(':id')
