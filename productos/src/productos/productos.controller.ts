@@ -42,7 +42,7 @@ export class ProductosController {
     return this.productosService.obtenerArchivosCSV();
   }
 
-  @Get('pedido/:idPedido')
+  @Get(':idPedido')
   async obtenerProductosPorPedido(
     @Param('idPedido') idPedido: string,
   ): Promise<ProductoPorPedidoDto[]> {
