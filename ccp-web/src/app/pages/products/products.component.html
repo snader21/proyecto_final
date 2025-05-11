@@ -36,13 +36,14 @@
             </ng-template>
         <ng-template pTemplate="header">
             <tr>
-                <th class="w-1/7">SKU</th>
+                <th class="w-1/9">SKU</th>
                 <th class="w-1/7">Nombre</th>
-                <th class="w-1/7">Imagen</th>
+                <th class="w-1/10">Imagen</th>
                 <th class="w-1/7">Categoria</th>
                 <th class="w-1/7">U.Medida</th>
-                <th class="w-1/7">Estado</th>
-                <th class="w-1/6">Acciones</th>
+                <th class="w-1/10">Estado</th>
+                <th class="w-1/12">Editar</th>
+                <th class="w-1/12">Inventario</th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-product>
@@ -51,7 +52,7 @@
                 <td>{{ product.nombre }}</td>
                 <td>
                     <ng-container *ngIf="product.imagenes.length > 0; else noImage">
-                        <p-image [src]="product.imagenes[0].url" alt="Imagen del producto" [preview]="true" imageClass="product-image" width="50" ></p-image>
+                        <p-image [src]="product.imagenes[0].url" alt="Imagen del producto" [preview]="true" [style]="{'width': '50px', 'height': '50px', 'object-fit': 'cover'}"></p-image>
                         </ng-container>
 
                         <ng-template #noImage>
@@ -70,9 +71,11 @@
                         styleClass="w-24 text-center"
                     ></p-tag>
                 </td>
-                <td class="flex gap-3">
-                    <p-button label="Editar" icon="pi pi-pencil" styleClass="bg-slate-700 text-white" disabled/>
-                    <p-button label="Inventario" icon="pi pi-plus" styleClass="bg-slate-700 text-white" (click)="openInventoryDialog(product)"/>
+                <td>
+                    <p-button icon="pi pi-pencil" styleClass="bg-slate-700 text-white" (click)="openModal(product)"/>
+                </td>
+                <td>
+                    <p-button icon="pi pi-plus" styleClass="bg-slate-700 text-white" (click)="openInventoryDialog(product)"/>
                 </td>
             </tr>
         </ng-template>

@@ -52,20 +52,31 @@ export interface CreateProduct {
   id_fabricante: string;
 }
 
-export interface Product
-  extends Omit<
-    CreateProduct,
-    "categoria" | "marca" | "unidad_medida" | "pais"
-  > {
+export interface Product {
   id_producto: string;
-  categoria: Category;
-  marca: Brand;
-  unidad_medida: Unit;
-  pais: {
+  nombre: string;
+  descripcion: string;
+  sku: string;
+  categoria?: Category;
+  marca?: Brand;
+  unidad_medida?: Unit;
+  pais?: {
     id_pais: string;
   };
+  id_fabricante?: string;
+  activo: boolean;
+  precio: number;
+  alto: number;
+  ancho: number;
+  largo: number;
+  peso: number;
   fecha_creacion: Date;
   fecha_actualizacion: Date;
+  imagenes?: {
+    url: string;
+    id_imagen: string;
+  }[];
+  measurement?: string;
 }
 
 export interface Ubicacion {

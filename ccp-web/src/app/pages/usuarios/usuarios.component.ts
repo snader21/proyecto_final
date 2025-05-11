@@ -64,7 +64,7 @@ export class UsuariosComponent implements OnInit {
   }
 
   editarUsuario(usuario: Usuario) {
-    this.modalService.openModal(usuario);
+    this.modalService.openModalUser(usuario);
   }
 
 }
