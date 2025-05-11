@@ -82,70 +82,76 @@
             </div>
         </div>
         <div class="flex flex-col gap-2">
-            <label for="measurement" class="font-light">Medidas</label>
-            <input placeholder="Medidas del producto" pInputText id="measurement" formControlName="measurement" class="w-full" autocomplete="off" />
-            <small class="text-red-500" *ngIf="productForm.get('measurement')?.invalid && productForm.get('measurement')?.touched">Este campo es requerido</small>
+            <label class="font-light">Medidas</label>
+            <div class="grid grid-cols-3 gap-4">
+                <div class="flex flex-col gap-2">
+                    <input placeholder="Alto (cm)" pInputText id="alto" formControlName="alto" class="w-full" autocomplete="off" />
+                    <small class="text-red-500" *ngIf="productForm.get('alto')?.invalid && productForm.get('alto')?.touched">Este campo es requerido</small>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <input placeholder="Ancho (cm)" pInputText id="ancho" formControlName="ancho" class="w-full" autocomplete="off" />
+                    <small class="text-red-500" *ngIf="productForm.get('ancho')?.invalid && productForm.get('ancho')?.touched">Este campo es requerido</small>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <input placeholder="Largo (cm)" pInputText id="largo" formControlName="largo" class="w-full" autocomplete="off" />
+                    <small class="text-red-500" *ngIf="productForm.get('largo')?.invalid && productForm.get('largo')?.touched">Este campo es requerido</small>
+                </div>
+            </div>
         </div>
         <div class="flex flex-col gap-2">
             <label for="name" class="font-light">Imagen</label>
             <p-fileupload
+                #fileUpload
                 class="w-full"
                 name="myfile[]"
-                url="https://www.primefaces.org/cdn/api/upload.php"
+                [customUpload]="true"
                 [multiple]="false"
                 accept="image/*"
-                maxFileSize="1000000"
-                (onUpload)="onTemplatedUpload()"
-                (onSelect)="onSelectedFiles($event)">
-                <ng-template #header let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback" let-uploadCallback="uploadCallback">
+                [maxFileSize]="1000000"
+                (uploadHandler)="uploadEvent($event)"
+                (onSelect)="onSelectedFiles($event)"
+                chooseLabel="Seleccionar imagen"
+                [showUploadButton]="false"
+                [showCancelButton]="false">
+                <ng-template pTemplate="toolbar">
                     <div class="flex flex-wrap justify-between items-center flex-1 gap-4">
                         <div class="flex gap-2">
                             <p-button
-                                (onClick)="choose($event, chooseCallback)"
-                                icon="pi pi-images"
-                                [rounded]="true"
-                                [outlined]="true" />
-                            <p-button
-                                (onClick)="clearCallback()"
+                                *ngIf="files.length > 0"
                                 icon="pi pi-times"
                                 [rounded]="true"
                                 [outlined]="true"
                                 severity="danger"
-                                [disabled]="!files || files.length === 0" />
+                                (onClick)="fileUpload.clear()" />
                         </div>
                     </div>
                 </ng-template>
-                <ng-template #content let-files let-uploadedFiles="uploadedFiles" let-removeFileCallback="removeFileCallback" let-removeUploadedFileCallback="removeUploadedFileCallback">
+                <ng-template pTemplate="content">
                     <div class="flex flex-col gap-8 pt-4">
-                        <div *ngIf="files?.length > 0">
-                            <h5>Pendientes</h5>
+                        <div *ngIf="files && files.length > 0">
+                            <h5>Nueva imagen</h5>
                             <div class="flex flex-wrap gap-2">
                                 <div *ngFor="let file of files; let i = index"
-                                    class="p-4 rounded-lg flex flex-col border border-surface items-center gap-4 w-full">
+                                    class="p-4 rounded-lg flex flex-col border border-surface items-center gap-4 w-48">
                                     <div>
                                         <img
                                             role="presentation"
                                             [alt]="file.name"
                                             [src]="file.objectURL"
-                                            width="300"
-                                            height="250" />
+                                            width="250"
+                                            height="250"
+                                            style="object-fit: contain;" />
                                     </div>
-                                    <span class="font-light text-ellipsis max-w-60 whitespace-nowrap overflow-hidden" style="font-size: x-small;">
-                                        {{ file.name }}
+                                    <span class="font-light text-ellipsis max-w-60 whitespace-nowrap overflow-hidden text-xs">
+                                        {{ truncateFileName(file.name) }}
                                     </span>
-                                    <div style="font-size: x-small;">{{ formatSize(file.size) }}</div>
-                                    <p-badge value="Pendiente" severity="warn" />
-                                    <p-button
-                                        icon="pi pi-times"
-                                        (click)="onRemoveTemplatingFile($event, file, removeFileCallback, i)"
-                                        [outlined]="true"
-                                        [rounded]="true"
-                                        severity="danger" />
+                                    <div>{{ formatSize(file.size) }}</div>
+                                    <p-badge value="Nueva" severity="info" />
                                 </div>
                             </div>
                         </div>
-                        <div *ngIf="uploadedFiles?.length > 0">
-                            <h5>Completados</h5>
+                        <div *ngIf="uploadedFiles && uploadedFiles.length > 0" class="mt-4">
+                            <h5>Imágenes del producto</h5>
                             <div class="flex flex-wrap gap-4">
                                 <div *ngFor="let file of uploadedFiles; let i = index"
                                     class="p-4 rounded-lg flex flex-col border border-surface items-center gap-4 w-48">
@@ -154,20 +160,14 @@
                                             role="presentation"
                                             [alt]="file.name"
                                             [src]="file.objectURL"
-                                            width="100"
-                                            height="50" />
+                                            width="250"
+                                            height="250"
+                                            style="object-fit: contain;" />
                                     </div>
-                                    <span class="font-light text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">
-                                        {{ file.name }}
+                                    <span class="font-light text-ellipsis max-w-60 whitespace-nowrap overflow-hidden text-xs">
+                                        {{ truncateFileName(file.name) }}
                                     </span>
-                                    <div>{{ formatSize(file.size) }}</div>
-                                    <p-badge value="Completado" class="mt-4" severity="success" />
-                                    <p-button
-                                        icon="pi pi-times"
-                                        (onClick)="removeUploadedFileCallback(i)"
-                                        [outlined]="true"
-                                        [rounded]="true"
-                                        severity="danger" />
+                                    <p-badge value="Actual" severity="success" />
                                 </div>
                             </div>
                         </div>

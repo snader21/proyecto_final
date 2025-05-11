@@ -21,6 +21,10 @@ export class ProductsService {
 
   constructor(private http: HttpClient) {}
 
+  getApiUrl(): string {
+    return this.apiUrl;
+  }
+
   getCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(`${this.apiUrl}/productos/categorias`);
   }
@@ -48,6 +52,19 @@ export class ProductsService {
     }
 
     return this.http.post<Product>(`${this.apiUrl}/productos`, formData);
+  }
+
+  updateProduct(id: string, product: CreateProduct, files?: File[]): Observable<Product> {
+    const formData = new FormData();
+    formData.append("product", JSON.stringify(product));
+
+    if (files && files.length > 0) {
+      files.forEach((file, index) => {
+        formData.append(`images`, file);
+      });
+    }
+
+    return this.http.put<Product>(`${this.apiUrl}/productos/${id}`, formData);
   }
 
   uploadCSV(formData: FormData): Observable<{ url: string }> {

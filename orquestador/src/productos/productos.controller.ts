@@ -1,6 +1,7 @@
 import {
   Controller,
   Post,
+  Put,
   Body,
   Get,
   UploadedFiles,
@@ -87,6 +88,22 @@ export class ProductosController {
   @Get('archivos-csv')
   async getCSVFiles() {
     return this.productosService.getCSVFiles();
+  }
+
+  @Put(':id')
+  @UseInterceptors(FilesInterceptor('images'))
+  async updateProduct(
+    @Param('id') id: string,
+    @Body('product') productoStr: string,
+    @UploadedFiles() files: any[],
+  ): Promise<any> {
+    try {
+      const producto = JSON.parse(productoStr);
+      return await this.productosService.updateProduct(id, producto, files);
+    } catch (error) {
+      console.error('Error updating product:', error);
+      throw error;
+    }
   }
 
   @Post('upload-images')

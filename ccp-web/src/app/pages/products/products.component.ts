@@ -80,8 +80,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.subscriptions.add(sub);
   }
 
-  openModal() {
-    this.modalService.openModal();
+  openModal(product?: Product) {
+    this.modalService.openModal(product);
   }
 
   openBulkModal() {

@@ -162,6 +162,32 @@ export class ProductosService {
       .pipe(map((respuesta) => respuesta.data));
   }
 
+  async updateProduct(id: string, product: any, files?: any[]) {
+    const apiEndPoint = `${this.apiProductos}/productos/${id}`;
+
+    // Create form data with proper headers for multipart/form-data
+    const FormData = require('form-data');
+    const form = new FormData();
+    form.append('product', JSON.stringify(product));
+
+    if (files && files.length > 0) {
+      files.forEach((file) => {
+        form.append('images', file.buffer, {
+          filename: file.originalname,
+          contentType: file.mimetype,
+        });
+      });
+    }
+
+    return this.httpService
+      .put<any>(apiEndPoint, form, {
+        headers: {
+          ...form.getHeaders(),
+        },
+      })
+      .pipe(map((respuesta) => respuesta.data));
+  }
+
   async uploadCSV(file: any): Promise<{ url: string }> {
     const apiEndPoint = `${this.apiProductos}/productos/upload-csv`;
     const FormData = require('form-data');
