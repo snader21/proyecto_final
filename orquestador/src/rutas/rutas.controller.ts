@@ -9,6 +9,11 @@ export class RutasController {
     return this.rutasService.calcularYGuardarRutaDeEntregaDePedidos();
   }
 
+  @Post('calcular-ruta-visita-vendedores')
+  calcularYGuardarRutaVisitaVendedores() {
+    return this.rutasService.calcularYGuardarRutaDeVisitaDeVendedores();
+  }
+
   @Get()
   obtenerListaRutas() {
     return this.rutasService.obtenerListaRutas();

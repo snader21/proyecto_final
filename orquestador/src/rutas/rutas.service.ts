@@ -2,13 +2,12 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { map } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 import { ProveedorAiService } from '../proveedor-ai/proveedor-ai.service';
-import { generarPromptOptimizacionRutas } from './calculo-ruta.promt';
+import { generarPromptOptimizacionRutas } from './calculo-ruta-entregas.promt';
 import { ProductosService } from '../productos/productos.service';
 import { PedidosService } from '../pedidos/pedidos.service';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { ClienteService } from '../clientes/services/cliente.service';
-import { Cron } from '@nestjs/schedule';
 
 export interface CreateNodoProductoDto {
   productoId: string;
@@ -140,6 +139,19 @@ export class RutasService {
       if (rutas) {
         await firstValueFrom(this.actualizarRuta(rutas.rutas));
       }
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async calcularYGuardarRutaDeVisitaDeVendedores() {
+    try {
+      //este método debería calcular la ruta de los vendedores
+      // 1. Consultar los clientes de un vendedor
+      // 2. 
+
+
+      
     } catch (error) {
       throw new BadRequestException(error.message);
     }
