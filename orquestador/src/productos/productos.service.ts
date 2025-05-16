@@ -108,6 +108,22 @@ export class ProductosService {
     }
   }
 
+  async getInventarioProductoConUbicaciones(nombreProducto: string) {
+    const apiEndPoint = `${this.apiProductos}/inventarios/producto-con-ubicaciones`;
+
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.get(apiEndPoint, {
+          params: { nombre_producto: nombreProducto },
+        }),
+      );
+      return data;
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      throw new BadRequestException(axiosError?.response?.data?.message);
+    }
+  }
+
   async getCategories() {
     const apiEndPoint = `${this.apiProductos}/productos/categorias`;
     return this.httpService
