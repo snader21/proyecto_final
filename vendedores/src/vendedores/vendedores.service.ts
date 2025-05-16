@@ -54,6 +54,13 @@ export class VendedoresService {
     return vendedor;
   }
 
+  async findOneByUsuarioId(usuarioId: string) {
+    const vendedor = await this.repository.findOne({
+      where: { usuario_id: usuarioId },
+    });
+    return vendedor;
+  }
+
   async update(id: string, updateVendedorDto: UpdateVendedorDto) {
     const vendedor = await this.findOne(id);
     if (!vendedor) {
