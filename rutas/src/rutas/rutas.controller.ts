@@ -15,7 +15,7 @@ import { UpdateRutaDto } from './dto/update-ruta.dto';
 export class RutasController {
   constructor(private readonly rutasService: RutasService) {}
 
-  @Post()
+  @Post('ruta-entrega-de-pedidos')
   createRutaDeEntregaDePedidos(@Body() createRutaDto: CreateRutaDto[]) {
     return this.rutasService.createRutaDeEntregaDePedidos(createRutaDto);
   }

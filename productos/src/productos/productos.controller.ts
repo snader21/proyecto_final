@@ -42,6 +42,13 @@ export class ProductosController {
     return this.productosService.obtenerArchivosCSV();
   }
 
+  @Get('con-pedidos')
+  async obtenerTodosLosProductosQueTienenPedidos(): Promise<
+    ProductoPorPedidoDto[]
+  > {
+    return this.productosService.obtenerTodosLosProductosQueTienenPedidos();
+  }
+
   @Get(':idPedido')
   async obtenerProductosPorPedido(
     @Param('idPedido') idPedido: string,
