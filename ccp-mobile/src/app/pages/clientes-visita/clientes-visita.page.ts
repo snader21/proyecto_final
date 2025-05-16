@@ -16,6 +16,7 @@ import { VideoRecorderComponent } from '../../components/video-recorder/video-re
 export class ClientesVisitaPage implements OnInit {
   visitaForm: FormGroup;
   cliente: Cliente | null = null;
+  recordedVideo: File | null = null;
   recordedVideoUrl: string | null = null;
 
   constructor(
@@ -57,7 +58,8 @@ export class ClientesVisitaPage implements OnInit {
 
     const { data } = await modal.onWillDismiss();
     if (data) {
-      this.recordedVideoUrl = data;
+      this.recordedVideoUrl = URL.createObjectURL(data)
+      this.recordedVideo = new File([data], 'visita.webm', { type: 'video/webm' });
     }
   }
 
@@ -71,12 +73,10 @@ export class ClientesVisitaPage implements OnInit {
         fecha_visita: new Date(`${formValue.fecha}T${formValue.hora}`),
         observaciones: formValue.observaciones || undefined,
         realizo_pedido: formValue.realizo_pedido,
-        key_object_storage: null,
-        url: this.recordedVideoUrl || null
       };
 
       try {
-        await this.visitaService.crearVisita(visitaData).toPromise();
+        await this.visitaService.crearVisita(visitaData, this.recordedVideo).toPromise();
 
         const alert = await this.alertController.create({
           header: 'Éxito',

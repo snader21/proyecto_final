@@ -19,13 +19,27 @@ export interface VisitaResponse {
 export class VisitaService {
   private apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  crearVisita(visita: CreateVisitaDto): Observable<any> {
-    return this.http.post(`${this.apiUrl}/clientes/visitas`, visita);
+  crearVisita(visita: CreateVisitaDto, videoFile: File | null): Observable<any> {
+    const formData = new FormData();
+    formData.append('id_cliente', visita.id_cliente); // string
+    formData.append('fecha_visita', visita.fecha_visita.toISOString()); // string ISO
+    formData.append('realizo_pedido', visita.realizo_pedido ? 'true' : 'false'); // string "true"/"false"
+    if (visita.observaciones) {
+      formData.append('observaciones', visita.observaciones);
+    }
+    if (videoFile) {
+      formData.append('video', videoFile); 
+    }
+    return this.http.post(`${this.apiUrl}/clientes/visitas`, formData);
   }
 
   obtenerVisitasCliente(idCliente: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/clientes/visitas/cliente/${idCliente}`);
+  }
+
+  obtenerVideo(video_key: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/clientes/visitas/video/${video_key}`);
   }
 }

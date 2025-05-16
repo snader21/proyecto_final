@@ -13,6 +13,8 @@ import { TipoClienteInitService } from './services/init.service';
 import { ClienteController } from './controllers/cliente.controller';
 import { TipoClienteController } from './controllers/tipo-cliente.controller';
 import { VisitaController } from './controllers/visita.controller';
+import { GCPConfigService } from './services/gcp-config.service';
+import { RecomendacionesService } from './services/recomendaciones.service';
 
 @Module({
   imports: [
@@ -46,6 +48,8 @@ import { VisitaController } from './controllers/visita.controller';
     TipoClienteService,
     TipoClienteInitService,
     VisitaService,
+    GCPConfigService,
+    RecomendacionesService,
   ],
 })
 export class AppModule {}
