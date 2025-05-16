@@ -17,6 +17,11 @@ import { UserVendedorDto } from './dto/update-user-vendedor.dto';
 export class VendedoresController {
   constructor(private readonly vendedoresService: VendedoresService) {}
 
+  @Get('usuario/:id')
+  findOneByUsuarioId(@Param() params: UUIDParamDto) {
+    return this.vendedoresService.findOneByUsuarioId(params.id);
+  }
+
   @Post()
   create(@Body() createVendedoreDto: CreateVendedorDto) {
     return this.vendedoresService.create(createVendedoreDto);

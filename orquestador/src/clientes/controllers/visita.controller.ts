@@ -1,15 +1,17 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   Controller,
   Post,
   Get,
   Body,
   Param,
-  HttpCode,
-  HttpStatus,
   ParseUUIDPipe,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { VisitaService } from '../services/visita.service';
-import { CreateVisitaDto } from '../dtos/create-visita.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('clientes/visitas')
 export class VisitaController {
@@ -21,9 +23,24 @@ export class VisitaController {
    * @returns La visita registrada
    */
   @Post()
-  @HttpCode(HttpStatus.CREATED)
-  async registrarVisita(@Body() createVisitaDto: CreateVisitaDto) {
-    return this.visitaService.registrarVisita(createVisitaDto);
+  @UseInterceptors(FileInterceptor('video'))
+  async reenviarVisita(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() createVisitaDto: any,
+  ) {
+    const formData = new FormData();
+    formData.append('id_cliente', createVisitaDto.id_cliente);
+    formData.append('fecha_visita', createVisitaDto.fecha_visita);
+    formData.append('realizo_pedido', createVisitaDto.realizo_pedido);
+    if (createVisitaDto.observaciones) {
+      formData.append('observaciones', createVisitaDto.observaciones);
+    }
+
+    if (file) {
+      formData.append('video', new Blob([file.buffer]), file.originalname);
+    }
+
+    return this.visitaService.registrarVisita(formData);
   }
 
   /**
@@ -36,5 +53,10 @@ export class VisitaController {
     @Param('id_cliente', ParseUUIDPipe) id_cliente: string,
   ) {
     return this.visitaService.obtenerVisitasCliente(id_cliente);
+  }
+
+  @Get('video/:key')
+  obtenerUrlVideo(@Param('key') key: string): Promise<any> {
+    return this.visitaService.obtenerUrlVideo(key);
   }
 }

@@ -7,10 +7,13 @@ import {
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { VisitaService } from '../services/visita.service';
 import { CreateVisitaDto } from '../dto/create-visita.dto';
 import { VisitaCliente } from '../entities/visita-cliente.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('visitas')
 export class VisitaController {
@@ -23,8 +26,13 @@ export class VisitaController {
    */
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async registrarVisita(@Body() createVisitaDto: CreateVisitaDto): Promise<VisitaCliente> {
-    return this.visitaService.create(createVisitaDto);
+  @UseInterceptors(FileInterceptor('video'))
+  async registrarVisita(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() createVisitaDto: CreateVisitaDto,
+  ): Promise<VisitaCliente> {
+    console.log(createVisitaDto);
+    return this.visitaService.create(createVisitaDto, file);
   }
 
   /**
@@ -37,5 +45,15 @@ export class VisitaController {
     @Param('id_cliente', ParseUUIDPipe) id_cliente: string,
   ): Promise<VisitaCliente[]> {
     return this.visitaService.findByCliente(id_cliente);
+  }
+
+  /**
+   * Obtiene la url de un video
+   * @param key ID del video
+   * @returns Url del video
+   */
+  @Get('video/:key')
+  async obtenerUrlVideo(@Param('key') key: string): Promise<any> {
+    return this.visitaService.getUrl(key);
   }
 }

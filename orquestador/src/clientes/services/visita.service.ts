@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
-import { CreateVisitaDto } from '../dtos/create-visita.dto';
 
 @Injectable()
 export class VisitaService {
@@ -19,9 +22,11 @@ export class VisitaService {
     this.clientesApiUrl = apiUrl;
   }
 
-  async registrarVisita(createVisitaDto: CreateVisitaDto) {
+  async registrarVisita(formData: any) {
     const { data } = await firstValueFrom(
-      this.httpService.post(`${this.clientesApiUrl}/visitas`, createVisitaDto),
+      this.httpService.post(`${this.clientesApiUrl}/visitas`, formData, {
+        headers: formData.getHeaders?.() ?? {},
+      }),
     );
     return data;
   }
@@ -31,6 +36,13 @@ export class VisitaService {
       this.httpService.get(
         `${this.clientesApiUrl}/visitas/cliente/${id_cliente}`,
       ),
+    );
+    return data;
+  }
+
+  async obtenerUrlVideo(video_key: string) {
+    const { data } = await firstValueFrom(
+      this.httpService.get(`${this.clientesApiUrl}/visitas/video/${video_key}`),
     );
     return data;
   }

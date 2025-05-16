@@ -1,0 +1,55 @@
+<div class="search-container" style="display: flex; justify-content: center;">
+    <p-floatlabel variant="in">
+        <input pInputText id="in_label" [(ngModel)]="searchTerm" (input)="search(searchTerm)" autocomplete="off" pSize="large" class="search-input"/>
+        <label for="in_label">Buscar producto...</label>
+    </p-floatlabel>
+</div>
+
+@if (loading) {
+  <div class="loading-message">
+    Cargando...
+  </div>
+}
+
+@if (errorMessage) {
+  <div class="error-message">
+    {{ errorMessage }}
+  </div>
+}
+
+@if (productos.length > 0) {
+  <div class="results-container">
+    @for (producto of productos; track producto.id_producto) {
+      <div class="product-card">
+        <div class="product-header">
+          <h3>{{ producto.nombre }}</h3>
+          <p class="product-price">{{ producto.descripcion }}</p>
+          <p class="product-price">Precio: ${{ producto.precio }}</p>
+          <p class="product-price">SKU: {{ producto.sku }}</p>
+          <p class="product-price">Código de barras: {{ producto.codigo_barras }}</p>
+          <p class="product-price">Fecha de creación: {{ producto.fecha_creacion | date: 'dd/MM/yyyy' }}</p>
+        </div>
+
+        @if (producto.bodegas.length > 0) {
+          <div class="bodegas-container">
+            @for (bodega of producto.bodegas; track bodega.id_bodega) {
+              <div class="bodega">
+                <app-bodega-map [bodega]="bodega"></app-bodega-map>
+              </div>
+            }
+          </div>
+        }
+
+        @if (producto.bodegas.length === 0) {
+          <div class="no-bodegas">
+            No hay bodegas registradas para este producto
+          </div>
+        }
+      </div>
+    }
+  </div>
+}
+
+@if (productos.length === 0 && searchTerm.length > 3) {
+    <p-message severity="warn">No se encontraron resultados para la búsqueda</p-message>
+}

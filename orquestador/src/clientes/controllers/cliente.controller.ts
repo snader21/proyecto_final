@@ -35,6 +35,11 @@ export class ClienteController {
     return this.clienteService.findByVendedorId(vendedorId);
   }
 
+  @Get('usuario/:usuarioId')
+  async findByUsuarioId(@Param('usuarioId') usuarioId: string) {
+    return this.clienteService.findByUsuarioId(usuarioId);
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.clienteService.findOne(id);
