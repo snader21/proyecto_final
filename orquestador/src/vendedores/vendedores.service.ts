@@ -12,6 +12,7 @@ import { AxiosError } from 'axios';
 import { VendedorDto } from './dto/vendedor.dto';
 import { UsuarioDto } from '../usuarios/dto/usuario.dto';
 import { ZonaDto } from './dto/zona.dto';
+import { Cron } from '@nestjs/schedule';
 @Injectable()
 export class VendedoresService {
   private readonly apiVendedores =
@@ -78,6 +79,14 @@ export class VendedoresService {
       }
       throw new BadRequestException(axiosError?.response?.data?.message);
     }
+  }
+
+  async findOneByUsuarioId(usuarioId: string) {
+    const apiEndPoint = `${this.apiVendedores}/vendedores/usuario/${usuarioId}`;
+    const { data: vendedor } = await firstValueFrom(
+      this.httpService.get<VendedorDto>(apiEndPoint),
+    );
+    return vendedor;
   }
 
   async remove(id: string) {
