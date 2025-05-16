@@ -43,6 +43,10 @@ const routes: Routes = [
   {
     path: 'pedidos-registro',
     loadChildren: () => import('./pages/pedidos-registro/pedidos-registro.module').then( m => m.PedidosRegistroPageModule)
+  },
+  {
+    path: 'rutas',
+    loadChildren: () => import('./pages/rutas/rutas.module').then( m => m.RutasPageModule)
   }
 ];
 

@@ -1,0 +1,40 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Mis Rutas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <ng-container *ngIf="!loading; else loadingTemplate">
+    <ion-list *ngIf="rutas.length > 0; else noRutas">
+      <ion-item *ngFor="let ruta of rutas" [routerLink]="['/rutas', ruta.id]" detail>
+        <ion-label>
+          <h2>Ruta {{ ruta.id }}</h2>
+          <p>{{ ruta.fecha | date:'dd/MM/yyyy' }}</p>
+          <p>{{ ruta.paradas?.length || 0 }} paradas</p>
+        </ion-label>
+        <ion-badge slot="end" [color]="getBadgeColor(ruta.estado)">
+          {{ ruta.estado }}
+        </ion-badge>
+      </ion-item>
+    </ion-list>
+  </ng-container>
+
+  <ng-template #loadingTemplate>
+    <div class="ion-text-center ion-padding">
+      <ion-spinner></ion-spinner>
+      <p>Cargando rutas...</p>
+    </div>
+  </ng-template>
+
+  <ng-template #noRutas>
+    <div class="ion-text-center ion-padding">
+      <ion-icon name="map-outline" style="font-size: 48px; color: var(--ion-color-medium)"></ion-icon>
+      <p>No hay rutas asignadas</p>
+    </div>
+  </ng-template>
+</ion-content>

@@ -8,6 +8,9 @@ import { AppRoutingModule } from './app-routing.module';
 import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { VideoRecorderComponent } from './components/video-recorder/video-recorder.component';
+import { RutasService } from './services/rutas.service';
+import { BodegasService } from './services/bodegas.service';
+import { ClientesService } from './services/clientes.service';
 
 @NgModule({
   declarations: [
@@ -19,10 +22,14 @@ import { VideoRecorderComponent } from './components/video-recorder/video-record
     IonicModule.forRoot(),
     AppRoutingModule,
     HttpClientModule,
-    ReactiveFormsModule,
-    VideoRecorderComponent
+    ReactiveFormsModule
   ],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
+  providers: [
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    RutasService,
+    BodegasService,
+    ClientesService
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
