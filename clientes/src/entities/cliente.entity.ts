@@ -48,6 +48,9 @@ export class Cliente {
   @Column({ type: 'uuid', nullable: true })
   id_vendedor: string | null;
 
+  @Column({ type: 'uuid', nullable: true })
+  id_usuario: string | null;
+
   @OneToMany(() => VisitaCliente, (visita) => visita.cliente)
   visitas: VisitaCliente[];
 }

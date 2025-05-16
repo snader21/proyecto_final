@@ -100,7 +100,7 @@ export class ClienteService {
       console.log(latitud, longitud);
       const { data: cliente } = await firstValueFrom(
         this.httpService.post<GetClienteDto>(apiEndPoint, {
-          usuarioId: usuario.id,
+          id_usuario: usuario.id,
           nombre: createClienteDto.nombre,
           id_tipo_cliente: createClienteDto.id_tipo_cliente,
           direccion: createClienteDto.direccion,
@@ -147,6 +147,16 @@ export class ClienteService {
     );
 
     return data; // 'data' contendrá el array de clientes devuelto por la API
+  }
+
+  async findByUsuarioId(usuarioId: string) {
+    const { data } = await firstValueFrom(
+      this.httpService.get(
+        `${this.clientesApiUrl}/clientes/usuario/${usuarioId}`,
+      ),
+    );
+
+    return data;
   }
 
   async findOne(id: string) {

@@ -165,6 +165,13 @@ export class ClienteService {
     return clientes;
   }
 
+  async findByUsuarioId(id_usuario: string): Promise<Cliente[]> {
+    const cliente = await this.clienteRepository.find({
+      where: { id_usuario: id_usuario },
+    });
+    return cliente;
+  }
+
   /**
    * Asigna o desasigna un vendedor a un cliente.
    * @param clienteId El ID del cliente al que se asignará/desasignará el vendedor.
