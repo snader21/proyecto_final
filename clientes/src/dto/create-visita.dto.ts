@@ -1,4 +1,10 @@
-import { IsBoolean, IsDateString, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsBoolean,
+  IsDateString,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class CreateVisitaDto {
   @IsUUID()
@@ -13,12 +19,4 @@ export class CreateVisitaDto {
 
   @IsBoolean()
   realizo_pedido: boolean;
-
-  @IsOptional()
-  @IsString()
-  key_object_storage?: string;
-
-  @IsOptional()
-  @IsString()
-  url?: string;
 }
