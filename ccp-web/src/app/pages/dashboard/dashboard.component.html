@@ -80,7 +80,7 @@
 
   <div
     class="bg-gray-900 text-white p-6 rounded-xl shadow-lg flex flex-col justify-end h-[40vh] gap-4"
-    [ngClass]="{'div-oscuro': divApagado(['/rutas'])}"
+    [ngClass]="{'div-oscuro': divApagado(['/rutas', '/ubicacion'])}"
   >
     <h3 class="text-lg font-semibold" i18n="dashboardLogisticsTitle">Gestión de logística</h3>
     <div class="flex space-x-2">
@@ -90,6 +90,13 @@
         i18n-label="dashboardLogisticsButton"
         (click)="navigateTo('/rutas')"
         [disabled]="!tieneAcceso('/rutas')"
+      />
+      <p-button
+        styleClass="px-10 py-2 bg-slate-700 text-white rounded-[100px]"
+        label="Ubicación"
+        i18n-label="dashboardLocationButton"
+        (click)="navigateTo('/ubicacion')"
+        [disabled]="tieneAcceso('/ubicacion')"
       />
     </div>
   </div>

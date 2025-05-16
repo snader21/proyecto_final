@@ -19,8 +19,18 @@ import { CreatePreReservaInventarioDto } from './dto/create-pre-reserva-inventar
 export class ProductosController {
   constructor(private readonly productosService: ProductosService) {}
 
-  @Get('inventarios')
+  @Get('inventario')
   async getInventario(@Query() query: QueryInventarioDto) {
+    return this.productosService.getInventario(query);
+  }
+
+  @Get('inventario/producto-con-ubicaciones')
+  async getInventarioProductoConUbicaciones(@Query('nombre_producto') nombreProducto: string) {
+    return this.productosService.getInventarioProductoConUbicaciones(nombreProducto);
+  }
+
+  @Get('inventarios')
+  async getInventarioGeneral(@Query() query: QueryInventarioDto) {
     return this.productosService.getInventario(query);
   }
 

@@ -12,4 +12,9 @@ export class InventariosController {
       query,
     );
   }
+
+  @Get('producto-con-ubicaciones')
+  async obtenerInventarioProductoConUbicaciones(@Query('nombre_producto') nombre_producto: string) {
+    return this.inventariosService.obtenerInventarioProductoConUbicaciones(nombre_producto);
+  }
 }

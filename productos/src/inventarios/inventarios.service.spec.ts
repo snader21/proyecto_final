@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, EntityManager, MoreThan } from 'typeorm';
 import { InventariosService } from './inventarios.service';
 import { InventarioEntity } from './entities/inventario.entity';
 import { TipoMovimientoEnum } from '../movimientos-inventario/enums/tipo-movimiento.enum';
@@ -20,15 +20,96 @@ import { BodegasService } from 'src/bodegas/bodegas.service';
 import { UbicacionesService } from 'src/ubicaciones/ubicaciones.service';
 import { ProductoConInventarioDto } from './dto/producto-con-inventario.dto';
 
+// Definir tipos para los mocks
+type MockedRepository<T> = {
+  createQueryBuilder: jest.Mock,
+  leftJoin: jest.Mock,
+  where: jest.Mock,
+  andWhere: jest.Mock,
+  select: jest.Mock,
+  groupBy: jest.Mock,
+  getRawMany: jest.Mock,
+  getRawOne: jest.Mock,
+  find: jest.Mock,
+  findOne: jest.Mock,
+  save: jest.Mock,
+};
+
 describe('Pruebas con servicio de inventario mock', () => {
   let service: InventariosService;
-  let repositorio: jest.Mocked<Repository<InventarioEntity>>;
+  let repositorio: MockedRepository<InventarioEntity>;
+  let ubicacionRepositorio: MockedRepository<UbicacionEntity>;
+  let mockManager: any;
 
   beforeEach(async () => {
+    // Mock del repositorio de inventario
     repositorio = {
       findOne: jest.fn(),
       save: jest.fn(),
+      createQueryBuilder: jest.fn().mockReturnThis(),
+      leftJoin: jest.fn().mockReturnThis(),
+      innerJoin: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      groupBy: jest.fn().mockReturnThis(),
+      getRawMany: jest.fn(),
+      getRawOne: jest.fn(),
+      find: jest.fn(),
     } as any;
+
+    // Mock del repositorio de ubicaciones
+    ubicacionRepositorio = {
+      createQueryBuilder: jest.fn().mockReturnThis(),
+      leftJoin: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      getRawMany: jest.fn(),
+      find: jest.fn(),
+    } as any;
+
+    // Mock del EntityManager
+    // Mock del EntityManager
+    // Mock del EntityManager
+    // Mock del EntityManager
+    // Mock del EntityManager
+    // Mock del EntityManager
+    // Mock del EntityManager
+    // Mock del EntityManager
+    // Mock del EntityManager
+    // Mock del EntityManager
+    // Mock del EntityManager
+    // Mock del EntityManager
+    // Mock del EntityManager
+    // Mock del EntityManager
+    mockManager = {
+      save: jest.fn(),
+      getRepository: jest.fn(),
+      transaction: jest.fn(),
+      queryRunner: jest.fn(),
+      connection: {
+        queryRunner: jest.fn(),
+      },
+      '@instanceof': 'EntityManager',
+      repositories: [],
+      treeRepositories: [],
+      plainObjectToEntityTransformer: jest.fn(),
+      query: jest.fn(),
+      createQueryBuilder: jest.fn(),
+      hasId: jest.fn(),
+      getId: jest.fn(),
+      create: jest.fn(),
+      merge: jest.fn(),
+      preload: jest.fn(),
+      remove: jest.fn(),
+      softRemove: jest.fn(),
+      recover: jest.fn(),
+      insert: jest.fn(),
+      upsert: jest.fn(),
+    } as any;
+
+    // Mock de process.env
+    process.env.NODE_ENV = 'test';
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -36,6 +117,10 @@ describe('Pruebas con servicio de inventario mock', () => {
         {
           provide: getRepositoryToken(InventarioEntity),
           useValue: repositorio,
+        },
+        {
+          provide: getRepositoryToken(UbicacionEntity),
+          useValue: ubicacionRepositorio,
         },
       ],
     }).compile();
@@ -45,6 +130,388 @@ describe('Pruebas con servicio de inventario mock', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('obtenerInventarioTotalDeProductosPorQueryDto', () => {
+    it('should return total inventory for products', async () => {
+      const mockProducto = {
+        id_producto: 'PROD-1',
+        nombre: 'Test Product',
+        precio: 100,
+      };
+
+      const mockInventario = {
+        cantidad_disponible: 10,
+      };
+
+      repositorio.createQueryBuilder.mockReturnThis();
+      repositorio.where.mockReturnThis();
+      repositorio.andWhere.mockReturnThis();
+      repositorio.select.mockReturnThis();
+      repositorio.groupBy.mockReturnThis();
+      repositorio.getRawMany.mockResolvedValue([
+        {
+          id_producto: mockProducto.id_producto,
+          nombre: mockProducto.nombre,
+          precio: mockProducto.precio,
+          inventario: mockInventario.cantidad_disponible,
+        }
+      ]);
+
+      const result = await service.obtenerInventarioTotalDeProductosPorQueryDto({
+        nombre_producto: 'Test'
+      });
+
+      expect(result).toBeDefined();
+      expect(result[0].inventario).toBe(mockInventario.cantidad_disponible);
+      expect(repositorio.createQueryBuilder).toHaveBeenCalled();
+      expect(repositorio.where).toHaveBeenCalled();
+      expect(repositorio.groupBy).toHaveBeenCalled();
+    });
+
+    it('should return empty array when no products found', async () => {
+      repositorio.createQueryBuilder.mockReturnThis();
+      repositorio.where.mockReturnThis();
+      repositorio.andWhere.mockReturnThis();
+      repositorio.select.mockReturnThis();
+      repositorio.groupBy.mockReturnThis();
+      repositorio.getRawMany.mockResolvedValue([]);
+
+      const result = await service.obtenerInventarioTotalDeProductosPorQueryDto({
+        nombre_producto: 'NoExiste'
+      });
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('obtenerInventarioProductoConUbicaciones', () => {
+    it('should return products with their inventory and locations', async () => {
+      const mockProducto = {
+        id_producto: 'PROD-1',
+        nombre: 'Test Product',
+        precio: 100,
+        descripcion: 'Test description',
+        sku: 'SKU-1',
+        codigo_barras: '123456789',
+        activo: true,
+        alto: 10,
+        ancho: 20,
+        largo: 30,
+        peso: 1.5,
+        fecha_creacion: new Date(),
+        fecha_actualizacion: new Date(),
+        id_fabricante: 'FAB-1',
+        id_categoria: 'CAT-1',
+        id_marca: 'MAR-1',
+        id_unidad_medida: 'UM-1',
+        id_pais: 'PAIS-1',
+      };
+
+      const mockBodega = {
+        id_bodega: 'BOD-1',
+        nombre_bodega: 'Test Bodega',
+      };
+
+      const mockUbicacion = {
+        id_ubicacion: 'UBI-1',
+        nombre_ubicacion: 'Test Location',
+        descripcion: 'Test Description',
+      };
+
+      const mockInventario = {
+        cantidad_disponible: 10,
+      };
+
+      // Mocks para el repositorio de inventario
+      repositorio.createQueryBuilder.mockReturnThis();
+      repositorio.where.mockReturnThis();
+      repositorio.select.mockReturnThis();
+      repositorio.getRawMany.mockResolvedValue([mockProducto]);
+
+      // Mocks para el repositorio de ubicaciones
+      ubicacionRepositorio.createQueryBuilder.mockReturnThis();
+      ubicacionRepositorio.where.mockReturnThis();
+      ubicacionRepositorio.select.mockReturnThis();
+      ubicacionRepositorio.getRawMany.mockResolvedValue([{
+        ...mockBodega,
+        ...mockUbicacion
+      }]);
+
+      // Mock para obtener inventario
+      repositorio.createQueryBuilder.mockReturnThis();
+      repositorio.where.mockReturnThis();
+      repositorio.andWhere.mockReturnThis();
+      repositorio.select.mockReturnThis();
+      repositorio.getRawMany.mockResolvedValue([{
+        ...mockInventario,
+        id_producto: mockProducto.id_producto,
+        id_ubicacion: mockUbicacion.id_ubicacion
+      }]);
+
+      const result = await service.obtenerInventarioProductoConUbicaciones('Test');
+
+      expect(result).toBeDefined();
+      expect(result[0].id_producto).toBe(mockProducto.id_producto);
+      expect(result[0].bodegas[0].ubicaciones[0].cantidad_disponible).toBe(mockInventario.cantidad_disponible);
+      expect(repositorio.createQueryBuilder).toHaveBeenCalledTimes(3);
+      expect(ubicacionRepositorio.createQueryBuilder).toHaveBeenCalled();
+    });
+
+    it('should return empty array when no products found', async () => {
+      repositorio.createQueryBuilder.mockReturnThis();
+      repositorio.where.mockReturnThis();
+      repositorio.select.mockReturnThis();
+      repositorio.getRawMany.mockResolvedValue([]);
+
+      const result = await service.obtenerInventarioProductoConUbicaciones('NoExiste');
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('actualizarInventarioDeProducto', () => {
+    it('should create new inventory when not exists', async () => {
+      const mockUbicacion = {
+        id_ubicacion: 'UBI-1',
+      } as any;
+
+      const mockNewInventario: InventarioEntity = {
+        id_inventario: '1',
+        producto: { id_producto: 'PROD-1' } as any,
+        ubicacion: { id_ubicacion: 'UBI-1' } as any,
+        cantidad_disponible: 10,
+        cantidad_minima: 5,
+        cantidad_maxima: 100,
+        fecha_actualizacion: new Date(),
+      };
+
+      // Primera llamada a save crea el inventario con valores por defecto
+      mockManager.save.mockImplementationOnce((entityType, data) => {
+        return {
+          ...data,
+          id_inventario: '1',
+          cantidad_disponible: 0,
+          cantidad_maxima: 1000,
+          cantidad_minima: 0,
+        };
+      });
+
+      // Segunda llamada a save actualiza el inventario
+      mockManager.save.mockImplementationOnce((entityType, data) => {
+        return {
+          ...data,
+          id_inventario: '1',
+          cantidad_disponible: 10,
+          cantidad_minima: 5,
+          cantidad_maxima: 100,
+        };
+      });
+
+      repositorio.findOne.mockResolvedValue(null);
+
+      const result = await service.actualizarInventarioDeProducto(
+        'PROD-1',
+        TipoMovimientoEnum.ENTRADA,
+        mockUbicacion,
+        10,
+        mockManager,
+      );
+
+      expect(result).toEqual(mockNewInventario);
+      expect(mockManager.save).toHaveBeenCalledTimes(2);
+      expect(mockManager.save).toHaveBeenNthCalledWith(1,
+        InventarioEntity,
+        expect.objectContaining({
+          producto: { id_producto: 'PROD-1' },
+          ubicacion: { id_ubicacion: 'UBI-1' },
+          cantidad_disponible: 0,
+          cantidad_maxima: 1000,
+          cantidad_minima: 0,
+        }),
+      );
+      expect(mockManager.save).toHaveBeenNthCalledWith(2,
+        InventarioEntity,
+        expect.objectContaining({
+          producto: { id_producto: 'PROD-1' },
+          ubicacion: { id_ubicacion: 'UBI-1' },
+          cantidad_disponible: 10,
+          cantidad_minima: 0,
+          cantidad_maxima: 1000,
+        }),
+      );
+    });
+
+    it('should update inventory for ENTRADA movement', async () => {
+      const mockUbicacion = {
+        id_ubicacion: 'UBI-1',
+      } as any;
+
+      const mockInventario: InventarioEntity = {
+        id_inventario: '1',
+        producto: { id_producto: 'PROD-1' } as any,
+        ubicacion: { id_ubicacion: 'UBI-1' } as any,
+        cantidad_disponible: 10,
+        cantidad_minima: 5,
+        cantidad_maxima: 100,
+        fecha_actualizacion: new Date(),
+      };
+
+      repositorio.findOne.mockResolvedValue(mockInventario);
+      mockManager.save.mockImplementation((_, inventory) => inventory);
+
+      const result = await service.actualizarInventarioDeProducto(
+        'PROD-1',
+        TipoMovimientoEnum.ENTRADA,
+        mockUbicacion,
+        5,
+        mockManager,
+      );
+
+      expect(result.cantidad_disponible).toBe(15);
+      expect(mockManager.save).toHaveBeenCalledWith(
+        InventarioEntity,
+        expect.any(Object),
+      );
+    });
+
+    it('should update inventory for SALIDA movement', async () => {
+      const mockUbicacion = {
+        id_ubicacion: 'UBI-1',
+      } as any;
+
+      const mockInventario: InventarioEntity = {
+        id_inventario: '1',
+        producto: { id_producto: 'PROD-1' } as any,
+        ubicacion: { id_ubicacion: 'UBI-1' } as any,
+        cantidad_disponible: 10,
+        cantidad_minima: 5,
+        cantidad_maxima: 100,
+        fecha_actualizacion: new Date(),
+      };
+
+      repositorio.findOne.mockResolvedValue(mockInventario);
+      mockManager.save.mockImplementation((_, inventory) => inventory);
+
+      const result = await service.actualizarInventarioDeProducto(
+        'PROD-1',
+        TipoMovimientoEnum.PRE_RESERVA,
+        mockUbicacion,
+        5,
+        mockManager,
+      );
+
+      expect(result.cantidad_disponible).toBe(5);
+      expect(mockManager.save).toHaveBeenCalledWith(
+        InventarioEntity,
+        expect.any(Object),
+      );
+    });
+
+    it('should throw error when insufficient stock for SALIDA', async () => {
+      const mockUbicacion = {
+        id_ubicacion: 'UBI-1',
+      } as any;
+
+      const mockInventario: InventarioEntity = {
+        id_inventario: '1',
+        producto: { id_producto: 'PROD-1' } as any,
+        ubicacion: { id_ubicacion: 'UBI-1' } as any,
+        cantidad_disponible: 10,
+        cantidad_minima: 5,
+        cantidad_maxima: 100,
+        fecha_actualizacion: new Date(),
+      };
+
+      repositorio.findOne.mockResolvedValue(mockInventario);
+      mockManager.save.mockImplementation((_, inventory) => inventory);
+
+      await expect(
+        service.actualizarInventarioDeProducto(
+          'PROD-1',
+          TipoMovimientoEnum.PRE_RESERVA,
+          mockUbicacion,
+          15,
+          mockManager,
+        )
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('obtenerInventarioDeProductoEnBodega', () => {
+    it('should return inventory for product and location', async () => {
+      const mockInventario: InventarioEntity = {
+        id_inventario: '1',
+        producto: { id_producto: 'PROD-1' } as any,
+        ubicacion: { id_ubicacion: 'UBI-1' } as any,
+        cantidad_disponible: 10,
+        cantidad_minima: 5,
+        cantidad_maxima: 100,
+        fecha_actualizacion: new Date(),
+      };
+
+      repositorio.findOne.mockResolvedValue(mockInventario);
+
+      const result = await service.obtenerInventarioDeProductoEnBodega(
+        'PROD-1',
+        'UBI-1',
+      );
+
+      expect(result).toEqual(mockInventario);
+      expect(repositorio.findOne).toHaveBeenCalledWith({
+        where: {
+          producto: { id_producto: 'PROD-1' },
+          ubicacion: { id_ubicacion: 'UBI-1' },
+        },
+      });
+    });
+
+    it('should return null when inventory not found', async () => {
+      repositorio.findOne.mockResolvedValue(null);
+
+      const result = await service.obtenerInventarioDeProductoEnBodega(
+        'PROD-1',
+        'UBI-1',
+      );
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('obtenerInventarioPorUbicacionesDeProductoPorIdProducto', () => {
+    it('should return inventory for product by id', async () => {
+      const mockInventario: InventarioEntity = {
+        id_inventario: '1',
+        producto: { id_producto: 'PROD-1' } as any,
+        ubicacion: { id_ubicacion: 'UBI-1' } as any,
+        cantidad_disponible: 10,
+        cantidad_minima: 5,
+        cantidad_maxima: 100,
+        fecha_actualizacion: new Date(),
+      };
+
+      repositorio.find.mockResolvedValue([mockInventario]);
+
+      const result = await service.obtenerInventarioPorUbicacionesDeProductoPorIdProducto('PROD-1');
+
+      expect(result).toEqual([mockInventario]);
+      expect(repositorio.find).toHaveBeenCalledWith({
+        where: {
+          producto: { id_producto: 'PROD-1' },
+          cantidad_disponible: MoreThan(0),
+        },
+        relations: ['ubicacion', 'producto'],
+        order: { cantidad_disponible: 'DESC' },
+      });
+    });
+
+    it('should return empty array when no inventory found', async () => {
+      repositorio.find.mockResolvedValue([]);
+
+      const result = await service.obtenerInventarioPorUbicacionesDeProductoPorIdProducto('PROD-1');
+
+      expect(result).toEqual([]);
+    });
   });
 
   describe('obtenerInventarioDeProducto', () => {
@@ -205,7 +672,7 @@ describe('Pruebas con servicio de inventario mock', () => {
     //     await expect(
     //       service.actualizarInventarioDeProducto(
     //         'PROD-1',
-    //         TipoMovimientoEnum.SALIDA,
+    //         TipoMovimientoEnum.PRE_RESERVA,
     //         mockUbicacion,
     //         15,
     //         mockManager,

@@ -10,6 +10,7 @@ import {
   Product,
   CreateProduct,
   EntradaInventario,
+  ProductoConUbicacion
 } from "../../interfaces/product.interfaces";
 import { UploadResult } from "../../interfaces/upload-result.interface";
 
@@ -52,6 +53,12 @@ export class ProductsService {
     }
 
     return this.http.post<Product>(`${this.apiUrl}/productos`, formData);
+  }
+
+  searchProductsByLocation(nombre_producto: string): Observable<ProductoConUbicacion[]> {
+    return this.http.get<ProductoConUbicacion[]>(
+      `${this.apiUrl}/productos/inventario/producto-con-ubicaciones?nombre_producto=${nombre_producto}`
+    );
   }
 
   updateProduct(id: string, product: CreateProduct, files?: File[]): Observable<Product> {

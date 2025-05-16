@@ -1,0 +1,101 @@
+.search-container {
+  padding: 20px;
+
+  .search-input {
+    width: 500px;
+  }
+}
+
+.loading-message {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.error-message {
+  text-align: center;
+  padding: 20px;
+  color: #dc3545;
+}
+
+.results-container {
+  padding: 20px;
+
+  .product-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+    .product-header {
+      margin-bottom: 20px;
+
+      .product-price {
+        color: #666;
+        font-size: 14px;
+      }
+    }
+
+    .bodegas-container {
+      h4 {
+        color: #333;
+        margin: 15px 0;
+        font-size: 18px;
+      }
+
+      .bodega {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 4px;
+
+        h5 {
+          color: #495057;
+          margin: 0 0 10px 0;
+        }
+
+        .ubicacion {
+          margin-bottom: 15px;
+          padding: 10px;
+          background: #fff;
+          border-radius: 4px;
+
+          .ubicacion-details {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+
+            .ubicacion-status {
+              padding: 2px 8px;
+              border-radius: 4px;
+              font-size: 12px;
+
+              &.has-inventory {
+                background: #d4edda;
+                color: #155724;
+              }
+
+              &:not(.has-inventory) {
+                background: #f8d7da;
+                color: #721c24;
+              }
+            }
+          }
+
+          .ubicacion-description {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+          }
+        }
+      }
+    }
+
+    .no-bodegas {
+      color: #666;
+      text-align: center;
+      padding: 20px;
+    }
+  }
+}
