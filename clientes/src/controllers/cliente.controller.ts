@@ -69,6 +69,18 @@ export class ClienteController {
   }
 
   /**
+   * Maneja las solicitudes GET a /clientes/usuario/.
+   * @param id El id del Usuario que se va a consultar
+   * @returns Una promesa que retorna la entidad cliente
+   */
+  @Get('usuario/:id')
+  async findByUsuarioId(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<Cliente[]> {
+    return this.clienteService.findByUsuarioId(id);
+  }
+
+  /**
    * Maneja las solicitudes GET a /clientes/:id.
    * Retorna un cliente específico por su ID (UUID).
    * @param id El ID del cliente (validado como UUID).
