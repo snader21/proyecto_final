@@ -79,9 +79,9 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
 
     try {
       // 1. Cargar pedidos
-      console.log('1. Cargando pedidos...');
-      const pedidos = await firstValueFrom(this.pedidosService.findByIdVendedor(this.vendedor.id));
-      console.log('Pedidos cargados:', pedidos);
+      // console.log('1. Cargando pedidos...');
+      // const pedidos = await firstValueFrom(this.pedidosService.findByIdVendedor(this.vendedor.id));
+      // console.log('Pedidos cargados:', pedidos);
 
       // 2. Cargar trimestres
       console.log('2. Cargando trimestres...');
@@ -101,7 +101,7 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
       // 4. Asignar valores
       console.log('4. Asignando valores...');
       this.metasPorTrimestre = {};
-      
+
       // Tomamos el primer plan si existe
       const plan = Array.isArray(planes) && planes.length > 0 ? planes[0] : null;
       console.log('Plan seleccionado:', JSON.stringify(plan, null, 2));

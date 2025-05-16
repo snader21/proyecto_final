@@ -16,6 +16,8 @@ import { RutasService, Ruta } from '../../services/rutas.service';
 export class RutasPage implements OnInit {
   rutas: Ruta[] = [];
   loading = true;
+  currentDate = new Date();
+  searchTerm = '';
 
   constructor(
     private loadingCtrl: LoadingController,

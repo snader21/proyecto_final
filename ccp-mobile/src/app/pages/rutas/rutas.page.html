@@ -1,23 +1,41 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Mis Rutas</ion-title>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Rutas</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="ion-padding">
   <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
+  <ion-searchbar placeholder="Buscar ruta" mode="ios"></ion-searchbar>
+
+  <h2 class="ion-padding-top">Visitas programadas</h2>
+  
+  <div class="fecha-container ion-padding-vertical">
+    <ion-icon name="calendar-outline" size="large"></ion-icon>
+    <div class="fecha-info">
+      <h3>Fecha</h3>
+      <p>{{ currentDate | date:'dd/MM/yyyy' }}</p>
+    </div>
+  </div>
+
+  <h2>Lista de visitas programadas</h2>
+
   <ng-container *ngIf="!loading; else loadingTemplate">
-    <ion-list *ngIf="rutas.length > 0; else noRutas">
-      <ion-item *ngFor="let ruta of rutas" [routerLink]="['/rutas', ruta.id]" detail>
-        <ion-label>
-          <h2>Ruta {{ ruta.id }}</h2>
-          <p>{{ ruta.fecha | date:'dd/MM/yyyy' }}</p>
-          <p>{{ ruta.paradas?.length || 0 }} paradas</p>
+    <ion-list *ngIf="rutas.length > 0; else noRutas" class="rutas-list">
+      <ion-item *ngFor="let ruta of rutas" [routerLink]="['/rutas', ruta.id]" class="ruta-item">
+        <div class="timeline-dot"></div>
+        <ion-label class="ion-padding-start">
+          <h2>{{ ruta.paradas[0]?.nombre_cliente || 'Ruta ' + ruta.id }}</h2>
+          <p>{{ ruta.paradas[0]?.direccion }}</p>
+          <p>Hora estimada: {{ ruta.paradas[0]?.hora_llegada | date:'shortTime' }}</p>
         </ion-label>
-        <ion-badge slot="end" [color]="getBadgeColor(ruta.estado)">
+        <ion-badge slot="end" [color]="getBadgeColor(ruta.estado)" class="estado-badge">
           {{ ruta.estado }}
         </ion-badge>
       </ion-item>
