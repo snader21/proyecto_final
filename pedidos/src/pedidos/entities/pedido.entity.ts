@@ -14,7 +14,7 @@ export class PedidoEntity {
   @PrimaryGeneratedColumn('uuid')
   id_pedido: string;
 
-  @Column()
+  @Column({ type: 'varchar', nullable: true })
   id_vendedor: string;
 
   @Column({ type: 'date' })

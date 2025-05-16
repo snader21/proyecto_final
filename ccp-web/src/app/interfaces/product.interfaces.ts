@@ -91,3 +91,41 @@ export interface EntradaInventario {
   cantidad: number;
   fechaRegistro: Date;
 }
+
+export interface Ubicacion {
+  id_ubicacion: string;
+  nombre: string;
+  descripcion: string;
+  cantidad_disponible: number;
+  tiene_inventario: boolean;
+}
+
+export interface Bodega {
+  id_bodega: string;
+  nombre: string;
+  ubicaciones: Ubicacion[];
+}
+
+export interface ProductoConUbicacion {
+  id_producto: string;
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  sku: string;
+  codigo_barras?: string;
+  categoria?: Category;
+  marca?: Brand;
+  unidad_medida?: Unit;
+  pais?: {
+    id_pais: string;
+  };
+  id_fabricante?: string;
+  activo: boolean;
+  alto: number;
+  ancho: number;
+  largo: number;
+  peso: number;
+  fecha_creacion: Date;
+  fecha_actualizacion: Date;
+  bodegas: Bodega[];
+}

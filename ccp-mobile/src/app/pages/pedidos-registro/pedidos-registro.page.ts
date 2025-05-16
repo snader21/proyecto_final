@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { PedidosService } from '../../services/pedidos.service';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { VendedorService } from 'src/app/services/vendedor.service';
 
 @Component({
   selector: 'app-pedidos-registro',
@@ -23,6 +24,9 @@ export class PedidosRegistroPage implements OnInit {
   clientes: Cliente[] = [];
   idPedido: string = '';
   idUsuario: string = '';
+  idCliente: string | null = null;
+  idVendedor: string | null = null;
+  rol: string | null = null;
 
   productos: Producto[] = [];
   productosFiltrados: Producto[] = [];
@@ -45,6 +49,7 @@ export class PedidosRegistroPage implements OnInit {
     private metodosPagoService: MetodosPagoService,
     private clienteService: ClienteService,
     private pedidosService: PedidosService,
+    private vendedorService: VendedorService,
     private router: Router
   ) {
     this.pedidoForm = this.formBuilder.group({
@@ -71,7 +76,7 @@ export class PedidosRegistroPage implements OnInit {
       const usuario = JSON.parse(usuarioStr);
       const esVendedor = usuario.roles.some((rol: any) => rol.nombre.toLowerCase() === 'vendedor');
       const esCliente = usuario.roles.some((rol: any) => rol.nombre.toLowerCase() === 'cliente');
-      
+
       this.esCliente = esCliente;
       if (esCliente) {
         this.clienteId = usuario.id;
@@ -94,6 +99,19 @@ export class PedidosRegistroPage implements OnInit {
     const usuarioStr = localStorage.getItem('usuario');
     if (usuarioStr) {
       const usuario = JSON.parse(usuarioStr);
+      this.rol = usuario.roles[0].nombre;
+      if(this.rol === 'Administrador'){
+        this.idVendedor = null;
+      }else if(this.rol === 'Cliente'){
+        this.idVendedor = null;
+        this.clienteService.obtenerClientePorUsuario(usuario.id).subscribe((cliente) => {
+          this.idCliente = cliente[0].id_cliente;
+        });
+      }else if(this.rol === 'Vendedor'){
+        this.vendedorService.obtenerVendedorByUsuario(usuario.id).subscribe((vendedor) => {
+          this.idVendedor = vendedor.id;
+        });
+      }
       return usuario.id;
     }
     return '';
@@ -183,11 +201,11 @@ export class PedidosRegistroPage implements OnInit {
     if (this.pedidoForm.valid && this.productosSeleccionados.length > 0) {
       const pedido = {
         id_pedido: this.idPedido,
-        id_vendedor: this.idUsuario,
+        id_vendedor: this.idVendedor,
         fecha_registro: new Date().toISOString(),
         id_estado: 2,
         descripcion: 'Pedido generado con ' + this.productosSeleccionados.length + ' productos',
-        id_cliente: this.pedidoForm.value.id_cliente,
+        id_cliente: this.idCliente == null ? this.pedidoForm.value.id_cliente : this.idCliente,
         id_metodo_pago: this.pedidoForm.value.medioPago,
         estado_pago: 'Pendiente',
         costo_envio: this.calcularCostoEnvio(),

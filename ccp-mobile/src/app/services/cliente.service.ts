@@ -36,4 +36,8 @@ export class ClienteService {
   obtenerTiposDeCliente(): Observable<any[]> {
     return this.http.get<Cliente[]>(`${this.apiUrl}/tipos-cliente`);
   }
+
+  obtenerClientePorUsuario(usuarioId: string): Observable<Cliente[]> {
+    return this.http.get<Cliente[]>(`${this.apiUrl}/clientes/usuario/${usuarioId}`);
+  }
 }

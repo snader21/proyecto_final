@@ -3,9 +3,11 @@ import { InventariosService } from './inventarios.service';
 import { InventariosController } from './inventarios.controller';
 import { InventarioEntity } from './entities/inventario.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UbicacionEntity } from '../ubicaciones/entities/ubicacion.entity';
+
 @Module({
+  imports: [TypeOrmModule.forFeature([InventarioEntity, UbicacionEntity])],
   controllers: [InventariosController],
-  imports: [TypeOrmModule.forFeature([InventarioEntity])],
   providers: [InventariosService],
   exports: [InventariosService],
 })
