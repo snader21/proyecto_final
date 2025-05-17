@@ -58,11 +58,25 @@ Example of input data will be something like this:
 ]
 
 Your job is to:
-1. Based on \`ultima_visita\` of the clients by each vendor, determine when the next visit should be scheduled.
-2. If \`ultima_visita\` is null, the next visit should be scheduled for tomorrow.
-3. If \`ultima_visita\` was more than one week ago, the next visit should be scheduled for tomorrow.
-4. If \`ultima_visita\` was less than a week ago, the next visit should be scheduled for \`ultima_visita\` plus one week.
-5. If \`ultima_visita\` was between last week and a today, the next visit not will be calculated.
+1. CRITICAL: Use NOW (${new Date().toISOString()}) as the reference point for all date calculations.
+2. For each client, calculate next_visit_date following these STRICT rules:
+   \`\`\`
+   NOW = ${new Date().toISOString()}
+   TOMORROW = NOW + 1 day
+   ONE_WEEK_FROM_NOW = NOW + 7 days
+
+   if (ultima_visita is null OR ultima_visita < NOW - 7 days)
+     next_visit_date = TOMORROW
+   else if (ultima_visita < NOW)
+     next_visit_date = ONE_WEEK_FROM_NOW
+   else
+     next_visit_date = ultima_visita  // Keep future dates as is
+   \`\`\`
+
+3. VALIDATION: Before returning any date, ensure:
+   - date > NOW
+   - 8:00 AM ≤ time ≤ 5:00 PM
+   If any validation fails, adjust to next valid time slot.
 
 The result of \`ultima_visita\` always be a date in the future.
 
@@ -78,61 +92,83 @@ Optimize each visit route (using Manhattan distance) so that:
 }
 \`\`\`
 
-## 📦 Output Format
-For client used, return a JSON object in the following format:
+## 📦 Output Format Example (MUST follow this structure)
+
+IMPORTANT: This is just an example. Replace all dates with proper future dates based on NOW (${new Date().toISOString()}).
 
 \`\`\`json
 {
   "vendedores": [
-    "id_vendedor": "9db58905-196b-4176-bf25-964716a9e95a",
-    "visitas_programadas": [
-      {
-        "duracionEstimada": 120,
-        "fecha": ${(() => {
-          const d = new Date();
-          d.setDate(d.getDate() + 1);
-          return d.toISOString().split('T')[0];
-        })()},
-        "distanciaTotal": 50,
-        "camionId": "null",
-        "nodos": [
-          {
-            "numeroNodoProgramado": 1,
-            "latitud": 4.6014581,
-            "longitud": -74.2185687,
-            "direccion": "Calle 123",
-            "hora_llegada": ${(() => {
-              const d = new Date();
-              d.setDate(d.getDate() + 1);
-              d.setHours(8, 0, 0, 0);
-              return d.toISOString();
-            })()},
-            "hora_salida": ${(() => {
-              const d = new Date();
-              d.setDate(d.getDate() + 1);
-              d.setHours(8, 30, 0, 0);
-              return d.toISOString();
-            })()},
-            "id_bodega": null,
-            "id_cliente": "123e4567-e89b-12d3-a456-426614174001",
-            "id_pedido": null,
-            "productos": null
-          }
-        ]
-      }
-    ]
+    {
+      "id_vendedor": "9db58905-196b-4176-bf25-964716a9e95a",
+      "visitas_programadas": [
+        {
+          "duracionEstimada": 30,
+          "fecha": "2025-05-18",
+          "distanciaTotal": 50,
+          "camionId": null,
+          "nodos": [
+            {
+              "numeroNodoProgramado": 1,
+              "latitud": 4.6014581,
+              "longitud": -74.2185687,
+              "direccion": null,
+              "hora_llegada": "2025-05-18T08:00:00.000Z",
+              "hora_salida": "2025-05-18T08:30:00.000Z",
+              "id_bodega": null,
+              "id_cliente": "123e4567-e89b-12d3-a456-426614174001",
+              "id_pedido": null,
+              "productos": null
+            }
+          ]
+        }
+      ]
+    }
   ]
 }
 \`\`\`
 
+NOTES:
+1. All dates MUST be after ${new Date().toISOString()}
+2. Visit times MUST be between 8:00 AM and 5:00 PM
+3. Each visit lasts exactly 30 minutes
+4. Format dates as YYYY-MM-DD for fecha and full ISO string for times
+
 Each route starts nearest to the client.
 All coordinates must be numbers (convert strings if needed).
 
-## 🚨 Visit Rules Recap (DO NOT BREAK)
+## 🚨 CRITICAL RULES - ANY VIOLATION WILL BE REJECTED
 
-- If **all routes are null**, optimize the visit schedule to include **around 4 clients per day**, based on the **assigned salesperson** (\`vendedor_id\`).
-- If \`ultima_visita\` was **less than one week ago**, schedule the next visit by **adding one week** to that date.
-- Optimize the **visit route** starting from the client **closest to the warehouse**, and follow an **optimal visit order**.
-- Return the response **exactly in the specified JSON format**.
-- Use the input data to produce the **optimal routing** and return the result in the **provided JSON format**.
+1. **Date Validation (STRICT)**
+   \`\`\`
+   NOW = ${new Date().toISOString()}
+   
+   For every date in response:
+   - MUST be > NOW
+   - MUST be between 8:00 AM and 5:00 PM
+   - MUST be in ISO format
+   \`\`\`
+
+2. **Visit Scheduling (STRICT)**
+   \`\`\`
+   For each client:
+   if (ultima_visita == null || ultima_visita < NOW - 7 days)
+     schedule_for = TOMORROW at 8:00 AM + offset
+   else if (ultima_visita < NOW)
+     schedule_for = NOW + 7 days at 8:00 AM + offset
+   else
+     schedule_for = ultima_visita  // Keep future dates
+   \`\`\`
+
+3. **Route Rules**
+   - Group by vendor_id
+   - Max 4 clients/day/vendor
+   - Use Manhattan distance
+   - Start from (0,0)
+   - 30 min per visit
+
+4. **Response Format**
+   - Match example JSON exactly
+   - All dates > NOW
+   - All coordinates as numbers
 `;
