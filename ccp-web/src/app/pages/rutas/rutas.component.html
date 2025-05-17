@@ -92,4 +92,5 @@
   [stops]="selectedRuta.nodos_rutas"
   [ruta]="selectedRuta"
   [(visible)]="dialogVisible"
+  (visibleChange)="onDialogVisibilityChange($event)"
 ></app-rutas-details>

@@ -100,5 +100,6 @@
 <app-gestionar-inventario
   *ngIf="showInventoryDialog"
   [(visible)]="showInventoryDialog"
+  (visibleChange)="onInventoryDialogVisibilityChange($event)"
   [product]="selectedProduct"
 />

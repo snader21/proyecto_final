@@ -1,28 +1,29 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CardModule } from 'primeng/card';
-import { DividerModule } from 'primeng/divider';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { ModalService } from '../../services/productos/modal.service';
-import { ProductsService } from '../../services/productos/products.service';
-import { EventsService } from '../../services/events/events.service';
-import { Product } from '../../interfaces/product.interfaces';
-import { ManageProductComponent } from './manage-product/manage-product.component';
-import { TagModule } from 'primeng/tag';
-import { GestionarInventarioComponent } from './gestionar-inventario/gestionar-inventario.component';
-import { CommonModule } from '@angular/common';
-import { ManageProductBulkComponent } from './manage-product-bulk/manage-product-bulk.component';
-import { ImageModule } from 'primeng/image';
-import { InputTextModule } from 'primeng/inputtext';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { Subscription } from 'rxjs';
-import { MessageService } from 'primeng/api';
+import { Component, OnInit, OnDestroy, SimpleChanges } from "@angular/core";
+import { CardModule } from "primeng/card";
+import { DividerModule } from "primeng/divider";
+import { TableModule } from "primeng/table";
+import { ButtonModule } from "primeng/button";
+import { ModalService } from "../../services/productos/modal.service";
+import { ProductsService } from "../../services/productos/products.service";
+import { EventsService } from "../../services/events/events.service";
+import { Product } from "../../interfaces/product.interfaces";
+import { ManageProductComponent } from "./manage-product/manage-product.component";
+import { TagModule } from "primeng/tag";
+import { GestionarInventarioComponent } from "./gestionar-inventario/gestionar-inventario.component";
+import { CommonModule } from "@angular/common";
+import { ManageProductBulkComponent } from "./manage-product-bulk/manage-product-bulk.component";
+import { ImageModule } from "primeng/image";
+import { InputTextModule } from "primeng/inputtext";
+import { IconFieldModule } from "primeng/iconfield";
+import { InputIconModule } from "primeng/inputicon";
+import { Subscription } from "rxjs";
+import { MessageService } from "primeng/api";
 
 @Component({
-  selector: 'app-products',
+  selector: "app-products",
   standalone: true,
-  imports: [CardModule,
+  imports: [
+    CardModule,
     DividerModule,
     TableModule,
     ButtonModule,
@@ -34,10 +35,11 @@ import { MessageService } from 'primeng/api';
     ImageModule,
     InputTextModule,
     IconFieldModule,
-    InputIconModule],
+    InputIconModule,
+  ],
   providers: [ProductsService],
-  templateUrl: './products.component.html',
-  styleUrls: ['./products.component.scss']
+  templateUrl: "./products.component.html",
+  styleUrls: ["./products.component.scss"],
 })
 export class ProductsComponent implements OnInit, OnDestroy {
   products: Product[] = [];
@@ -95,5 +97,9 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   closeInventoryDialog() {
     this.showInventoryDialog = false;
+  }
+
+  onInventoryDialogVisibilityChange(visible: boolean) {
+    this.showInventoryDialog = visible;
   }
 }
