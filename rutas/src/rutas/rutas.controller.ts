@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { RutasService } from './rutas.service';
 import { CreateRutaDto } from './dto/create-ruta.dto';
@@ -21,8 +22,8 @@ export class RutasController {
   }
 
   @Get()
-  findAll() {
-    return this.rutasService.findAll();
+  findAll(@Query('tipoRuta') tipoRuta: string) {
+    return this.rutasService.findAll(tipoRuta);
   }
 
   @Get(':id')

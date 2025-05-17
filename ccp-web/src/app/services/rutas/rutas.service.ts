@@ -16,8 +16,8 @@ export class RutasService {
     return firstValueFrom(this.http.get<T>(url));
   }
 
-  getRutas(): Promise<Ruta[]> {
-    return this.fetchData<Ruta[]>(this.API_URL);
+  getRutas(tipoRuta: string): Promise<Ruta[]> {
+    return this.fetchData<Ruta[]>(`${this.API_URL}?tipoRuta=${tipoRuta}`);
   }
 
   getRuta(id: string): Promise<Ruta> {

@@ -1,4 +1,4 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get, Post, Query } from '@nestjs/common';
 import { RutasService } from './rutas.service';
 
 @Controller('rutas')
@@ -15,7 +15,7 @@ export class RutasController {
   }
 
   @Get()
-  obtenerListaRutas() {
-    return this.rutasService.obtenerListaRutas();
+  obtenerListaRutas(@Query('tipoRuta') tipoRuta: string) {
+    return this.rutasService.obtenerListaRutas(tipoRuta);
   }
 }
