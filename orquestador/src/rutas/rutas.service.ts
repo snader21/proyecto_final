@@ -242,9 +242,9 @@ export class RutasService {
 
   // // cron every 5 seconds
   // @Cron('*/5 * * * * *')
-  obtenerListaRutas() {
+  obtenerListaRutas(tipoRuta: string) {
     const api = this.configService.get<string>('URL_RUTAS');
-    const apiEndPoint = `${api}/rutas`;
+    const apiEndPoint = `${api}/rutas?tipoRuta=${tipoRuta}`;
     return this.httpService
       .get(apiEndPoint)
       .pipe(map((response) => response.data));
