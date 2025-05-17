@@ -130,7 +130,7 @@ export class VendedoresFormComponent implements OnInit {
     if (this.form.invalid) {
       this.markFormGroupTouched(this.form);
       this.showErrorMessage(
-        "Por favor complete todos los campos correctamente"
+        $localize`:@@vendedoresFormError:Por favor complete todos los campos correctamente`
       );
       return;
     }
@@ -149,7 +149,9 @@ export class VendedoresFormComponent implements OnInit {
       } else {
         await this.vendedoresService.createVendedor(payload);
       }
-      this.showSuccessMessage("El vendedor se ha guardado correctamente");
+      this.showSuccessMessage(
+        $localize`:@@vendedoresFormSuccessMessage:El vendedor se ha guardado correctamente`
+      );
       this.success.emit(true);
       this.hideDialog();
     } catch (error: any) {
@@ -179,7 +181,7 @@ export class VendedoresFormComponent implements OnInit {
     this.messageService.add({
       key: "success",
       severity: "success",
-      summary: "Éxito",
+      summary: $localize`:@@vendedoresFormSuccessSummary:Éxito`,
       detail,
       life: 3000,
     });
@@ -188,17 +190,18 @@ export class VendedoresFormComponent implements OnInit {
   getErrorMessage(controlName: string): string {
     const control = this.form.get(controlName);
     if (!control) return "";
-    if (control.hasError("required")) return "Este campo es requerido";
+    if (control.hasError("required"))
+      return $localize`:@@vendedoresFormErrorRequired:Este campo es requerido`;
     if (control.hasError("email"))
-      return "Por favor ingrese un correo electrónico válido";
+      return $localize`:@@vendedoresFormErrorEmail:Por favor ingrese un correo electrónico válido`;
     if (control.hasError("minlength"))
-      return `El campo debe tener al menos ${control.errors?.["minlength"].requiredLength} caracteres`;
+      return $localize`:@@vendedoresFormErrorMinlength:El campo debe tener al menos ${control.errors?.["minlength"].requiredLength} caracteres`;
     if (control.hasError("minlength"))
-      return `El campo debe tener al menos ${control.errors?.["minlength"].requiredLength} caracteres`;
+      return $localize`:@@vendedoresFormErrorMinlength:El campo debe tener al menos ${control.errors?.["minlength"].requiredLength} caracteres`;
     if (control.hasError("passwordsMismatch"))
-      return "Las contraseñas no coinciden";
+      return $localize`:@@vendedoresFormErrorPasswordsMismatch:Las contraseñas no coinciden`;
     if (control.hasError("pattern"))
-      return "El campo debe contener máximo 10 números";
+      return $localize`:@@vendedoresFormErrorPattern:El campo debe contener máximo 10 números`;
     return "";
   }
 
