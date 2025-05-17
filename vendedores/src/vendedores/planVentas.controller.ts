@@ -1,4 +1,11 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Put,
+} from '@nestjs/common';
 import { PlanVentasDto } from './dtos/plan-ventas.dto';
 import { PlanVentasService } from './planVentas.service';
 
@@ -22,5 +29,10 @@ export class PlanVentasController {
     @Param('ano', ParseIntPipe) ano: number,
   ) {
     return this.planVentasService.getPlanVentas(idVendedor, ano);
+  }
+
+  @Get()
+  async getAllPlanesDeVentas() {
+    return this.planVentasService.getAllPlanesDeVentas();
   }
 }

@@ -11,9 +11,9 @@ import { CommonModule } from '@angular/common';
 })
 export class VideoRecorderComponent implements OnDestroy {
   @ViewChild('previewVideo') previewVideoElement!: ElementRef<HTMLVideoElement>;
-  @Output() videoRecorded = new EventEmitter<string>();
+  @Output() videoRecorded = new EventEmitter<Blob>();
 
-  videoURL: string | null = null;
+  video: any | null = null;
   isRecording = false;
   private stream: MediaStream | null = null;
   private mediaRecorder: MediaRecorder | null = null;
@@ -46,8 +46,8 @@ export class VideoRecorderComponent implements OnDestroy {
 
       this.mediaRecorder.onstop = async () => {
         const videoBlob = new Blob(chunks, { type: 'video/webm' });
-        this.videoURL = URL.createObjectURL(videoBlob);
-        this.videoRecorded.emit(this.videoURL);
+        this.video = videoBlob;
+        this.videoRecorded.emit(this.video);
         await this.dismiss();
       };
 
@@ -75,12 +75,12 @@ export class VideoRecorderComponent implements OnDestroy {
       this.stream.getTracks().forEach(track => track.stop());
       this.stream = null;
     }
-    await this.modalCtrl.dismiss(this.videoURL);
+    await this.modalCtrl.dismiss(this.video);
   }
 
   ngOnDestroy() {
-    if (this.videoURL) {
-      URL.revokeObjectURL(this.videoURL);
+    if (this.video) {
+      URL.revokeObjectURL(this.video);
     }
     if (this.stream) {
       this.stream.getTracks().forEach(track => track.stop());

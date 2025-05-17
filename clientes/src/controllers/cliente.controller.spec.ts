@@ -21,6 +21,7 @@ describe('ClienteController', () => {
 
   const clienteMock: Cliente = {
     id_cliente: 'c1d2e3f4-g5h6-7890-1234-567890abcdef',
+    id_usuario: '550e8400-e29b-41d4-a716-446655440002',
     nombre: 'Juan Perez',
     id_tipo_cliente: tipoClienteIndividualMock.id_tipo_cliente,
     tipoCliente: tipoClienteIndividualMock as any,

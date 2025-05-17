@@ -4,7 +4,6 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
-  CreateDateColumn,
 } from 'typeorm';
 import { Cliente } from './cliente.entity';
 
@@ -26,7 +25,7 @@ export class VisitaCliente {
   key_object_storage: string;
 
   @Column({ nullable: true })
-  url: string;
+  recomendacion: string;
 
   @ManyToOne(() => Cliente, (cliente) => cliente.visitas)
   @JoinColumn({ name: 'id_cliente' })

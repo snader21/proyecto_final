@@ -25,7 +25,7 @@ import { LugarController } from './controllers/lugar.controller';
       database: process.env.DB_NAME || 'fabricantes',
       entities: [Fabricante, Lugar],
       autoLoadEntities: true,
-      dropSchema: false,
+      dropSchema: true,
       synchronize: true,
     }),
     TypeOrmModule.forFeature([Fabricante, Lugar]),
