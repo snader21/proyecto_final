@@ -8,10 +8,36 @@ import { PedidosService } from '../pedidos/pedidos.service';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { ClienteService } from '../clientes/services/cliente.service';
+import { VisitaService } from 'src/clientes/services/visita.service';
+import { generarPromptGeneracionRutaVisitaVendedores } from './calculo-ruta-visitas.promt';
 
 export interface CreateNodoProductoDto {
   productoId: string;
   cantidad: number;
+}
+
+export interface OptimizedRoutesResponse {
+  visitas_programadas: Array<{
+    duracionEstimada: number;
+    fecha: string;
+    distanciaTotal: number;
+    camionId: string | null;
+    nodos: Array<{
+      numeroNodoProgramado: number;
+      latitud: number;
+      longitud: number;
+      direccion: string;
+      hora_llegada: string;
+      hora_salida: string;
+      id_bodega: string | null;
+      id_cliente: string;
+      id_pedido: string | null;
+      productos: Array<{
+        productoId: string;
+        cantidad: number;
+      }>;
+    }>;
+  }>;
 }
 
 export interface CreateNodoRutaDto {
@@ -49,6 +75,7 @@ export class RutasService {
     private readonly pedidosService: PedidosService,
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
+    private readonly visitaService: VisitaService,
   ) {}
 
   private obtenerCamiones() {
@@ -146,10 +173,32 @@ export class RutasService {
 
   async calcularYGuardarRutaDeVisitaDeVendedores() {
     try {
-      //este método debería calcular la ruta de los vendedores
       // 1. Consultar los clientes obtenerTodosLosClientesConUltimaVisita()
-      // 2. Generara un prompt para el AI con los clientes que en base a la ultima visita genere la ruta del vendedor, sumandole una semana a la ultima visita del cliente
+      const clientesConUltimaVisita =
+        await this.visitaService.obtenerTodosLosClientesConUltimaVisita();
+
+      // 2. Generara un prompt para el AI con los clientes que en base a la ultima visita genere la ruta del vendedor
+      const prompt = generarPromptGeneracionRutaVisitaVendedores({
+        vendedores: clientesConUltimaVisita,
+      });
+
       // 3. Persistir en la base de datos la ruta del vendedor para hacer la visita
+      const respuesta = await this.aiProviderService.enviarPrompt(prompt);
+
+      if (respuesta?.content) {
+        try {
+          const ruta: OptimizedRoutesResponse = JSON.parse(
+            respuesta.content,
+          ) as OptimizedRoutesResponse;
+
+          console.table(ruta);
+
+          return ruta;
+        } catch (error) {
+          throw new Error('Error parsing AI response: ' + error);
+        }
+      }
+      return null;
     } catch (error) {
       throw new BadRequestException(error.message);
     }

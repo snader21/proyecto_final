@@ -13,6 +13,6 @@ import { UsuariosModule } from 'src/usuarios/usuarios.module';
   imports: [HttpModule, ConfigModule, UsuariosModule],
   controllers: [VisitaController, ClienteController, TipoClienteController],
   providers: [VisitaService, ClienteService, TipoClienteService],
-  exports: [ClienteService],
+  exports: [ClienteService, VisitaService],
 })
 export class ClientesModule {}

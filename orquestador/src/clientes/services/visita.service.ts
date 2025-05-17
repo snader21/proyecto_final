@@ -35,15 +35,18 @@ export class VisitaService {
     return data;
   }
 
-  async obtenerTodosLosClientesConUltimaVisita(): Promise<
-    {
+  async obtenerTodosLosClientesConUltimaVisita(): Promise<Array<{
+    id_vendedor: string;
+    clientes: Array<{
       id_cliente: string;
-      id_vendedor: string | null;
+      id_vendedor: string;
       ultima_visita: Date | null;
-    }[]
-  > {
+      lat: number;
+      lng: number;
+    }>;
+  }>> {
     const { data } = await firstValueFrom(
-      this.httpService.get(`${this.clientesApiUrl}/visitas/ultima-visita`),
+      this.httpService.get(`${this.clientesApiUrl}/visitas`),
     );
     return data;
   }

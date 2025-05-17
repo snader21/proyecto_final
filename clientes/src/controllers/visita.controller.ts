@@ -23,7 +23,9 @@ export class VisitaController {
    */
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async registrarVisita(@Body() createVisitaDto: CreateVisitaDto): Promise<VisitaCliente> {
+  async registrarVisita(
+    @Body() createVisitaDto: CreateVisitaDto,
+  ): Promise<VisitaCliente> {
     return this.visitaService.create(createVisitaDto);
   }
 
@@ -40,13 +42,16 @@ export class VisitaController {
   }
 
   @Get()
-  async obtenerTodosLosClientesConUltimaVisita(): Promise<
-    {
+  async obtenerTodosLosClientesConUltimaVisita(): Promise<Array<{
+    id_vendedor: string;
+    clientes: Array<{
       id_cliente: string;
-      id_vendedor: string | null;
+      id_vendedor: string;
       ultima_visita: Date | null;
-    }[]
-  > {
+      lat: number;
+      lng: number;
+    }>;
+  }>> {
     return this.visitaService.obtenerTodosLosClientesConUltimaVisita();
   }
 }
