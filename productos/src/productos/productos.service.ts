@@ -345,6 +345,52 @@ export class ProductosService implements OnModuleInit {
     return productosDto;
   }
 
+  async obtenerTodosLosProductosQueTienenPedidos(): Promise<any[]> {
+    const productosConPedido = await this.movimientoInventarioRepository
+      .createQueryBuilder('movimiento')
+      .innerJoinAndSelect('movimiento.producto', 'producto')
+      .innerJoinAndSelect('producto.categoria', 'categoria')
+      .where('movimiento.id_pedido IS NOT NULL')
+      .select([
+        'producto.id_producto',
+        'producto.nombre',
+        'producto.descripcion',
+        'producto.sku',
+        'producto.precio',
+        'producto.alto',
+        'producto.largo',
+        'producto.ancho',
+        'producto.peso',
+        'movimiento.cantidad',
+        'movimiento.tipo_movimiento',
+        'movimiento.id_pedido',
+        'categoria.id_categoria',
+        'categoria.nombre',
+      ])
+      .getMany();
+
+    const productosDto: any[] = productosConPedido.map((movimiento) => {
+      return {
+        id_producto: movimiento.producto.id_producto,
+        nombre: movimiento.producto.nombre,
+        descripcion: movimiento.producto.descripcion,
+        sku: movimiento.producto.sku,
+        tipo_movimiento: movimiento.tipo_movimiento,
+        precio: movimiento.producto.precio,
+        alto: movimiento.producto.alto,
+        largo: movimiento.producto.largo,
+        ancho: movimiento.producto.ancho,
+        peso: movimiento.producto.peso,
+        cantidad: movimiento.cantidad,
+        id_pedido: movimiento.id_pedido,
+        id_categoria: movimiento.producto.categoria.id_categoria,
+        nombre_categoria: movimiento.producto.categoria.nombre,
+      };
+    });
+
+    return productosDto;
+  }
+
   async obtenerCategorias(): Promise<CategoriaEntity[]> {
     return await this.categoriaRepository.find();
   }

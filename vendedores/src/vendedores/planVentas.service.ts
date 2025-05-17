@@ -31,6 +31,12 @@ export class PlanVentasService {
     });
   }
 
+  async getAllPlanesDeVentas() {
+    return this.planVentasRepository.find({
+      relations: ['metas'],
+    });
+  }
+
   async createOrUpdatePlanVentas(
     planVentasDto: PlanVentasDto,
   ): Promise<PlanVentasEntity> {
