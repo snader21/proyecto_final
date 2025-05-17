@@ -38,4 +38,15 @@ export class VisitaController {
   ): Promise<VisitaCliente[]> {
     return this.visitaService.findByCliente(id_cliente);
   }
+
+  @Get()
+  async obtenerTodosLosClientesConUltimaVisita(): Promise<
+    {
+      id_cliente: string;
+      id_vendedor: string | null;
+      ultima_visita: Date | null;
+    }[]
+  > {
+    return this.visitaService.obtenerTodosLosClientesConUltimaVisita();
+  }
 }

@@ -147,11 +147,9 @@ export class RutasService {
   async calcularYGuardarRutaDeVisitaDeVendedores() {
     try {
       //este método debería calcular la ruta de los vendedores
-      // 1. Consultar los clientes de un vendedor
-      // 2. 
-
-
-      
+      // 1. Consultar los clientes obtenerTodosLosClientesConUltimaVisita()
+      // 2. Generara un prompt para el AI con los clientes que en base a la ultima visita genere la ruta del vendedor, sumandole una semana a la ultima visita del cliente
+      // 3. Persistir en la base de datos la ruta del vendedor para hacer la visita
     } catch (error) {
       throw new BadRequestException(error.message);
     }

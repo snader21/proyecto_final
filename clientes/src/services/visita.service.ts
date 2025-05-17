@@ -41,4 +41,30 @@ export class VisitaService {
 
     return visitas;
   }
+
+  async obtenerTodosLosClientesConUltimaVisita(): Promise<
+    {
+      id_cliente: string;
+      id_vendedor: string | null;
+      ultima_visita: Date | null;
+    }[]
+  > {
+    const clientesConVisitas = await this.clienteRepository
+      .createQueryBuilder('cliente')
+      .select([
+        'cliente.id_cliente',
+        'cliente.id_vendedor',
+        'MAX(visita.fecha_visita) as ultima_visita',
+      ])
+      .leftJoin('cliente.visitas', 'visita')
+      .groupBy('cliente.id_cliente')
+      .addGroupBy('cliente.id_vendedor')
+      .getRawMany();
+
+    return clientesConVisitas as {
+      id_cliente: string;
+      id_vendedor: string | null;
+      ultima_visita: Date | null;
+    }[];
+  }
 }

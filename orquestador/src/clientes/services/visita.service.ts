@@ -34,4 +34,17 @@ export class VisitaService {
     );
     return data;
   }
+
+  async obtenerTodosLosClientesConUltimaVisita(): Promise<
+    {
+      id_cliente: string;
+      id_vendedor: string | null;
+      ultima_visita: Date | null;
+    }[]
+  > {
+    const { data } = await firstValueFrom(
+      this.httpService.get(`${this.clientesApiUrl}/visitas/ultima-visita`),
+    );
+    return data;
+  }
 }
