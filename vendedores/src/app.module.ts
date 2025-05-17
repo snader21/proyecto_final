@@ -31,7 +31,7 @@ import { TrimestreEntity } from './vendedores/entities/trimestre.entity';
         MetaTrimestralEntity,
         TrimestreEntity,
       ],
-      dropSchema: false,
+      dropSchema: true,
       synchronize: true,
     }),
     VendedoresModule,

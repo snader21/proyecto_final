@@ -31,7 +31,7 @@ import { RecomendacionesService } from './services/recomendaciones.service';
       database: process.env.DB_NAME || 'clientes',
       entities: [Cliente, TipoCliente, VisitaCliente],
       autoLoadEntities: true,
-      dropSchema: false,
+      dropSchema: true,
       synchronize: true,
     }),
     TypeOrmModule.forFeature([Cliente, TipoCliente, VisitaCliente]),
