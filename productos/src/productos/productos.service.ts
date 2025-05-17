@@ -349,6 +349,7 @@ export class ProductosService implements OnModuleInit {
     const productosConPedido = await this.movimientoInventarioRepository
       .createQueryBuilder('movimiento')
       .innerJoinAndSelect('movimiento.producto', 'producto')
+      .innerJoinAndSelect('producto.categoria', 'categoria')
       .where('movimiento.id_pedido IS NOT NULL')
       .select([
         'producto.id_producto',
@@ -363,6 +364,8 @@ export class ProductosService implements OnModuleInit {
         'movimiento.cantidad',
         'movimiento.tipo_movimiento',
         'movimiento.id_pedido',
+        'categoria.id_categoria',
+        'categoria.nombre',
       ])
       .getMany();
 
@@ -380,6 +383,8 @@ export class ProductosService implements OnModuleInit {
         peso: movimiento.producto.peso,
         cantidad: movimiento.cantidad,
         id_pedido: movimiento.id_pedido,
+        id_categoria: movimiento.producto.categoria.id_categoria,
+        nombre_categoria: movimiento.producto.categoria.nombre,
       };
     });
 
