@@ -52,7 +52,9 @@ export class VisitaService {
   }>> {
     const { data } = await firstValueFrom(
       this.httpService.get(`${this.clientesApiUrl}/visitas`),
-    }
+    );
+    return data;
+  }
 
   async obtenerUrlVideo(video_key: string) {
     const { data } = await firstValueFrom(
