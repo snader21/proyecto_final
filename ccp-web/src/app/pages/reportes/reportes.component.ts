@@ -10,4 +10,8 @@ import { CardModule } from "primeng/card";
   standalone: true,
   imports: [CommonModule, TagModule, CardModule],
 })
-export class ReportesComponent {}
+export class ReportesComponent {
+  constructor() {
+    console.log("ReportesComponent");
+  }
+}
