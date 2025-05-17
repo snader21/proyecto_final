@@ -38,6 +38,7 @@ import { NodoProductoEntity } from './nodos-productos/entities/nodo-producto.ent
         NodoProductoEntity,
       ],
       synchronize: true,
+      dropSchema: true,
     }),
     CamionesModule,
     RutasModule,
