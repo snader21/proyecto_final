@@ -88,8 +88,13 @@ export class RutasService {
   }
 
   // cron every 5 seconds
-  findAll() {
+  async findAll(tipoRuta: string) {
+    const idTipoRuta = (await this.tiposRutasService.findAll())?.find(
+      (tipo: TipoRutaEntity) => tipo.tipo_ruta.toLowerCase() === (tipoRuta || '').toLowerCase(),
+    )?.id;
+
     return this.rutaRepository.find({
+      where: { tipo_ruta: { id: idTipoRuta } },
       relations: ['tipo_ruta', 'estado_ruta', 'camion', 'nodos_rutas'],
     });
   }
