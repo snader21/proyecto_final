@@ -51,6 +51,8 @@ export class VendedoresFormComponent implements OnInit {
     { label: "Inactivo", value: "inactive" },
   ];
   esPrimeraCarga = true;
+  addVendedorTitle = $localize`:@@vendedoresFormAddVendedorTitle:Agregar vendedor`;
+  editVendedorTitle = $localize`:@@vendedoresFormEditVendedorTitle:Editar vendedor`;
 
   constructor(
     private readonly fb: FormBuilder,
