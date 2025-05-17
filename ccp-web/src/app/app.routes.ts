@@ -8,6 +8,7 @@ import { ProductsComponent } from "./pages/products/products.component";
 import { VendedoresComponent } from "./pages/vendedores/vendedores.component";
 import { RutasComponent } from "./pages/rutas/rutas.component";
 import { UbicacionComponent } from "./pages/ubicacion/ubicacion.component";
+import { ReportesComponent } from "./pages/reportes/reportes.component";
 
 export const routes: Routes = [
   { path: "", redirectTo: "dashboard", pathMatch: "full" },
@@ -39,13 +40,16 @@ export const routes: Routes = [
     component: VendedoresComponent,
     canActivate: [AuthGuard],
   },
-  { path: "rutas",
-    component: RutasComponent,
-    canActivate: [AuthGuard]
+  {
+    path: "reportes",
+    component: ReportesComponent,
+    canActivate: [AuthGuard],
   },
-  { path: "ubicacion",
+  { path: "rutas", component: RutasComponent, canActivate: [AuthGuard] },
+  {
+    path: "ubicacion",
     component: UbicacionComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
   },
 
   // Wildcard redirect: redirige cualquier ruta no encontrada dentro del locale actual a dashboard

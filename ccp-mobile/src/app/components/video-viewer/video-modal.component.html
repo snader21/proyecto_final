@@ -1,0 +1,19 @@
+<ion-header translucent>
+    <ion-toolbar>
+      <ion-title>Video de la Visita</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="cerrar()">Cerrar</ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+  
+  <ion-content class="video-modal-content" fullscreen>
+    <div class="video-container">
+      <video
+        [src]="url"
+        controls
+        class="video-player"
+      ></video>
+    </div>
+  </ion-content>
+  

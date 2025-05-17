@@ -51,6 +51,7 @@ export class GestionarInventarioComponent implements OnInit {
   ubicacionesRaw: any[] = [];
   ubicaciones: any[] = [];
   bodegas: any[] = [];
+  addEntradaTitle = $localize`:@@gestionarInventarioDialogHeader:Agregar entrada`;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -129,7 +130,7 @@ export class GestionarInventarioComponent implements OnInit {
     if (this.form.invalid) {
       this.markFormGroupTouched(this.form);
       this.showErrorMessage(
-        "Por favor complete todos los campos correctamente"
+        $localize`:@@gestionarInventarioDialogErrorMessage:Por favor complete todos los campos correctamente`
       );
       return;
     }
@@ -144,7 +145,9 @@ export class GestionarInventarioComponent implements OnInit {
     };
     try {
       await firstValueFrom(this.productsService.generarEntrada(payload));
-      this.showSuccessMessage("La entrada se ha guardado correctamente");
+      this.showSuccessMessage(
+        $localize`:@@gestionarInventarioDialogSuccessMessage:La entrada se ha guardado correctamente`
+      );
       this.success.emit(true);
       this.hideDialog();
     } catch (error: any) {
@@ -174,7 +177,7 @@ export class GestionarInventarioComponent implements OnInit {
     this.messageService.add({
       key: "success",
       severity: "success",
-      summary: "Éxito",
+      summary: $localize`:@@gestionarInventarioDialogSuccessMessage:Éxito`,
       detail,
       life: 3000,
     });
@@ -183,10 +186,12 @@ export class GestionarInventarioComponent implements OnInit {
   getErrorMessage(controlName: string): string {
     const control = this.form.get(controlName);
     if (!control) return "";
-    if (control.hasError("required")) return "Este campo es requerido";
-    if (control.hasError("min")) return "El valor mínimo es 1";
+    if (control.hasError("required"))
+      return $localize`:@@gestionarInventarioDialogErrorMessageRequired:Este campo es requerido`;
+    if (control.hasError("min"))
+      return $localize`:@@gestionarInventarioDialogErrorMessageMin:El valor mínimo es 1`;
     if (control.hasError("fechaRegistroNoEsMayorQueHoy"))
-      return "La fecha de registro no puede ser mayor que la fecha actual";
+      return $localize`:@@gestionarInventarioDialogErrorMessageFechaRegistro:La fecha de registro no puede ser mayor que la fecha actual`;
     return "";
   }
 

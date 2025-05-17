@@ -119,6 +119,14 @@ steps:
                 echo "GCP_PRIVATE_KEY=${_GCP_PRIVATE_KEY}" >> ./$svc/.env
                 echo "GCP_PROJECT_ID=${_GCP_PROJECT_ID}" >> ./$svc/.env
               fi
+              if [ "$svc" = "clientes" ]; then
+                echo "GCP_BUCKET_NAME=${_GCP_BUCKET_NAME_CLIENTS}" >> ./$svc/.env
+                echo "GCP_CLIENT_EMAIL=${_GCP_CLIENT_EMAIL}" >> ./$svc/.env
+                echo "GCP_PUBSUB_TOPIC=${_GCP_PUBSUB_TOPIC_CLIENTS}" >> ./$svc/.env
+                echo "GCP_SUBSCRIPTION_NAME=${_GCP_SUBSCRIPTION_NAME_CLIENTS}" >> ./$svc/.env
+                echo "GCP_PRIVATE_KEY=${_GCP_PRIVATE_KEY}" >> ./$svc/.env
+                echo "GCP_PROJECT_ID=${_GCP_PROJECT_ID}" >> ./$svc/.env                
+              fi
             fi
           fi
         done
@@ -172,7 +180,7 @@ steps:
                 --port 3000 \
                 --memory 512Mi \
                 --cpu 1 \
-                --min-instances 0 \
+                --min-instances 1 \
                 --max-instances 1 \
                 --allow-unauthenticated
 
@@ -189,7 +197,7 @@ steps:
                 --port 3000 \
                 --memory 512Mi \
                 --cpu 1 \
-                --min-instances 0 \
+                --min-instances 1 \
                 --max-instances 1 \
                 --allow-unauthenticated \
                 --add-cloudsql-instances $PROJECT_ID:us-central1:$svc
