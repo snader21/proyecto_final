@@ -136,6 +136,10 @@
           <context context-type="sourcefile">src/app/pages/dashboard/dashboard.component.html</context>
           <context context-type="linenumber">40,41</context>
         </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/reportes/reportes.component.html</context>
+          <context context-type="linenumber">3,6</context>
+        </context-group>
         <note priority="1" from="description">dashboardReportsButton</note>
       </trans-unit>
       <trans-unit id="825375106311516846" datatype="html">
@@ -186,6 +190,14 @@
         </context-group>
         <note priority="1" from="description">dashboardLogisticsButton</note>
       </trans-unit>
+      <trans-unit id="8887144634091745639" datatype="html">
+        <source>Ubicación</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">96,97</context>
+        </context-group>
+        <note priority="1" from="description">dashboardLocationButton</note>
+      </trans-unit>
       <trans-unit id="5357661269973482487" datatype="html">
         <source>Nombre</source>
         <context-group purpose="location">
@@ -230,7 +242,7 @@
         <source>Dirección</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/pages/fabricantes/fabricantes-form/fabricantes-form.component.html</context>
-          <context context-type="linenumber">47,49</context>
+          <context context-type="linenumber">47,50</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/pages/fabricantes/fabricantes.component.html</context>
@@ -517,6 +529,66 @@
           <context context-type="linenumber">70,71</context>
         </context-group>
         <note priority="1" from="description">loginButton</note>
+      </trans-unit>
+      <trans-unit id="vendedoresFormError" datatype="html">
+        <source>Por favor complete todos los campos correctamente</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/vendedores/vendedores-form/vendedores-form.component.ts</context>
+          <context context-type="linenumber">133</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="vendedoresFormSuccessMessage" datatype="html">
+        <source>El vendedor se ha guardado correctamente</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/vendedores/vendedores-form/vendedores-form.component.ts</context>
+          <context context-type="linenumber">153</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="vendedoresFormSuccessSummary" datatype="html">
+        <source>Éxito</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/vendedores/vendedores-form/vendedores-form.component.ts</context>
+          <context context-type="linenumber">184</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="vendedoresFormErrorRequired" datatype="html">
+        <source>Este campo es requerido</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/vendedores/vendedores-form/vendedores-form.component.ts</context>
+          <context context-type="linenumber">194</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="vendedoresFormErrorEmail" datatype="html">
+        <source>Por favor ingrese un correo electrónico válido</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/vendedores/vendedores-form/vendedores-form.component.ts</context>
+          <context context-type="linenumber">196</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="vendedoresFormErrorMinlength" datatype="html">
+        <source>El campo debe tener al menos <x id="PH" equiv-text="control.errors?.[&quot;minlength&quot;].requiredLength"/> caracteres</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/vendedores/vendedores-form/vendedores-form.component.ts</context>
+          <context context-type="linenumber">198</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/vendedores/vendedores-form/vendedores-form.component.ts</context>
+          <context context-type="linenumber">200</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="vendedoresFormErrorPasswordsMismatch" datatype="html">
+        <source>Las contraseñas no coinciden</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/vendedores/vendedores-form/vendedores-form.component.ts</context>
+          <context context-type="linenumber">202</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="vendedoresFormErrorPattern" datatype="html">
+        <source>El campo debe contener máximo 10 números</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/vendedores/vendedores-form/vendedores-form.component.ts</context>
+          <context context-type="linenumber">204</context>
+        </context-group>
       </trans-unit>
     </body>
   </file>

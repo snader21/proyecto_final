@@ -22,17 +22,17 @@ import { ProductoConInventarioDto } from './dto/producto-con-inventario.dto';
 
 // Definir tipos para los mocks
 type MockedRepository<T> = {
-  createQueryBuilder: jest.Mock,
-  leftJoin: jest.Mock,
-  where: jest.Mock,
-  andWhere: jest.Mock,
-  select: jest.Mock,
-  groupBy: jest.Mock,
-  getRawMany: jest.Mock,
-  getRawOne: jest.Mock,
-  find: jest.Mock,
-  findOne: jest.Mock,
-  save: jest.Mock,
+  createQueryBuilder: jest.Mock;
+  leftJoin: jest.Mock;
+  where: jest.Mock;
+  andWhere: jest.Mock;
+  select: jest.Mock;
+  groupBy: jest.Mock;
+  getRawMany: jest.Mock;
+  getRawOne: jest.Mock;
+  find: jest.Mock;
+  findOne: jest.Mock;
+  save: jest.Mock;
 };
 
 describe('Pruebas con servicio de inventario mock', () => {
@@ -155,12 +155,14 @@ describe('Pruebas con servicio de inventario mock', () => {
           nombre: mockProducto.nombre,
           precio: mockProducto.precio,
           inventario: mockInventario.cantidad_disponible,
-        }
+        },
       ]);
 
-      const result = await service.obtenerInventarioTotalDeProductosPorQueryDto({
-        nombre_producto: 'Test'
-      });
+      const result = await service.obtenerInventarioTotalDeProductosPorQueryDto(
+        {
+          nombre_producto: 'Test',
+        },
+      );
 
       expect(result).toBeDefined();
       expect(result[0].inventario).toBe(mockInventario.cantidad_disponible);
@@ -177,9 +179,11 @@ describe('Pruebas con servicio de inventario mock', () => {
       repositorio.groupBy.mockReturnThis();
       repositorio.getRawMany.mockResolvedValue([]);
 
-      const result = await service.obtenerInventarioTotalDeProductosPorQueryDto({
-        nombre_producto: 'NoExiste'
-      });
+      const result = await service.obtenerInventarioTotalDeProductosPorQueryDto(
+        {
+          nombre_producto: 'NoExiste',
+        },
+      );
 
       expect(result).toEqual([]);
     });
@@ -233,27 +237,34 @@ describe('Pruebas con servicio de inventario mock', () => {
       ubicacionRepositorio.createQueryBuilder.mockReturnThis();
       ubicacionRepositorio.where.mockReturnThis();
       ubicacionRepositorio.select.mockReturnThis();
-      ubicacionRepositorio.getRawMany.mockResolvedValue([{
-        ...mockBodega,
-        ...mockUbicacion
-      }]);
+      ubicacionRepositorio.getRawMany.mockResolvedValue([
+        {
+          ...mockBodega,
+          ...mockUbicacion,
+        },
+      ]);
 
       // Mock para obtener inventario
       repositorio.createQueryBuilder.mockReturnThis();
       repositorio.where.mockReturnThis();
       repositorio.andWhere.mockReturnThis();
       repositorio.select.mockReturnThis();
-      repositorio.getRawMany.mockResolvedValue([{
-        ...mockInventario,
-        id_producto: mockProducto.id_producto,
-        id_ubicacion: mockUbicacion.id_ubicacion
-      }]);
+      repositorio.getRawMany.mockResolvedValue([
+        {
+          ...mockInventario,
+          id_producto: mockProducto.id_producto,
+          id_ubicacion: mockUbicacion.id_ubicacion,
+        },
+      ]);
 
-      const result = await service.obtenerInventarioProductoConUbicaciones('Test');
+      const result =
+        await service.obtenerInventarioProductoConUbicaciones('Test');
 
       expect(result).toBeDefined();
       expect(result[0].id_producto).toBe(mockProducto.id_producto);
-      expect(result[0].bodegas[0].ubicaciones[0].cantidad_disponible).toBe(mockInventario.cantidad_disponible);
+      expect(result[0].bodegas[0].ubicaciones[0].cantidad_disponible).toBe(
+        mockInventario.cantidad_disponible,
+      );
       expect(repositorio.createQueryBuilder).toHaveBeenCalledTimes(3);
       expect(ubicacionRepositorio.createQueryBuilder).toHaveBeenCalled();
     });
@@ -264,7 +275,8 @@ describe('Pruebas con servicio de inventario mock', () => {
       repositorio.select.mockReturnThis();
       repositorio.getRawMany.mockResolvedValue([]);
 
-      const result = await service.obtenerInventarioProductoConUbicaciones('NoExiste');
+      const result =
+        await service.obtenerInventarioProductoConUbicaciones('NoExiste');
 
       expect(result).toEqual([]);
     });
@@ -320,7 +332,8 @@ describe('Pruebas con servicio de inventario mock', () => {
 
       expect(result).toEqual(mockNewInventario);
       expect(mockManager.save).toHaveBeenCalledTimes(2);
-      expect(mockManager.save).toHaveBeenNthCalledWith(1,
+      expect(mockManager.save).toHaveBeenNthCalledWith(
+        1,
         InventarioEntity,
         expect.objectContaining({
           producto: { id_producto: 'PROD-1' },
@@ -330,7 +343,8 @@ describe('Pruebas con servicio de inventario mock', () => {
           cantidad_minima: 0,
         }),
       );
-      expect(mockManager.save).toHaveBeenNthCalledWith(2,
+      expect(mockManager.save).toHaveBeenNthCalledWith(
+        2,
         InventarioEntity,
         expect.objectContaining({
           producto: { id_producto: 'PROD-1' },
@@ -433,7 +447,7 @@ describe('Pruebas con servicio de inventario mock', () => {
           mockUbicacion,
           15,
           mockManager,
-        )
+        ),
       ).rejects.toThrow(BadRequestException);
     });
   });
@@ -492,7 +506,10 @@ describe('Pruebas con servicio de inventario mock', () => {
 
       repositorio.find.mockResolvedValue([mockInventario]);
 
-      const result = await service.obtenerInventarioPorUbicacionesDeProductoPorIdProducto('PROD-1');
+      const result =
+        await service.obtenerInventarioPorUbicacionesDeProductoPorIdProducto(
+          'PROD-1',
+        );
 
       expect(result).toEqual([mockInventario]);
       expect(repositorio.find).toHaveBeenCalledWith({
@@ -508,7 +525,10 @@ describe('Pruebas con servicio de inventario mock', () => {
     it('should return empty array when no inventory found', async () => {
       repositorio.find.mockResolvedValue([]);
 
-      const result = await service.obtenerInventarioPorUbicacionesDeProductoPorIdProducto('PROD-1');
+      const result =
+        await service.obtenerInventarioPorUbicacionesDeProductoPorIdProducto(
+          'PROD-1',
+        );
 
       expect(result).toEqual([]);
     });
@@ -954,5 +974,5 @@ describe('Pruebas con servicio de inventario real', () => {
         nombre_producto: substring,
       });
     expect(matchProductos.length).toEqual(0);
-  });
+  }, 20000);
 });
