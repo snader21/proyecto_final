@@ -28,6 +28,7 @@ describe('ClienteService', () => {
 
   const clienteMock: Cliente = {
     id_cliente: '550e8400-e29b-41d4-a716-446655440001',
+    id_usuario: '550e8400-e29b-41d4-a716-446655440002',
     nombre: 'Juan Perez',
     id_tipo_cliente: tipoClienteIndividualMock.id_tipo_cliente,
     tipoCliente: tipoClienteIndividualMock,
@@ -85,6 +86,7 @@ describe('ClienteService', () => {
         clienteMock,
         {
           id_cliente: '550e8400-e29b-41d4-a716-446655440002',
+          id_usuario: '550e8400-e29b-41d4-a716-446655440002',
           nombre: 'Empresa ABC',
           id_tipo_cliente: '550e8400-e29b-41d4-a716-446655440002',
           tipoCliente: {
