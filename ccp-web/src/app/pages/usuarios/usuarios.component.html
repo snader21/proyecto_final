@@ -1,7 +1,8 @@
 <p-card class="flex flex-col p-8">
   <div class="flex flex-row justify-between mb-3">
-    <h1 class="text-4xl font-bold">Usuarios</h1>
+    <h1 class="text-4xl font-bold" i18n="usuariosListTitle">Usuarios</h1>
     <p-button
+      i18n-label="usuariosAddButton"
       label="Agregar usuario"
       styleClass="bg-orange-400 text-slate-900 border-orange-500"
       icon="pi pi-plus"
@@ -12,7 +13,7 @@
   <p-table [value]="usuarios" [tableStyle]="{ 'min-width': '50rem' }" [loading]="loading">
       <ng-template pTemplate="caption">
         <div class="flex items-center justify-between">
-          <span class="text-xl font-bold">Listado de usuarios</span>
+          <span class="text-xl font-bold" i18n="usuariosListCaption">Listado de usuarios</span>
           <p-iconfield iconPosition="left" class="ml-auto">
             <p-inputicon>
               <i class="pi pi-search"></i>
@@ -21,6 +22,7 @@
               pInputText
               type="text"
               placeholder="Buscar usuario"
+              i18n-placeholder="usuariosSearchPlaceholder"
             />
           </p-iconfield>
         </div>
@@ -28,11 +30,11 @@
 
       <ng-template pTemplate="header">
           <tr>
-              <th>Nombre</th>
-              <th>Correo</th>
-              <th>Rol</th>
-              <th>Estado</th>
-              <th>Acciones</th>
+              <th i18n="usuariosNameTableHeader">Nombre</th>
+              <th i18n="usuariosEmailTableHeader">Correo</th>
+              <th i18n="usuariosRoleTableHeader">Rol</th>
+              <th i18n="usuariosStatusTableHeader">Estado</th>
+              <th i18n="usuariosActionsTableHeader">Acciones</th>
           </tr>
       </ng-template>
       <ng-template pTemplate="body" let-usuario>
@@ -51,13 +53,13 @@
                 </p-tag>
               </td>
               <td>
-                <p-button label="Editar" icon="pi pi-pencil" (click)="editarUsuario(usuario)" pTooltip="Editar usuario" tooltipPosition="top" />
+                <p-button i18n="usuariosEditButton" label="Editar" icon="pi pi-pencil" (click)="editarUsuario(usuario)" pTooltip="Editar usuario" tooltipPosition="top" />
               </td>
           </tr>
       </ng-template>
       <ng-template #emptymessage>
         <tr>
-          <td colspan="5">No se encontraron usuarios.</td>
+          <td colspan="5" i18n="usuariosNoResultsMessage">No se encontraron usuarios.</td>
         </tr>
       </ng-template>
   </p-table>

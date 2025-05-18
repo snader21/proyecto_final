@@ -1,5 +1,6 @@
 <p-toast key="success" position="top-right"></p-toast>
 <p-dialog
+    i18n-label="productModalAddTitle"
     header="Agregar Producto"
     [modal]="true"
     (onHide)="closeModal()"
@@ -7,23 +8,23 @@
     [style]="{ width: '40rem', height: '90rem' }">
     <form [formGroup]="productForm" class="flex flex-col gap-4">
         <div class="flex flex-col gap-2">
-            <label for="sku" class="font-light w-24">SKU</label>
-            <input placeholder="Identificador del producto" pInputText id="sku" formControlName="sku" class="w-full" autocomplete="off" />
-            <small class="text-red-500" *ngIf="productForm.get('sku')?.invalid && productForm.get('sku')?.touched">Este campo es requerido</small>
+            <label i18n="productSkuFormLabel" for="sku" class="font-light w-24">SKU</label>
+            <input i18n-placeholder="productSkuFormPlaceholder" placeholder="Identificador del producto" pInputText id="sku" formControlName="sku" class="w-full" autocomplete="off" />
+            <small i18n="productSkuFormPlaceholderWarn" class="text-red-500" *ngIf="productForm.get('sku')?.invalid && productForm.get('sku')?.touched">Este campo es requerido</small>
         </div>
         <div class="flex flex-col gap-2">
-            <label for="name" class="font-light w-24">Nombre</label>
-            <input placeholder="Nombre del producto" pInputText id="name" formControlName="name" class="w-full" autocomplete="off" />
-            <small class="text-red-500" *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched">Este campo es requerido</small>
+            <label i18n="productNameFormLabel" for="name" class="font-light w-24">Nombre</label>
+            <input i18n-placeholder="productNameFormPlaceholder" placeholder="Nombre del producto" pInputText id="name" formControlName="name" class="w-full" autocomplete="off" />
+            <small i18n="productNameFormPlaceholderWarn" class="text-red-500" *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched">Este campo es requerido</small>
         </div>
         <div class="flex flex-col gap-2">
-            <label for="description" class="font-light w-24">Descripción</label>
-            <input placeholder="Descripción del producto" pInputText id="description" formControlName="description" class="w-full" autocomplete="off" />
-            <small class="text-red-500" *ngIf="productForm.get('description')?.invalid && productForm.get('description')?.touched">Este campo es requerido</small>
+            <label i18n="productDescriptionFormLabel" for="description" class="font-light w-24">Descripción</label>
+            <input i18n-placeholder="productDescriptionFormPlaceholder" placeholder="Descripción del producto" pInputText id="description" formControlName="description" class="w-full" autocomplete="off" />
+            <small i18n="productDescriptionFormPlaceholderWarn" class="text-red-500" *ngIf="productForm.get('description')?.invalid && productForm.get('description')?.touched">Este campo es requerido</small>
         </div>
         <div class="grid grid-cols-2 gap-4">
             <div class="flex flex-col gap-2">
-                <label for="category" class="font-light">Categoría</label>
+                <label i18n="productCategoryFormLabel" for="category" class="font-light">Categoría</label>
                 <p-select
                     [options]="categories"
                     formControlName="category"
@@ -34,10 +35,10 @@
                     placeholder="Seleccione"
                     class="w-full">
                 </p-select>
-                <small class="text-red-500" *ngIf="productForm.get('category')?.invalid && productForm.get('category')?.touched">Este campo es requerido</small>
+                <small i18n="productCategoryFormPlaceholderWarn" class="text-red-500" *ngIf="productForm.get('category')?.invalid && productForm.get('category')?.touched">Este campo es requerido</small>
             </div>
             <div class="flex flex-col gap-2">
-                <label for="brand" class="font-light">Marca</label>
+                <label i18n="productBrandFormLabel" for="brand" class="font-light">Marca</label>
                 <p-select
                     [options]="brands"
                     formControlName="brand"
@@ -48,12 +49,12 @@
                     placeholder="Seleccione"
                     class="w-full">
                 </p-select>
-                <small class="text-red-500" *ngIf="productForm.get('brand')?.invalid && productForm.get('brand')?.touched">Este campo es requerido</small>
+                <small i18n="productBrandFormPlaceholderWarn" class="text-red-500" *ngIf="productForm.get('brand')?.invalid && productForm.get('brand')?.touched">Este campo es requerido</small>
             </div>
         </div>
         <div class="grid grid-cols-2 gap-4">
             <div class="flex flex-col gap-2">
-                <label for="maker" class="font-light">Fabricante</label>
+                <label i18n="productMakerFormLabel" for="maker" class="font-light">Fabricante</label>
                 <p-select
                     [options]="makers"
                     formControlName="maker"
@@ -64,10 +65,10 @@
                     placeholder="Seleccione"
                     class="w-full">
                 </p-select>
-                <small class="text-red-500" *ngIf="productForm.get('maker')?.invalid && productForm.get('maker')?.touched">Este campo es requerido</small>
+                <small i18n="productMakerFormPlaceholderWarn" class="text-red-500" *ngIf="productForm.get('maker')?.invalid && productForm.get('maker')?.touched">Este campo es requerido</small>
             </div>
             <div class="flex flex-col gap-2">
-                <label for="unit" class="font-light">Unidad de medida</label>
+                <label i18n="productUnitFormLabel" for="unit" class="font-light">Unidad de medida</label>
                 <p-select
                     [options]="units"
                     formControlName="unit"
@@ -78,28 +79,28 @@
                     placeholder="Seleccione"
                     class="w-full">
                 </p-select>
-                <small class="text-red-500" *ngIf="productForm.get('unit')?.invalid && productForm.get('unit')?.touched">Este campo es requerido</small>
+                <small i18n="productUnitFormPlaceholderWarn" class="text-red-500" *ngIf="productForm.get('unit')?.invalid && productForm.get('unit')?.touched">Este campo es requerido</small>
             </div>
         </div>
         <div class="flex flex-col gap-2">
-            <label class="font-light">Medidas</label>
+            <label i18n="productMeasurementsFormLabel" class="font-light">Medidas</label>
             <div class="grid grid-cols-3 gap-4">
                 <div class="flex flex-col gap-2">
-                    <input placeholder="Alto (cm)" pInputText id="alto" formControlName="alto" class="w-full" autocomplete="off" />
-                    <small class="text-red-500" *ngIf="productForm.get('alto')?.invalid && productForm.get('alto')?.touched">Este campo es requerido</small>
+                    <input i18n-placeholder="productHeightFormPlaceholder" placeholder="Alto (cm)" pInputText id="alto" formControlName="alto" class="w-full" autocomplete="off" />
+                    <small i18n="productHeightFormPlaceholderWarn" class="text-red-500" *ngIf="productForm.get('alto')?.invalid && productForm.get('alto')?.touched">Este campo es requerido</small>
                 </div>
                 <div class="flex flex-col gap-2">
-                    <input placeholder="Ancho (cm)" pInputText id="ancho" formControlName="ancho" class="w-full" autocomplete="off" />
-                    <small class="text-red-500" *ngIf="productForm.get('ancho')?.invalid && productForm.get('ancho')?.touched">Este campo es requerido</small>
+                    <input i18n-placeholder="productWidthFormPlaceholder" placeholder="Ancho (cm)" pInputText id="ancho" formControlName="ancho" class="w-full" autocomplete="off" />
+                    <small i18n="productWidthFormPlaceholderWarn" class="text-red-500" *ngIf="productForm.get('ancho')?.invalid && productForm.get('ancho')?.touched">Este campo es requerido</small>
                 </div>
                 <div class="flex flex-col gap-2">
-                    <input placeholder="Largo (cm)" pInputText id="largo" formControlName="largo" class="w-full" autocomplete="off" />
-                    <small class="text-red-500" *ngIf="productForm.get('largo')?.invalid && productForm.get('largo')?.touched">Este campo es requerido</small>
+                    <input i18n-placeholder="productLengthFormPlaceholder" placeholder="Largo (cm)" pInputText id="largo" formControlName="largo" class="w-full" autocomplete="off" />
+                    <small i18n="productLengthFormPlaceholderWarn" class="text-red-500" *ngIf="productForm.get('largo')?.invalid && productForm.get('largo')?.touched">Este campo es requerido</small>
                 </div>
             </div>
         </div>
         <div class="flex flex-col gap-2">
-            <label for="name" class="font-light">Imagen</label>
+            <label i18n="productImageFormLabel" for="name" class="font-light">Imagen</label>
             <p-fileupload
                 #fileUpload
                 class="w-full"
@@ -129,7 +130,7 @@
                 <ng-template pTemplate="content">
                     <div class="flex flex-col gap-8 pt-4">
                         <div *ngIf="files && files.length > 0">
-                            <h5>Nueva imagen</h5>
+                            <h5 i18n="productNewImageLabel">Nueva imagen</h5>
                             <div class="flex flex-wrap gap-2">
                                 <div *ngFor="let file of files; let i = index"
                                     class="p-4 rounded-lg flex flex-col border border-surface items-center gap-4 w-48">
@@ -151,7 +152,7 @@
                             </div>
                         </div>
                         <div *ngIf="uploadedFiles && uploadedFiles.length > 0" class="mt-4">
-                            <h5>Imágenes del producto</h5>
+                            <h5 i18n="productUploadedImagesLabel">Imágenes del producto</h5>
                             <div class="flex flex-wrap gap-4">
                                 <div *ngFor="let file of uploadedFiles; let i = index"
                                     class="p-4 rounded-lg flex flex-col border border-surface items-center gap-4 w-48">
@@ -177,13 +178,13 @@
                 <ng-template #empty>
                     <div class="flex items-center justify-center flex-col">
                         <i class="pi pi-cloud-upload !border-2 !rounded-full !p-8 !text-4xl !text-muted-color"></i>
-                        <p class="mt-6 mb-0">Arrastra y suelta archivos aquí para cargarlos.</p>
+                        <p class="mt-6 mb-0" i18n="productFileUploadEmptyMessage">Arrastra y suelta archivos aquí para cargarlos.</p>
                     </div>
                 </ng-template>
             </p-fileupload>
         </div>
         <div class="flex flex-col gap-2">
-            <label for="status" class="font-light">Estado</label>
+            <label for="status" class="font-light" i18n="productStatusFormLabel">Estado</label>
             <p-select
                 [options]="statuses"
                 formControlName="status"
