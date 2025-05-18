@@ -8,8 +8,10 @@
   <ion-toolbar>
     <ion-searchbar
       [(ngModel)]="searchTerm"
-      placeholder="Buscar por dirección"
+      (ionChange)="onSearchChange($event)"
+      placeholder="Buscar por dirección o cliente"
       animated="true"
+      debounce="300"
     ></ion-searchbar>
   </ion-toolbar>
 </ion-header>
@@ -24,8 +26,8 @@
     <p>Cargando rutas...</p>
   </div>
 
-  <ion-list *ngIf="!loading && rutas.length > 0">
-    <ion-item-group *ngFor="let ruta of filtrarRutas()">
+  <ion-list *ngIf="!loading && filteredRutas.length > 0">
+    <ion-item-group *ngFor="let ruta of filteredRutas">
       <ion-item-divider sticky>
         <ion-label>
           <h2>{{ formatearFecha(ruta.fecha) }}</h2>
@@ -82,7 +84,7 @@
     </ion-item-group>
   </ion-list>
 
-  <div *ngIf="!loading && (!rutas.length || !filtrarRutas().length)" class="ion-text-center ion-padding">
+  <div *ngIf="!loading && (!rutas.length || !filteredRutas.length)" class="ion-text-center ion-padding">
     <ion-icon name="map-outline" size="large" color="medium"></ion-icon>
     <p>{{ !rutas.length ? 'No hay rutas disponibles' : 'No se encontraron rutas con la búsqueda actual' }}</p>
   </div>

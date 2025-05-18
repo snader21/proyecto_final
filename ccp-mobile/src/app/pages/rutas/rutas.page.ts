@@ -6,21 +6,39 @@ import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { Ruta } from 'src/app/interfaces/ruta.interface';
 import { RutasService } from 'src/app/services/rutas.service';
+import { ClientesService } from 'src/app/services/clientes.service';
+import { BodegasService } from 'src/app/services/bodegas.service';
 
 @Component({
   selector: 'app-rutas',
   templateUrl: './rutas.page.html',
   styleUrls: ['./rutas.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule, FormsModule, HttpClientModule, RouterModule]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    RouterModule,
+    HttpClientModule
+  ],
+  providers: [
+    RutasService,
+    ClientesService,
+    BodegasService
+  ]
 })
 export class RutasPage implements OnInit {
   rutas: Ruta[] = [];
+  filteredRutas: Ruta[] = [];
   loading = false;
   searchTerm = '';
+  clienteMap: Record<string, { nombre: string }> = {};
+  bodegaMap: Record<string, { nombre: string }> = {};
 
   constructor(
-    private rutasService: RutasService
+    private rutasService: RutasService,
+    private clientesService: ClientesService,
+    private bodegasService: BodegasService
   ) {}
 
   ngOnInit() {
@@ -32,11 +50,40 @@ export class RutasPage implements OnInit {
 
     try {
       this.rutas = await this.rutasService.getRutas('entrega de pedidos');
+      this.filteredRutas = [...this.rutas];
+      await this.loadClientesYBodegas();
       console.log('Rutas cargadas:', this.rutas);
     } catch (error) {
       console.error('Error loading rutas:', error);
     } finally {
       this.loading = false;
+    }
+  }
+
+  async loadClientesYBodegas() {
+    for (const ruta of this.rutas) {
+      for (const nodo of ruta.nodos_rutas) {
+        if (nodo.id_cliente) {
+          try {
+            const cliente = await this.clientesService.getCliente(nodo.id_cliente);
+            if (cliente) {
+              this.clienteMap[nodo.id_cliente] = { nombre: cliente.nombre };
+            }
+          } catch (error) {
+            console.error('Error loading cliente:', error);
+          }
+        }
+        if (nodo.id_bodega) {
+          try {
+            const bodega = await this.bodegasService.getBodega(nodo.id_bodega);
+            if (bodega) {
+              this.bodegaMap[nodo.id_bodega] = { nombre: bodega.nombre };
+            }
+          } catch (error) {
+            console.error('Error loading bodega:', error);
+          }
+        }
+      }
     }
   }
 
@@ -64,12 +111,18 @@ export class RutasPage implements OnInit {
     });
   }
 
-  filtrarRutas(): Ruta[] {
-    if (!this.searchTerm.trim()) return this.rutas;
-    
-    return this.rutas.filter(ruta => 
+  onSearchChange(event: any) {
+    const searchTerm = event.detail.value.toLowerCase();
+    if (!searchTerm) {
+      this.filteredRutas = [...this.rutas];
+      return;
+    }
+
+    this.filteredRutas = this.rutas.filter(ruta => 
       ruta.nodos_rutas.some(nodo => 
-        nodo.direccion.toLowerCase().includes(this.searchTerm.toLowerCase())
+        nodo.direccion.toLowerCase().includes(searchTerm) ||
+        (nodo.id_cliente && this.clienteMap[nodo.id_cliente]?.nombre.toLowerCase().includes(searchTerm)) ||
+        (nodo.id_bodega && this.bodegaMap[nodo.id_bodega]?.nombre.toLowerCase().includes(searchTerm))
       )
     );
   }
