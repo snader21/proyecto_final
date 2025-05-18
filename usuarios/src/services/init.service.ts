@@ -172,6 +172,13 @@ export class InitService implements OnModuleInit {
         ruta: '/clientes',
         descripcion: 'Permite acceder a la página de gestión de clientes',
       },
+      {
+        nombre: 'Acceso a Página de consulta de ubicaciones',
+        tipoRecurso: TipoRecurso.FRONTEND,
+        modulo: 'ubicaciones',
+        ruta: '/ubicaciones',
+        descripcion: 'Permite acceder a la página de consulta de ubicaciones',
+      }
     ];
 
     const permisosCreados = await Promise.all(
@@ -237,7 +244,7 @@ export class InitService implements OnModuleInit {
         case 'Director de logistica':
           rolActualizado.permisos = permisosCreados.filter(
             (p) =>
-              (p.modulo === 'rutas' || p.modulo === 'pedidos') &&
+              (p.modulo === 'rutas' || p.modulo === 'pedidos' || p.modulo === 'ubicaciones') &&
               (p.tipoRecurso === TipoRecurso.BACKEND ||
                 p.tipoRecurso === TipoRecurso.FRONTEND),
           );

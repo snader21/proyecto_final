@@ -47,7 +47,7 @@ export const routes: Routes = [
   },
   { path: "rutas", component: RutasComponent, canActivate: [AuthGuard] },
   {
-    path: "ubicacion",
+    path: "ubicaciones",
     component: UbicacionComponent,
     canActivate: [AuthGuard],
   },
