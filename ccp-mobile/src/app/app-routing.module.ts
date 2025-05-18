@@ -43,6 +43,15 @@ const routes: Routes = [
   {
     path: 'pedidos-registro',
     loadChildren: () => import('./pages/pedidos-registro/pedidos-registro.module').then( m => m.PedidosRegistroPageModule)
+  },
+  {
+    path: 'rutas',
+    loadChildren: () => import('./pages/rutas/rutas.module').then( m => m.RutasPageModule)
+  },
+  {
+    path: 'visitas',
+    loadChildren: () => import('./pages/visitas/visitas.module').then( m => m.VisitasPageModule),
+    canActivate: [AuthGuard]
   }
 ];
 

@@ -71,6 +71,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
       menuItems.push({ title: this.translate.instant('MENU.ROUTES'), url: '/rutas', icon: 'map' });
     }
 
+    // Visitas
+    if (rutasPermitidas.includes('/rutas')) {
+      menuItems.push({ title: this.translate.instant('MENU.VISITAS'), url: '/visitas', icon: 'calendar' });
+    }
+
+    // Pedidos
     if (rutasPermitidas.includes('/pedidos')) {
       menuItems.push({ title: this.translate.instant('MENU.ORDERS'), url: '/pedidos', icon: 'cart' });
     }

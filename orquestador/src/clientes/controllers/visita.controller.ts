@@ -55,6 +55,20 @@ export class VisitaController {
     return this.visitaService.obtenerVisitasCliente(id_cliente);
   }
 
+  @Get()
+  async obtenerTodosLosClientesConUltimaVisita(): Promise<Array<{
+    id_vendedor: string;
+    clientes: Array<{
+      id_cliente: string;
+      id_vendedor: string;
+      ultima_visita: Date | null;
+      lat: number;
+      lng: number;
+    }>;
+  }>> {
+    return this.visitaService.obtenerTodosLosClientesConUltimaVisita();
+  }
+
   @Get('video/:key')
   obtenerUrlVideo(@Param('key') key: string): Promise<any> {
     return this.visitaService.obtenerUrlVideo(key);

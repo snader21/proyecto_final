@@ -47,6 +47,20 @@ export class VisitaController {
     return this.visitaService.findByCliente(id_cliente);
   }
 
+  @Get()
+  async obtenerTodosLosClientesConUltimaVisita(): Promise<Array<{
+    id_vendedor: string;
+    clientes: Array<{
+      id_cliente: string;
+      id_vendedor: string;
+      ultima_visita: Date | null;
+      lat: number;
+      lng: number;
+    }>;
+  }>> {
+    return this.visitaService.obtenerTodosLosClientesConUltimaVisita();
+  }
+
   /**
    * Obtiene la url de un video
    * @param key ID del video

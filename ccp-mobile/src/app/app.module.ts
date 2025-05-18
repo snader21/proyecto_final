@@ -10,10 +10,14 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { VideoRecorderComponent } from './components/video-recorder/video-recorder.component';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { RutasService } from './services/rutas.service';
+import { BodegasService } from './services/bodegas.service';
+import { ClientesService } from './services/clientes.service';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
+
 
 @NgModule({
   declarations: [
@@ -34,8 +38,14 @@ export function HttpLoaderFactory(http: HttpClient) {
         deps: [HttpClient],
       },
     }),
+    ReactiveFormsModule
   ],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
+  providers: [
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    RutasService,
+    BodegasService,
+    ClientesService
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
