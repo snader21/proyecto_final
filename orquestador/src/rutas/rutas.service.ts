@@ -79,8 +79,6 @@ export interface RutasEntregaResponse {
   rutas: RutaDto[];
 }
 
-export type OptimizedRoutesResponse = VisitasVendedoresResponse | RutasEntregaResponse;
-
 export interface CreateNodoRutaDto {
   numeroNodoProgramado: number;
   latitud: number;
@@ -102,10 +100,7 @@ export interface RutaDto {
   nodos: CreateNodoRutaDto[];
 }
 
-export interface OptimizedRoutesResponse {
-  camiones_insuficientes: boolean;
-  rutas: RutaDto[];
-}
+export type OptimizedRoutesResponse = VisitasVendedoresResponse | RutasEntregaResponse;
 
 @Injectable()
 export class RutasService {
