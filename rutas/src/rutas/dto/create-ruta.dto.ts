@@ -4,6 +4,7 @@ export class CreateRutaDto {
   duracionEstimada: number;
   fecha: string;
   distanciaTotal: number;
-  camionId: string;
+  camionId?: string;
+  vendedor_id?: string | null;
   nodos: CreateNodoRutaDto[];
 }

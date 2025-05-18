@@ -1,0 +1,16 @@
+ion-content {
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+}
+
+ion-icon[size="large"] {
+  font-size: 48px;
+  color: var(--ion-color-medium);
+  margin-bottom: 16px;
+}
+
+.ion-text-center p {
+  color: var(--ion-color-medium);
+  font-size: 1.1rem;
+  margin: 8px 0;
+}

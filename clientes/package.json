@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^9.8.0",
+    "@google-cloud/bigquery": "^8.0.0",
     "@google-cloud/pubsub": "^5.0.0",
     "@google-cloud/storage": "^7.15.2",
     "@nestjs/common": "^11.0.1",

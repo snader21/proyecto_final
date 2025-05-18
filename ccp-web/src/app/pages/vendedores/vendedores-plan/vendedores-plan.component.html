@@ -1,4 +1,5 @@
 <p-dialog
+  i18n-label="vendedoresPlanTitle"
   header="Plan de ventas"
   [(visible)]="visible"
   [modal]="true"
@@ -28,6 +29,7 @@
             </span>
           </div>
           <p-button
+            i18n="vendedoresPlanAddClientButton"
             label="Agregar cliente"
             icon="pi pi-plus"
             styleClass="bg-slate-700 text-white"
@@ -40,7 +42,7 @@
           <ng-template pTemplate="header">
             <tr>
               <th class="w-16"></th>
-              <th>Cliente</th>
+              <th i18n="vendedoresPlanClientHeader">Cliente</th>
               <th class="w-16"></th>
             </tr>
           </ng-template>
@@ -65,7 +67,7 @@
 
       </p-tabPanel>
 
-      <p-tabPanel header="Plan de ventas">
+      <p-tabPanel header="Plan de ventas" i18n="vendedoresPlanTabHeader">
         <div class="flex flex-col gap-8">
           <div *ngFor="let trimestre of trimestres" class="flex flex-col gap-4">
             <div class="flex flex-col">
@@ -81,16 +83,6 @@
                 inputStyleClass="w-full"
               ></p-inputNumber>
             </div>
-<!--
-            <div class="flex flex-col">
-              <label class="text-base mb-1">Cumplimiento</label>
-              <div class="flex items-center gap-2">
-                <div class="bg-blue-500 text-white px-4 py-1 rounded-full">
-                  {{ metasPorTrimestre[trimestre.idQ] }}%
-                </div>
-              </div>
-            </div>
--->
           </div>
         </div>
       </p-tabPanel>
@@ -100,11 +92,13 @@
   <ng-template pTemplate="footer">
     <div class="flex justify-end gap-2">
       <p-button
+        i18n="vendedoresPlanCancelButton"
         label="Cancelar"
         (click)="closeDialog()"
         styleClass="p-button-text"
       ></p-button>
       <p-button
+        i18n="vendedoresPlanSaveButton"
         *ngIf="activeTabIndex === 1"
         label="Guardar"
         (click)="onSave()"

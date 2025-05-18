@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { PedidosService } from '../../services/pedidos.service';
 import { EstadoPedidoService } from '../../services/estado-pedido.service';
 import { firstValueFrom } from 'rxjs';
+import { ClienteService } from 'src/app/services/cliente.service';
+import { VendedorService } from 'src/app/services/vendedor.service';
 
 @Component({
   selector: 'app-pedidos',
@@ -20,12 +22,15 @@ export class PedidosPage implements OnInit {
   mostrarCalendario = false;
   fechaMaxima = new Date().toISOString();
   usuario: any;
+  idCliente: string | null = null;
+  idVendedor: string | null = null;
 
   constructor(
     private pedidosService: PedidosService,
-    private estadoPedidoService: EstadoPedidoService
+    private estadoPedidoService: EstadoPedidoService,
+    private clienteService: ClienteService,
+    private vendedorService: VendedorService,
   ) {
-    this.usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
     // Establecer fecha inicial un mes atrás
     const fechaInicio = new Date();
     fechaInicio.setMonth(fechaInicio.getMonth() - 3);
@@ -34,11 +39,15 @@ export class PedidosPage implements OnInit {
   }
 
   async ngOnInit() {
+    this.pedidos = [];
+    this.pedidosFiltrados = [];
+    this.usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
     await this.cargarEstados();
     await this.cargarPedidos();
   }
 
   async ionViewWillEnter() {
+    this.usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
     await this.cargarPedidos();
   }
 
@@ -69,12 +78,18 @@ export class PedidosPage implements OnInit {
 
       switch (rol) {
         case 'Vendedor':
-          response = await firstValueFrom(this.pedidosService.getPedidosVendedor(this.usuario.id, params));
+          const vendedor = await firstValueFrom(this.vendedorService.obtenerVendedorByUsuario(this.usuario.id));
+          this.idVendedor = vendedor.id;
+          response = await firstValueFrom(this.pedidosService.getPedidosVendedor(this.idVendedor!, params));
           this.pedidos = response || [];
           break;
         case 'Cliente':
-          response = await firstValueFrom(this.pedidosService.getPedidosCliente(this.usuario.id, params));
-          this.pedidos = response || [];
+          this.idVendedor = null;
+          const cliente = await firstValueFrom(this.clienteService.obtenerClientePorUsuario(this.usuario.id));
+          console.log("cliente", cliente);
+          this.idCliente = cliente[0].id_cliente;
+          const data = await firstValueFrom(this.pedidosService.getPedidosCliente(this.idCliente!, params));
+          this.pedidos = data || [];
           break;
         case 'Administrador':
           response = await firstValueFrom(this.pedidosService.getAllPedidos(params));

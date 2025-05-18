@@ -36,4 +36,9 @@ export class AuthService {
     localStorage.removeItem('usuario');
     this.isAuthenticatedSubject.next(false);
   }
+
+  getLoggedInUser(): any {
+    const usuarioStr = localStorage.getItem('usuario');
+    return usuarioStr ? JSON.parse(usuarioStr) : null;
+  }
 }

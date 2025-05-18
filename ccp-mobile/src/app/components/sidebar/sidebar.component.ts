@@ -63,6 +63,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
       menuItems.push({ title: 'Rutas', url: '/rutas', icon: 'map' });
     }
 
+    // Visitas
+    if (rutasPermitidas.includes('/rutas')) {
+      menuItems.push({ title: 'Visitas', url: '/visitas', icon: 'calendar' });
+    }
+
     // Pedidos
     if (rutasPermitidas.includes('/pedidos')) {
       menuItems.push({ title: 'Pedidos', url: '/pedidos', icon: 'cart' });

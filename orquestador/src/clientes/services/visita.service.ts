@@ -40,6 +40,22 @@ export class VisitaService {
     return data;
   }
 
+  async obtenerTodosLosClientesConUltimaVisita(): Promise<Array<{
+    id_vendedor: string;
+    clientes: Array<{
+      id_cliente: string;
+      id_vendedor: string;
+      ultima_visita: Date | null;
+      lat: number;
+      lng: number;
+    }>;
+  }>> {
+    const { data } = await firstValueFrom(
+      this.httpService.get(`${this.clientesApiUrl}/visitas`),
+    );
+    return data;
+  }
+
   async obtenerUrlVideo(video_key: string) {
     const { data } = await firstValueFrom(
       this.httpService.get(`${this.clientesApiUrl}/visitas/video/${video_key}`),

@@ -99,9 +99,9 @@ export class VendedoresPlanComponent implements OnInit, OnChanges {
 
     try {
       // 1. Cargar pedidos
-      console.log("1. Cargando pedidos...");
+      // console.log('1. Cargando pedidos...');
       // const pedidos = await firstValueFrom(this.pedidosService.findByIdVendedor(this.vendedor.id));
-      // console.log("Pedidos cargados:", pedidos);
+      // console.log('Pedidos cargados:', pedidos);
 
       // 2. Cargar trimestres
       console.log("2. Cargando trimestres...");

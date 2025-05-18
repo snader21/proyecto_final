@@ -40,12 +40,15 @@
               <p-button
                 *ngIf="i > 0"
                 label="Anterior"
+                i18n="rutasDetailsPreviousButton"
                 severity="secondary"
                 (onClick)="activateCallback(i)"
               />
               <p-button
                 *ngIf="i < stops.length - 1"
                 label="Siguiente"
+                i18n="rutasDetailsNextButton"
+                severity="secondary"
                 (onClick)="activateCallback(i + 2)"
               />
             </div>
@@ -56,6 +59,8 @@
   </ng-container>
 
   <ng-template #noStops>
-    <div class="text-center p-3">Cargando paradas...</div>
+    <div class="text-center p-3" i18n="rutasDetailsLoadingMessage">
+      Cargando paradas...
+    </div>
   </ng-template>
 </p-dialog>

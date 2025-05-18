@@ -95,8 +95,8 @@
         styleClass="px-10 py-2 bg-slate-700 text-white rounded-[100px]"
         label="Ubicación"
         i18n-label="dashboardLocationButton"
-        (click)="navigateTo('/ubicacion')"
-        [disabled]="tieneAcceso('/ubicacion')"
+        (click)="navigateTo('/ubicaciones')"
+        [disabled]="!tieneAcceso('/ubicaciones')"
       />
     </div>
   </div>
