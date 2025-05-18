@@ -233,7 +233,7 @@ export class RutasService {
       JSON.stringify(createRutaDto, null, 2),
     );
     const api = this.configService.get<string>('URL_RUTAS');
-    const apiEndPoint = `${api}/rutas`;
+    const apiEndPoint = `${api}/rutas/ruta-entrega-de-pedidos`;
 
     return this.httpService
       .post<any>(apiEndPoint, createRutaDto)
