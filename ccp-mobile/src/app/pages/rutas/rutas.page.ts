@@ -41,7 +41,7 @@ export class RutasPage implements OnInit {
     this.loading = true;
 
     try {
-      this.rutas = await this.rutasService.getRutas('entrega de pedidos');
+      this.rutas = await this.rutasService.getRutas('entrega');
       this.filteredRutas = [...this.rutas];
       console.log('Rutas cargadas:', this.rutas);
     } catch (error) {
@@ -84,8 +84,8 @@ export class RutasPage implements OnInit {
       return;
     }
 
-    this.filteredRutas = this.rutas.filter(ruta => 
-      ruta.nodos_rutas.some(nodo => 
+    this.filteredRutas = this.rutas.filter(ruta =>
+      ruta.nodos_rutas.some(nodo =>
         nodo.direccion.toLowerCase().includes(searchTerm)
       )
     );
