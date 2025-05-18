@@ -54,24 +54,26 @@ export class VendedoresComponent implements OnInit {
     this.loading = true;
     try {
       const vendedores = await this.vendedoresService.getVendedores();
-      const usuarios = await firstValueFrom(this.usuariosService.obtenerUsuarios());
+      const usuarios = await firstValueFrom(
+        this.usuariosService.obtenerUsuarios()
+      );
 
-      console.log('Datos crudos:', {
+      console.log("Datos crudos:", {
         vendedores,
-        usuarios
+        usuarios,
       });
 
-      this.vendedores = vendedores.map(vendedor => {
-        const usuario = usuarios.find(u => u.id === vendedor.usuario_id);
-        console.log('Mapeando vendedor:', {
+      this.vendedores = vendedores.map((vendedor) => {
+        const usuario = usuarios.find((u) => u.id === vendedor.usuario_id);
+        console.log("Mapeando vendedor:", {
           vendedor,
           usuario,
-          usuario_id: vendedor.usuario_id
+          usuario_id: vendedor.usuario_id,
         });
 
         return {
           ...vendedor,
-          estado: usuario?.estado === true ? "Activo" : "Inactivo"
+          estado: usuario?.estado === true ? "Activo" : "Inactivo",
         };
       });
     } catch (error) {
@@ -87,11 +89,12 @@ export class VendedoresComponent implements OnInit {
     }
 
     const filtroLower = this.filtro.toLowerCase();
-    this.vendedores = this.vendedores.filter(vendedor =>
-      vendedor.nombre.toLowerCase().includes(filtroLower) ||
-      vendedor.correo.toLowerCase().includes(filtroLower) ||
-      vendedor.telefono.toLowerCase().includes(filtroLower) ||
-      vendedor.zona.nombre.toLowerCase().includes(filtroLower)
+    this.vendedores = this.vendedores.filter(
+      (vendedor) =>
+        vendedor.nombre.toLowerCase().includes(filtroLower) ||
+        vendedor.correo.toLowerCase().includes(filtroLower) ||
+        vendedor.telefono.toLowerCase().includes(filtroLower) ||
+        vendedor.zona.nombre.toLowerCase().includes(filtroLower)
     );
   }
 
@@ -125,5 +128,9 @@ export class VendedoresComponent implements OnInit {
 
   public onPlanVisibleChange(visible: boolean) {
     this.planVentasVisible = visible;
+  }
+
+  public onDialogVisibilityChange(visible: boolean) {
+    this.dialogVisible = visible;
   }
 }
