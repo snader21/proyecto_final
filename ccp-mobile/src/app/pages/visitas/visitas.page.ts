@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
-import { RouterModule } from '@angular/router';
+import { IonicModule, AlertController, LoadingController } from '@ionic/angular';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { RouterModule, Router } from '@angular/router';
 import { RutasService } from '../../services/rutas.service';
-import { Ruta } from '../../interfaces/ruta.interface';
 import { AuthService } from '../../services/auth.service';
+import { Ruta } from '../../interfaces/ruta.interface';
 
 @Component({
   selector: 'app-visitas',
@@ -16,40 +17,53 @@ import { AuthService } from '../../services/auth.service';
     CommonModule,
     FormsModule,
     IonicModule,
-    RouterModule
+    RouterModule,
+    TranslateModule
   ],
   providers: [RutasService]
 })
 export class VisitasPage implements OnInit {
-  loading = false;
-  searchTerm = '';
   rutas: Ruta[] = [];
   filteredRutas: Ruta[] = [];
+  searchTerm: string = '';
+  loading: boolean = true;
 
   constructor(
     private rutasService: RutasService,
-    private authService: AuthService
+    private authService: AuthService,
+    private alertController: AlertController,
+    private loadingController: LoadingController,
+    private router: Router,
+    private translate: TranslateService
   ) {}
 
   ngOnInit() {
-    this.loadVisitas();
+    this.loadRutas();
   }
 
-  async loadVisitas() {
-    this.loading = true;
+  async loadRutas() {
     try {
-      const vendedor = this.authService.getLoggedInUser();
-      if (!vendedor) {
-        throw new Error('No hay un vendedor autenticado');
+      const usuario = this.authService.getLoggedInUser();
+      if (!usuario) {
+        await this.showError(this.translate.instant('VISITS.MESSAGES.NO_AUTHENTICATED_SELLER'));
+        this.router.navigate(['/login']);
+        return;
+      }
+
+      const esVendedor = usuario.roles.some((rol: any) => rol.nombre.toLowerCase() === 'vendedor');
+      if (!esVendedor) {
+        await this.showError(this.translate.instant('VISITS.MESSAGES.NO_AUTHENTICATED_SELLER'));
+        this.router.navigate(['/login']);
+        return;
       }
 
       this.rutas = await this.rutasService.getRutas('visita');
       // Filtrar solo las rutas del vendedor actual
-      this.rutas = this.rutas.filter(ruta => ruta.vendedor_id === vendedor.id);
+      this.rutas = this.rutas.filter(ruta => ruta.vendedor_id === usuario.id);
       this.filteredRutas = [...this.rutas];
-      console.log('Visitas cargadas:', this.rutas);
     } catch (error) {
-      console.error('Error loading visitas:', error);
+      console.error('Error loading routes:', error);
+      await this.showError(this.translate.instant('VISITS.MESSAGES.ERROR_LOADING'));
     } finally {
       this.loading = false;
     }
@@ -57,7 +71,7 @@ export class VisitasPage implements OnInit {
 
   async doRefresh(event: any) {
     try {
-      await this.loadVisitas();
+      await this.loadRutas();
     } finally {
       event.target.complete();
     }
@@ -70,23 +84,32 @@ export class VisitasPage implements OnInit {
       return;
     }
 
-    this.filteredRutas = this.rutas.filter(ruta =>
-      ruta.nodos_rutas.some(nodo =>
+    this.filteredRutas = this.rutas.filter(ruta => 
+      ruta.nodos_rutas.some((nodo: any) => 
         nodo.direccion.toLowerCase().includes(searchTerm)
       )
     );
   }
 
   getBadgeColor(estado: string): string {
-    switch (estado.toLowerCase()) {
-      case 'programada':
+    switch (estado) {
+      case 'Programada':
         return 'warning';
-      case 'en_progreso':
+      case 'En Progreso':
         return 'primary';
-      case 'completada':
+      case 'Completada':
         return 'success';
       default:
         return 'medium';
     }
+  }
+
+  private async showError(message: string) {
+    const alert = await this.alertController.create({
+      header: 'Error',
+      message: message,
+      buttons: ['OK']
+    });
+    await alert.present();
   }
 }

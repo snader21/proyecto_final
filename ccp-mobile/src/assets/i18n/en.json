@@ -7,6 +7,7 @@
     "CLIENTS": "Clients",
     "ROUTES": "Routes",
     "ORDERS": "Orders",
+    "VISITAS": "Visits",
     "LOGOUT": "Log out",
     "LOGOUT_TITLE": "Log out",
     "LOGOUT_MSG": "Are you sure you want to log out?",
@@ -77,5 +78,198 @@
     "REGISTER": "Register",
     "CREDENCIALES_INCORRECTAS": "Wrong user or password",
     "FORMULARIO_VACIO": "Data has not been entered"
+  },
+  "CLIENT_DETAIL": {
+    "TITLE": "Client Details",
+    "REGISTER_VISIT": "Register Visit",
+    "REGISTERED_VISITS": "Registered Visits",
+    "NO_OBSERVATIONS": "No observations",
+    "VIDEO": "Video",
+    "RECOMMENDATION": "Recommendation",
+    "NO_VISITS": "No registered visits.",
+    "NO_VIDEO": "No video",
+    "NO_VIDEO_MSG": "This visit has no video available.",
+    "CLOSE": "Close",
+    "NO_RECOMMENDATION": "This visit has no recommendation.",
+    "ORDER_STATUS": {
+      "MADE": "Order made",
+      "NOT_MADE": "No order made"
+    }
+  },
+  "ORDERS": {
+    "TITLE": "Orders",
+    "FILTERS": {
+      "ORDER_NUMBER": "Order number",
+      "STATUS": "Status",
+      "DATE": "Date",
+      "DATE_RANGE": "Date range",
+      "SELECT_DATE_RANGE": "Select date range",
+      "INITIAL_DATE": "Initial date",
+      "FINAL_DATE": "Final date",
+      "ALL_STATUS": "All",
+      "ALL_STATUS_DESC": "Show all statuses"
+    },
+    "ORDER_LIST": {
+      "ORDER_NUMBER": "Order #",
+      "DATE": "Date",
+      "STATUS": "Status",
+      "SHIPPING_METHOD": "Shipping method",
+      "NO_ORDERS": "No orders found for the selected filters."
+    },
+    "BUTTONS": {
+      "CREATE_ORDER": "Create order",
+      "CLEAR": "Clear"
+    },
+    "STATUS": {
+      "PENDING": "Pending",
+      "APPROVED": "Approved",
+      "ALL": "All"
+    },
+    "ERRORS": {
+      "LOAD_STATUS": "Error loading status",
+      "LOAD_ORDERS": "Error loading orders",
+      "APPLY_FILTERS": "Error applying filters"
+    }
+  },
+  "ORDER_REGISTRATION": {
+    "TITLE": "Create Order",
+    "FORM": {
+      "CLIENT": "Client",
+      "CLIENT_PLACEHOLDER": "Client name",
+      "ADD_PRODUCT": "Add product",
+      "SEARCH_PRODUCT": "Search product",
+      "SEARCH_PLACEHOLDER": "Search product",
+      "PRICE": "Price",
+      "AVAILABLE": "Available",
+      "QUANTITY": "Quantity",
+      "ADDED_PRODUCTS": "Products added to order",
+      "PAYMENT_METHOD": "Payment method",
+      "PAYMENT_PLACEHOLDER": "Select payment method",
+      "SHIPPING_METHOD": "Shipping method",
+      "SHIPPING_PLACEHOLDER": "Select shipping method",
+      "DELIVERY_DATE": "Delivery date",
+      "DELIVERY_PLACEHOLDER": "Select delivery date and time",
+      "DELIVERY_DATE_TIME": "Delivery date and time",
+      "SAVE_ORDER": "Save order",
+      "ORDER_DESCRIPTION": "Order generated with {{count}} products"
+    },
+    "PRODUCT_SEARCH": {
+      "NO_RESULTS": "No products found for \"{{term}}\"",
+      "ADD": "Add"
+    },
+    "ALERTS": {
+      "SUCCESS": {
+        "TITLE": "Success",
+        "MESSAGE": "Order saved successfully"
+      },
+      "ERROR": {
+        "TITLE": "Error",
+        "MESSAGE": "Could not save the order. Please try again."
+      }
+    },
+    "VALIDATION": {
+      "REQUIRED_FIELDS": "Please fill in all required fields",
+      "SELECT_PRODUCTS": "Please add at least one product to the order"
+    }
+  },
+  "ROUTES": {
+    "TITLE": "Routes",
+    "SEARCH": {
+      "PLACEHOLDER": "Search by address or client"
+    },
+    "LOADING": "Loading routes...",
+    "ROUTE_INFO": {
+      "NUMBER": "Route #",
+      "SCHEDULED_STOPS": "Scheduled stops",
+      "DRIVER": "Driver",
+      "PHONE": "Phone",
+      "ARRIVAL": "Arrival",
+      "DEPARTURE": "Departure",
+      "ESTIMATED_DURATION": "Estimated duration",
+      "TOTAL_DISTANCE": "Total distance",
+      "MINUTES": "min",
+      "KILOMETERS": "km"
+    },
+    "STATUS": {
+      "PENDING": "Pending",
+      "IN_PROGRESS": "In Progress",
+      "COMPLETED": "Completed"
+    },
+    "MESSAGES": {
+      "NO_ROUTES": "No routes available",
+      "NO_SEARCH_RESULTS": "No routes found with current search",
+      "NO_ASSIGNED_ROUTES": "No assigned routes",
+      "ERROR_LOADING": "Error loading routes"
+    },
+    "DETAIL": {
+      "TITLE": "Route Details",
+      "SELECT_STOP": "Select stop",
+      "STOP_NUMBER": "Stop",
+      "WAREHOUSE": "Warehouse",
+      "CUSTOMER": "Customer",
+      "ADDRESS": "Address",
+      "SCHEDULE": "Schedule",
+      "ARRIVAL": "Arrival",
+      "DEPARTURE": "Departure",
+      "LOADING": "Loading route details..."
+    }
+  },
+  "VISITS": {
+    "TITLE": "Visits",
+    "SEARCH": {
+      "PLACEHOLDER": "Search by address"
+    },
+    "LOADING": "Loading visits...",
+    "ROUTE_INFO": {
+      "NUMBER": "Route #",
+      "ARRIVAL_TIME": "Arrival time",
+      "DEPARTURE_TIME": "Departure time",
+      "ESTIMATED_DURATION": "Estimated duration",
+      "TOTAL_DISTANCE": "Total distance",
+      "MINUTES": "min",
+      "KILOMETERS": "km"
+    },
+    "STATUS": {
+      "SCHEDULED": "Scheduled",
+      "IN_PROGRESS": "In Progress",
+      "COMPLETED": "Completed"
+    },
+    "MESSAGES": {
+      "NO_VISITS": "No scheduled visits",
+      "ERROR_LOADING": "Error loading visits",
+      "NO_AUTHENTICATED_SELLER": "No authenticated seller"
+    }
+  },
+  "CLIENT_VISIT": {
+    "TITLE": "Register Visit",
+    "CLIENT_INFO": {
+      "TITLE": "Client",
+      "TYPE": "Client"
+    },
+    "FORM": {
+      "DATE": "Date",
+      "TIME": "Time",
+      "OBSERVATIONS": "Observations",
+      "ORDER_MADE": "Order made?",
+      "VIDEO": {
+        "TITLE": "Record video",
+        "RECORD": "Record video",
+        "PREVIEW": "Video preview"
+      },
+      "SUBMIT": "Register visit"
+    },
+    "ALERTS": {
+      "SUCCESS": {
+        "TITLE": "Success",
+        "MESSAGE": "Visit registered successfully"
+      },
+      "ERROR": {
+        "TITLE": "Error",
+        "MESSAGE": "Could not register the visit"
+      }
+    }
+  },
+  "HOME": {
+    "WELCOME": "Welcome to CCP - Mobile"
   }
 }

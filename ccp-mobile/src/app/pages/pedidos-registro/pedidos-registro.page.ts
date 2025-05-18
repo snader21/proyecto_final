@@ -12,6 +12,7 @@ import { PedidosService } from '../../services/pedidos.service';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { VendedorService } from 'src/app/services/vendedor.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-pedidos-registro',
@@ -50,7 +51,8 @@ export class PedidosRegistroPage implements OnInit {
     private clienteService: ClienteService,
     private pedidosService: PedidosService,
     private vendedorService: VendedorService,
-    private router: Router
+    private router: Router,
+    private translate: TranslateService
   ) {
     this.pedidoForm = this.formBuilder.group({
       id_cliente: ['', Validators.required],
@@ -204,7 +206,7 @@ export class PedidosRegistroPage implements OnInit {
         id_vendedor: this.idVendedor,
         fecha_registro: new Date().toISOString(),
         id_estado: 2,
-        descripcion: 'Pedido generado con ' + this.productosSeleccionados.length + ' productos',
+        descripcion: this.translate.instant('ORDER_REGISTRATION.FORM.ORDER_DESCRIPTION', { count: this.productosSeleccionados.length }),
         id_cliente: this.idCliente == null ? this.pedidoForm.value.id_cliente : this.idCliente,
         id_metodo_pago: this.pedidoForm.value.medioPago,
         estado_pago: 'Pendiente',
@@ -215,8 +217,8 @@ export class PedidosRegistroPage implements OnInit {
       try {
         await this.pedidosService.createPedido(pedido).toPromise();
         const alert = await this.alertController.create({
-          header: 'Éxito',
-          message: 'Pedido guardado correctamente',
+          header: this.translate.instant('ORDER_REGISTRATION.ALERTS.SUCCESS.TITLE'),
+          message: this.translate.instant('ORDER_REGISTRATION.ALERTS.SUCCESS.MESSAGE'),
           buttons: ['OK']
         });
         await alert.present();
@@ -228,13 +230,20 @@ export class PedidosRegistroPage implements OnInit {
         this.router.navigate(['/pedidos']);
       } catch (error) {
         const alert = await this.alertController.create({
-          header: 'Error',
-          message: 'No se pudo guardar el pedido. Intenta de nuevo.',
+          header: this.translate.instant('ORDER_REGISTRATION.ALERTS.ERROR.TITLE'),
+          message: this.translate.instant('ORDER_REGISTRATION.ALERTS.ERROR.MESSAGE'),
           buttons: ['OK']
         });
         await alert.present();
         console.error('Error al guardar pedido:', error);
       }
+    } else {
+      const alert = await this.alertController.create({
+        header: this.translate.instant('ORDER_REGISTRATION.VALIDATION.REQUIRED_FIELDS'),
+        message: this.translate.instant('ORDER_REGISTRATION.VALIDATION.SELECT_PRODUCTS'),
+        buttons: ['OK']
+      });
+      await alert.present();
     }
   }
 

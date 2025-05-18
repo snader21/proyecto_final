@@ -4,6 +4,7 @@ import { EstadoPedidoService } from '../../services/estado-pedido.service';
 import { firstValueFrom } from 'rxjs';
 import { ClienteService } from 'src/app/services/cliente.service';
 import { VendedorService } from 'src/app/services/vendedor.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-pedidos',
@@ -30,6 +31,7 @@ export class PedidosPage implements OnInit {
     private estadoPedidoService: EstadoPedidoService,
     private clienteService: ClienteService,
     private vendedorService: VendedorService,
+    private translate: TranslateService
   ) {
     // Establecer fecha inicial un mes atrás
     const fechaInicio = new Date();
@@ -55,11 +57,15 @@ export class PedidosPage implements OnInit {
     try {
       const estadosFromService = await firstValueFrom(this.estadoPedidoService.getEstados()) || [];
       this.estados = [
-        { id_estado: -1, nombre: 'Todos', descripcion: 'Mostrar todos los estados' },
+        { 
+          id_estado: -1, 
+          nombre: this.translate.instant('ORDERS.FILTERS.ALL_STATUS'), 
+          descripcion: this.translate.instant('ORDERS.FILTERS.ALL_STATUS_DESC') 
+        },
         ...estadosFromService
       ];
     } catch (error) {
-      console.error('Error al cargar estados:', error);
+      console.error(this.translate.instant('ORDERS.ERRORS.LOAD_STATUS'), error);
       this.estados = [];
     }
   }
@@ -101,7 +107,7 @@ export class PedidosPage implements OnInit {
 
       this.pedidosFiltrados = [...this.pedidos];
     } catch (error) {
-      console.error('Error al cargar pedidos:', error);
+      console.error(this.translate.instant('ORDERS.ERRORS.LOAD_ORDERS'), error);
       this.pedidos = [];
       this.pedidosFiltrados = [];
     }
@@ -113,7 +119,7 @@ export class PedidosPage implements OnInit {
 
   aplicarFiltrosAsync() {
     this.aplicarFiltros().catch(error => {
-      console.error('Error al aplicar filtros:', error);
+      console.error(this.translate.instant('ORDERS.ERRORS.APPLY_FILTERS'), error);
     });
   }
 

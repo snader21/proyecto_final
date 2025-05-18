@@ -1,21 +1,19 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-
+import { TranslateModule } from '@ngx-translate/core';
 import { PedidosRegistroPageRoutingModule } from './pedidos-registro-routing.module';
-
 import { PedidosRegistroPage } from './pedidos-registro.page';
-import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
-    IonicModule.forRoot(),
+    ReactiveFormsModule,
+    IonicModule,
     PedidosRegistroPageRoutingModule,
-    ReactiveFormsModule
+    TranslateModule
   ],
   declarations: [PedidosRegistroPage]
 })

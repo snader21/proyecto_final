@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Pedidos</ion-title>
+    <ion-title>{{ 'ORDERS.TITLE' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -16,7 +16,7 @@
           <ion-item>
             <ion-input
               labelPlacement="floating"
-              label="Número de pedido"
+              [label]="'ORDERS.FILTERS.ORDER_NUMBER' | translate"
               [(ngModel)]="filtroNumeroPedido"
               (ionChange)="aplicarFiltrosAsync()"
               clearInput="true"
@@ -29,7 +29,7 @@
       <ion-row>
         <ion-col size="5" size-md="5">
           <ion-item>
-            <ion-label position="stacked">Estado</ion-label>
+            <ion-label position="stacked">{{ 'ORDERS.FILTERS.STATUS' | translate }}</ion-label>
             <ion-select [(ngModel)]="filtroEstado" (ionChange)="aplicarFiltrosAsync()">
               <ion-select-option [value]="estado.id_estado" *ngFor="let estado of estados">
                 {{estado.nombre}}
@@ -39,12 +39,12 @@
         </ion-col>
         <ion-col size="7" size-md="7">
           <ion-item>
-            <ion-label position="stacked">Fecha</ion-label>
+            <ion-label position="stacked">{{ 'ORDERS.FILTERS.DATE' | translate }}</ion-label>
             <ion-input
               readonly
               [value]="(filtroFechaInicio | date:'dd/MM/yyyy') + ' - ' + (filtroFechaFin | date:'dd/MM/yyyy')"
               (click)="mostrarCalendario = true"
-              placeholder="Seleccione rango de fechas">
+              [placeholder]="'ORDERS.FILTERS.SELECT_DATE_RANGE' | translate">
             </ion-input>
           </ion-item>
         </ion-col>
@@ -60,7 +60,7 @@
       <ng-template>
         <ion-header>
           <ion-toolbar>
-            <ion-title>Rango de fechas</ion-title>
+            <ion-title>{{ 'ORDERS.FILTERS.DATE_RANGE' | translate }}</ion-title>
             <ion-buttons slot="end">
               <ion-button (click)="mostrarCalendario = false">
                 <ion-icon name="close-outline"></ion-icon>
@@ -70,7 +70,7 @@
         </ion-header>
         <ion-content class="ion-padding">
           <ion-item>
-            <ion-label position="stacked">Fecha inicial</ion-label>
+            <ion-label position="stacked">{{ 'ORDERS.FILTERS.INITIAL_DATE' | translate }}</ion-label>
             <ion-datetime
               presentation="date"
               [preferWheel]="true"
@@ -82,7 +82,7 @@
             </ion-datetime>
           </ion-item>
           <ion-item>
-            <ion-label position="stacked">Fecha final</ion-label>
+            <ion-label position="stacked">{{ 'ORDERS.FILTERS.FINAL_DATE' | translate }}</ion-label>
             <ion-datetime
               presentation="date"
               [preferWheel]="true"
@@ -101,23 +101,23 @@
     <ion-list *ngIf="pedidosFiltrados.length > 0">
       <ion-item *ngFor="let pedido of pedidosFiltrados">
         <ion-label>
-          <h5># {{pedido.id_pedido}}</h5>
+          <h5>{{ 'ORDERS.ORDER_LIST.ORDER_NUMBER' | translate }} {{pedido.id_pedido}}</h5>
           <p>{{pedido.descripcion}}</p>
-          <p>Fecha: {{pedido.fecha_registro | date:'dd/MM/yyyy'}}</p>
-          <p>Estado: <ion-chip [color]="pedido.estado.nombre === 'Pendiente' ? 'warning' : (pedido.estado.nombre === 'Aprobado' ? 'success' : 'secondary')">{{pedido.estado.nombre}}</ion-chip></p>
-          <p>Método de envío: {{pedido.envio.nombre}}</p>
+          <p>{{ 'ORDERS.ORDER_LIST.DATE' | translate }}: {{pedido.fecha_registro | date:'dd/MM/yyyy'}}</p>
+          <p>{{ 'ORDERS.ORDER_LIST.STATUS' | translate }}: <ion-chip [color]="pedido.estado.nombre === 'Pendiente' ? 'warning' : (pedido.estado.nombre === 'Aprobado' ? 'success' : 'secondary')">{{pedido.estado.nombre}}</ion-chip></p>
+          <p>{{ 'ORDERS.ORDER_LIST.SHIPPING_METHOD' | translate }}: {{pedido.envio.nombre}}</p>
         </ion-label>
       </ion-item>
     </ion-list>
     <div *ngIf="pedidosFiltrados.length === 0" class="ion-text-center ion-padding">
       <ion-text color="medium">
-        <p>No se encontraron pedidos para los filtros seleccionados.</p>
+        <p>{{ 'ORDERS.ORDER_LIST.NO_ORDERS' | translate }}</p>
       </ion-text>
     </div>
     <br>
     <ion-button expand="block" color="primary" routerLink="/pedidos-registro">
       <ion-icon slot="start" name="add-outline"></ion-icon>
-      Crear pedido
+      {{ 'ORDERS.BUTTONS.CREATE_ORDER' | translate }}
     </ion-button>
   </div>
 </ion-content>

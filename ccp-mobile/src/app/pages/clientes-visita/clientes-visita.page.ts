@@ -6,6 +6,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Cliente } from 'src/app/interfaces/cliente.interface';
 import { CreateVisitaDto } from 'src/app/interfaces/visita.interface';
 import { VideoRecorderComponent } from '../../components/video-recorder/video-recorder.component';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-clientes-visita',
@@ -24,7 +25,8 @@ export class ClientesVisitaPage implements OnInit {
     private router: Router,
     private visitaService: VisitaService,
     private alertController: AlertController,
-    private modalCtrl: ModalController
+    private modalCtrl: ModalController,
+    private translate: TranslateService
   ) {
     this.visitaForm = this.formBuilder.group({
       fecha: ['', Validators.required],
@@ -79,8 +81,8 @@ export class ClientesVisitaPage implements OnInit {
         await this.visitaService.crearVisita(visitaData, this.recordedVideo).toPromise();
 
         const alert = await this.alertController.create({
-          header: 'Éxito',
-          message: 'Visita registrada correctamente',
+          header: this.translate.instant('CLIENT_VISIT.ALERTS.SUCCESS.TITLE'),
+          message: this.translate.instant('CLIENT_VISIT.ALERTS.SUCCESS.MESSAGE'),
           buttons: [{
             text: 'OK',
             handler: () => {
@@ -92,8 +94,8 @@ export class ClientesVisitaPage implements OnInit {
         await alert.present();
       } catch (error) {
         const alert = await this.alertController.create({
-          header: 'Error',
-          message: 'No se pudo registrar la visita',
+          header: this.translate.instant('CLIENT_VISIT.ALERTS.ERROR.TITLE'),
+          message: this.translate.instant('CLIENT_VISIT.ALERTS.ERROR.MESSAGE'),
           buttons: ['OK']
         });
 

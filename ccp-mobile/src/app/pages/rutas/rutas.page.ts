@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Ruta } from 'src/app/interfaces/ruta.interface';
 import { RutasService } from 'src/app/services/rutas.service';
 
@@ -17,7 +18,8 @@ import { RutasService } from 'src/app/services/rutas.service';
     FormsModule,
     IonicModule,
     RouterModule,
-    HttpClientModule
+    HttpClientModule,
+    TranslateModule
   ],
   providers: [
     RutasService
@@ -30,7 +32,8 @@ export class RutasPage implements OnInit {
   searchTerm = '';
 
   constructor(
-    private rutasService: RutasService
+    private rutasService: RutasService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit() {
@@ -45,7 +48,7 @@ export class RutasPage implements OnInit {
       this.filteredRutas = [...this.rutas];
       console.log('Rutas cargadas:', this.rutas);
     } catch (error) {
-      console.error('Error loading rutas:', error);
+      console.error(this.translate.instant('ROUTES.MESSAGES.ERROR_LOADING'), error);
     } finally {
       this.loading = false;
     }
@@ -62,7 +65,7 @@ export class RutasPage implements OnInit {
   }
 
   formatearFecha(fecha: string): string {
-    return new Date(fecha).toLocaleDateString('es-CO', {
+    return new Date(fecha).toLocaleDateString(this.translate.currentLang === 'es' ? 'es-CO' : 'en-US', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
@@ -70,7 +73,7 @@ export class RutasPage implements OnInit {
   }
 
   formatearHora(hora: string): string {
-    return new Date(hora).toLocaleTimeString('es-CO', {
+    return new Date(hora).toLocaleTimeString(this.translate.currentLang === 'es' ? 'es-CO' : 'en-US', {
       hour: '2-digit',
       minute: '2-digit',
       hour12: true
@@ -92,12 +95,16 @@ export class RutasPage implements OnInit {
   }
 
   getBadgeColor(estado: string): string {
-    switch (estado.toLowerCase()) {
+    const estadoKey = estado.toUpperCase().replace(' ', '_');
+    switch (estadoKey) {
       case 'PENDIENTE':
+      case 'PENDING':
         return 'warning';
       case 'EN_PROGRESO':
+      case 'IN_PROGRESS':
         return 'primary';
       case 'COMPLETADA':
+      case 'COMPLETED':
         return 'success';
       default:
         return 'medium';

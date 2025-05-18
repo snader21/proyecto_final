@@ -3,20 +3,20 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/clientes"></ion-back-button>
     </ion-buttons>
-    <ion-title>Detalle de cliente</ion-title>
+    <ion-title>{{ 'CLIENT_DETAIL.TITLE' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
   <div class="ion-padding">
     <ion-button expand="block" color="blue-gray" (click)="navegarAVisita()">
-      Registrar Visita
+      {{ 'CLIENT_DETAIL.REGISTER_VISIT' | translate }}
     </ion-button>
   </div>
 
   <ion-list *ngIf="visitas.length > 0">
     <ion-item-divider color="light">
-      <ion-label>Visitas Registradas</ion-label>
+      <ion-label>{{ 'CLIENT_DETAIL.REGISTERED_VISITS' | translate }}</ion-label>
     </ion-item-divider>
 
     <ion-item *ngFor="let visita of visitas" lines="none">
@@ -24,14 +24,14 @@
         <ion-card-header>
           <ion-card-title>
             {{ visita.fecha_visita | date:'short' }}
-            <ion-chip color="{{visita.realizo_pedido ? 'success' : 'danger'}}"
-              >{{ realizoPedido(visita.realizo_pedido) }}
+            <ion-chip color="{{visita.realizo_pedido ? 'success' : 'danger'}}">
+              {{ realizoPedido(visita.realizo_pedido) }}
             </ion-chip>
           </ion-card-title>
         </ion-card-header>
 
         <ion-card-content>
-          {{ visita.observaciones || 'Sin observaciones' }}
+          {{ visita.observaciones || ('CLIENT_DETAIL.NO_OBSERVATIONS' | translate) }}
         </ion-card-content>
 
         <ion-button
@@ -43,7 +43,7 @@
           class="ion-margin"
         >
           <ion-icon slot="start" name="videocam-outline"></ion-icon>
-          Video
+          {{ 'CLIENT_DETAIL.VIDEO' | translate }}
         </ion-button>
         <ion-button
           *ngIf="visita.recomendacion"
@@ -52,7 +52,7 @@
           (click)="verRecomendacion(visita)"
         >
           <ion-icon slot="start" name="bulb-outline"></ion-icon>
-          Recomendación
+          {{ 'CLIENT_DETAIL.RECOMMENDATION' | translate }}
         </ion-button>
       </ion-card>
     </ion-item>
@@ -60,7 +60,7 @@
 
   <ion-card *ngIf="visitas.length === 0">
     <ion-card-content class="ion-text-center">
-      No hay visitas registradas.
+      {{ 'CLIENT_DETAIL.NO_VISITS' | translate }}
     </ion-card-content>
   </ion-card>
 </ion-content>

@@ -1,22 +1,20 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-
 import { ClientesVisitaPageRoutingModule } from './clientes-visita-routing.module';
-
 import { ClientesVisitaPage } from './clientes-visita.page';
-import { ReactiveFormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { VideoRecorderComponent } from '../../components/video-recorder/video-recorder.component';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     IonicModule,
     ClientesVisitaPageRoutingModule,
-    ReactiveFormsModule,
+    TranslateModule,
     VideoRecorderComponent
   ],
   declarations: [ClientesVisitaPage]

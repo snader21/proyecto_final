@@ -7,6 +7,7 @@
     "CLIENTS": "Clientes",
     "ROUTES": "Rutas",
     "ORDERS": "Pedidos",
+    "VISITAS": "Visitas",
     "LOGOUT": "Cerrar sesión",
     "LOGOUT_TITLE": "Salir",
     "LOGOUT_MSG": "¿Estás seguro que deseas cerrar sesión?",
@@ -77,5 +78,198 @@
     "REGISTER": "Regístrate",
     "CREDENCIALES_INCORRECTAS": "Correo o contraseña incorrectos",
     "FORMULARIO_VACIO": "No se han ingresado los datos"
+  },
+  "CLIENT_DETAIL": {
+    "TITLE": "Detalle de Cliente",
+    "REGISTER_VISIT": "Registrar Visita",
+    "REGISTERED_VISITS": "Visitas Registradas",
+    "NO_OBSERVATIONS": "Sin observaciones",
+    "VIDEO": "Video",
+    "RECOMMENDATION": "Recomendación",
+    "NO_VISITS": "No hay visitas registradas.",
+    "NO_VIDEO": "Sin video",
+    "NO_VIDEO_MSG": "Esta visita no tiene video disponible.",
+    "CLOSE": "Cerrar",
+    "NO_RECOMMENDATION": "Esta visita no tiene recomendación.",
+    "ORDER_STATUS": {
+      "MADE": "Realizó pedido",
+      "NOT_MADE": "No realizó pedido"
+    }
+  },
+  "ORDERS": {
+    "TITLE": "Pedidos",
+    "FILTERS": {
+      "ORDER_NUMBER": "Número de pedido",
+      "STATUS": "Estado",
+      "DATE": "Fecha",
+      "DATE_RANGE": "Rango de fechas",
+      "SELECT_DATE_RANGE": "Seleccione rango de fechas",
+      "INITIAL_DATE": "Fecha inicial",
+      "FINAL_DATE": "Fecha final",
+      "ALL_STATUS": "Todos",
+      "ALL_STATUS_DESC": "Mostrar todos los estados"
+    },
+    "ORDER_LIST": {
+      "ORDER_NUMBER": "Pedido #",
+      "DATE": "Fecha",
+      "STATUS": "Estado",
+      "SHIPPING_METHOD": "Método de envío",
+      "NO_ORDERS": "No se encontraron pedidos para los filtros seleccionados."
+    },
+    "BUTTONS": {
+      "CREATE_ORDER": "Crear pedido",
+      "CLEAR": "Limpiar"
+    },
+    "STATUS": {
+      "PENDING": "Pendiente",
+      "APPROVED": "Aprobado",
+      "ALL": "Todos"
+    },
+    "ERRORS": {
+      "LOAD_STATUS": "Error al cargar estados",
+      "LOAD_ORDERS": "Error al cargar pedidos",
+      "APPLY_FILTERS": "Error al aplicar filtros"
+    }
+  },
+  "ORDER_REGISTRATION": {
+    "TITLE": "Creación de pedido",
+    "FORM": {
+      "CLIENT": "Cliente",
+      "CLIENT_PLACEHOLDER": "Nombre del cliente",
+      "ADD_PRODUCT": "Agregar producto",
+      "SEARCH_PRODUCT": "Buscar producto",
+      "SEARCH_PLACEHOLDER": "Buscar producto",
+      "PRICE": "Precio",
+      "AVAILABLE": "Disponible",
+      "QUANTITY": "Cantidad",
+      "ADDED_PRODUCTS": "Productos agregados al pedido",
+      "PAYMENT_METHOD": "Medio de pago",
+      "PAYMENT_PLACEHOLDER": "Seleccione medio de pago",
+      "SHIPPING_METHOD": "Método de envío",
+      "SHIPPING_PLACEHOLDER": "Seleccione método de envío",
+      "DELIVERY_DATE": "Fecha de entrega",
+      "DELIVERY_PLACEHOLDER": "Seleccione fecha y hora de entrega",
+      "DELIVERY_DATE_TIME": "Fecha y hora de entrega",
+      "SAVE_ORDER": "Guardar pedido",
+      "ORDER_DESCRIPTION": "Pedido generado con {{count}} productos"
+    },
+    "PRODUCT_SEARCH": {
+      "NO_RESULTS": "No se encontraron productos para \"{{term}}\"",
+      "ADD": "Agregar"
+    },
+    "ALERTS": {
+      "SUCCESS": {
+        "TITLE": "Éxito",
+        "MESSAGE": "Pedido guardado correctamente"
+      },
+      "ERROR": {
+        "TITLE": "Error",
+        "MESSAGE": "No se pudo guardar el pedido. Intenta de nuevo."
+      }
+    },
+    "VALIDATION": {
+      "REQUIRED_FIELDS": "Por favor complete todos los campos requeridos",
+      "SELECT_PRODUCTS": "Por favor agregue al menos un producto al pedido"
+    }
+  },
+  "ROUTES": {
+    "TITLE": "Rutas",
+    "SEARCH": {
+      "PLACEHOLDER": "Buscar por dirección o cliente"
+    },
+    "LOADING": "Cargando rutas...",
+    "ROUTE_INFO": {
+      "NUMBER": "Ruta #",
+      "SCHEDULED_STOPS": "Paradas programadas",
+      "DRIVER": "Conductor",
+      "PHONE": "Celular",
+      "ARRIVAL": "Llegada",
+      "DEPARTURE": "Salida",
+      "ESTIMATED_DURATION": "Duración estimada",
+      "TOTAL_DISTANCE": "Distancia total",
+      "MINUTES": "min",
+      "KILOMETERS": "km"
+    },
+    "STATUS": {
+      "PENDING": "Pendiente",
+      "IN_PROGRESS": "En Progreso",
+      "COMPLETED": "Completada"
+    },
+    "MESSAGES": {
+      "NO_ROUTES": "No hay rutas disponibles",
+      "NO_SEARCH_RESULTS": "No se encontraron rutas con la búsqueda actual",
+      "NO_ASSIGNED_ROUTES": "No hay rutas asignadas",
+      "ERROR_LOADING": "Error al cargar rutas"
+    },
+    "DETAIL": {
+      "TITLE": "Detalles de la Ruta",
+      "SELECT_STOP": "Seleccionar parada",
+      "STOP_NUMBER": "Parada",
+      "WAREHOUSE": "Bodega",
+      "CUSTOMER": "Cliente",
+      "ADDRESS": "Dirección",
+      "SCHEDULE": "Horario",
+      "ARRIVAL": "Llegada",
+      "DEPARTURE": "Salida",
+      "LOADING": "Cargando detalles de la ruta..."
+    }
+  },
+  "VISITS": {
+    "TITLE": "Visitas",
+    "SEARCH": {
+      "PLACEHOLDER": "Buscar por dirección"
+    },
+    "LOADING": "Cargando visitas...",
+    "ROUTE_INFO": {
+      "NUMBER": "Ruta #",
+      "ARRIVAL_TIME": "Hora llegada",
+      "DEPARTURE_TIME": "Hora salida",
+      "ESTIMATED_DURATION": "Duración estimada",
+      "TOTAL_DISTANCE": "Distancia total",
+      "MINUTES": "min",
+      "KILOMETERS": "km"
+    },
+    "STATUS": {
+      "SCHEDULED": "Programada",
+      "IN_PROGRESS": "En Progreso",
+      "COMPLETED": "Completada"
+    },
+    "MESSAGES": {
+      "NO_VISITS": "No hay visitas programadas",
+      "ERROR_LOADING": "Error al cargar visitas",
+      "NO_AUTHENTICATED_SELLER": "No hay un vendedor autenticado"
+    }
+  },
+  "CLIENT_VISIT": {
+    "TITLE": "Registro visita",
+    "CLIENT_INFO": {
+      "TITLE": "Cliente",
+      "TYPE": "Cliente"
+    },
+    "FORM": {
+      "DATE": "Fecha",
+      "TIME": "Hora",
+      "OBSERVATIONS": "Observaciones",
+      "ORDER_MADE": "¿Realizar pedido?",
+      "VIDEO": {
+        "TITLE": "Grabar video",
+        "RECORD": "Grabar video",
+        "PREVIEW": "Vista previa del video"
+      },
+      "SUBMIT": "Registrar visita"
+    },
+    "ALERTS": {
+      "SUCCESS": {
+        "TITLE": "Éxito",
+        "MESSAGE": "Visita registrada correctamente"
+      },
+      "ERROR": {
+        "TITLE": "Error",
+        "MESSAGE": "No se pudo registrar la visita"
+      }
+    }
+  },
+  "HOME": {
+    "WELCOME": "Bienvenido a CCP - Mobile"
   }
 }

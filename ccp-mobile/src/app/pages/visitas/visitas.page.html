@@ -3,13 +3,13 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Visitas</ion-title>
+    <ion-title>{{ 'VISITS.TITLE' | translate }}</ion-title>
   </ion-toolbar>
   <ion-toolbar>
     <ion-searchbar
       [(ngModel)]="searchTerm"
       (ionChange)="onSearchChange($event)"
-      placeholder="Buscar por dirección"
+      [placeholder]="'VISITS.SEARCH.PLACEHOLDER' | translate"
       animated="true"
       debounce="300"
     ></ion-searchbar>
@@ -23,18 +23,18 @@
 
   <div *ngIf="loading" class="ion-text-center ion-padding">
     <ion-spinner name="crescent"></ion-spinner>
-    <p>Cargando visitas...</p>
+    <p>{{ 'VISITS.LOADING' | translate }}</p>
   </div>
 
   <ion-list *ngIf="!loading && filteredRutas.length > 0">
     <ion-item-group *ngFor="let ruta of filteredRutas">
       <ion-item-divider sticky>
         <ion-label>
-          <h2>Ruta #{{ruta.numero_ruta}}</h2>
+          <h2>{{ 'VISITS.ROUTE_INFO.NUMBER' | translate }}{{ruta.numero_ruta}}</h2>
           <p>{{ruta.fecha | date:'fullDate'}}</p>
         </ion-label>
         <ion-badge slot="end" [color]="getBadgeColor(ruta.estado_ruta.estado_ruta)">
-          {{ruta.estado_ruta.estado_ruta}}
+          {{ruta.estado_ruta.estado_ruta | translate}}
         </ion-badge>
       </ion-item-divider>
 
@@ -44,12 +44,12 @@
           <h3>{{nodo.direccion}}</h3>
           <p>
             <ion-text color="medium">
-              Hora llegada: {{nodo.hora_llegada | date:'shortTime'}}
+              {{ 'VISITS.ROUTE_INFO.ARRIVAL_TIME' | translate }}: {{nodo.hora_llegada | date:'shortTime'}}
             </ion-text>
           </p>
           <p>
             <ion-text color="medium">
-              Hora salida: {{nodo.hora_salida | date:'shortTime'}}
+              {{ 'VISITS.ROUTE_INFO.DEPARTURE_TIME' | translate }}: {{nodo.hora_salida | date:'shortTime'}}
             </ion-text>
           </p>
         </ion-label>
@@ -62,12 +62,12 @@
         <ion-label>
           <p>
             <ion-text color="medium">
-              Duración estimada: {{ruta.duracion_estimada}} min
+              {{ 'VISITS.ROUTE_INFO.ESTIMATED_DURATION' | translate }}: {{ruta.duracion_estimada}} {{ 'VISITS.ROUTE_INFO.MINUTES' | translate }}
             </ion-text>
           </p>
           <p>
             <ion-text color="medium">
-              Distancia total: {{ruta.distancia_total}} km
+              {{ 'VISITS.ROUTE_INFO.TOTAL_DISTANCE' | translate }}: {{ruta.distancia_total}} {{ 'VISITS.ROUTE_INFO.KILOMETERS' | translate }}
             </ion-text>
           </p>
         </ion-label>
@@ -77,6 +77,6 @@
 
   <div *ngIf="!loading && filteredRutas.length === 0" class="ion-text-center ion-padding">
     <ion-icon name="calendar-outline" size="large" color="medium"></ion-icon>
-    <p>No hay visitas programadas</p>
+    <p>{{ 'VISITS.MESSAGES.NO_VISITS' | translate }}</p>
   </div>
 </ion-content>

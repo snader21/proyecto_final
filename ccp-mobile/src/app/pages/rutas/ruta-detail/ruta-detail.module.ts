@@ -1,20 +1,17 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
 import { IonicModule } from '@ionic/angular';
-
 import { RutaDetailPageRoutingModule } from './ruta-detail-routing.module';
-
-import { RutaDetailPage } from './ruta-detail.page';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    RutaDetailPageRoutingModule
+    RutaDetailPageRoutingModule,
+    TranslateModule
   ],
-  declarations: [RutaDetailPage]
 })
 export class RutaDetailPageModule {}

@@ -1,11 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
 import { IonicModule } from '@ionic/angular';
-
+import { TranslateModule } from '@ngx-translate/core';
 import { ClientesDetallePageRoutingModule } from './clientes-detalle-routing.module';
-
 import { ClientesDetallePage } from './clientes-detalle.page';
 
 @NgModule({
@@ -13,7 +11,8 @@ import { ClientesDetallePage } from './clientes-detalle.page';
     CommonModule,
     FormsModule,
     IonicModule,
-    ClientesDetallePageRoutingModule
+    ClientesDetallePageRoutingModule,
+    TranslateModule
   ],
   declarations: [ClientesDetallePage]
 })

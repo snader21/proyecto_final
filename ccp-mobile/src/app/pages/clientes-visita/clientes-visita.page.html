@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/clientes-detalle/1"></ion-back-button>
     </ion-buttons>
-    <ion-title>Registro visita</ion-title>
+    <ion-title>{{ 'CLIENT_VISIT.TITLE' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -17,7 +17,7 @@
         <ion-col size="9">
           <div class="ion-text-wrap">
             <h2 style="margin: 0;">{{cliente?.nombre}}</h2>
-            <p style="margin: 0; color: var(--ion-color-medium);">Cliente</p>
+            <p style="margin: 0; color: var(--ion-color-medium);">{{ 'CLIENT_VISIT.CLIENT_INFO.TYPE' | translate }}</p>
           </div>
         </ion-col>
       </ion-row>
@@ -25,37 +25,40 @@
   </div>
   <form [formGroup]="visitaForm" (ngSubmit)="onSubmit()" class="ion-padding">
     <ion-item>
-      <ion-label position="stacked">Fecha</ion-label>
+      <ion-label position="stacked">{{ 'CLIENT_VISIT.FORM.DATE' | translate }}</ion-label>
       <ion-input type="date" formControlName="fecha"></ion-input>
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Hora</ion-label>
+      <ion-label position="stacked">{{ 'CLIENT_VISIT.FORM.TIME' | translate }}</ion-label>
       <ion-input type="time" formControlName="hora"></ion-input>
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Observaciones</ion-label>
+      <ion-label position="stacked">{{ 'CLIENT_VISIT.FORM.OBSERVATIONS' | translate }}</ion-label>
       <ion-textarea formControlName="observaciones" rows="4"></ion-textarea>
     </ion-item>
 
     <ion-item>
-      <ion-toggle formControlName="realizo_pedido" justify="space-between" size="small" color="blue-gray">¿Realizar pedido?</ion-toggle>
+      <ion-toggle formControlName="realizo_pedido" justify="space-between" size="small" color="blue-gray">
+        {{ 'CLIENT_VISIT.FORM.ORDER_MADE' | translate }}
+      </ion-toggle>
     </ion-item>
 
     <!-- Mostrar el video grabado si existe -->
     <div *ngIf="recordedVideoUrl" class="ion-padding">
+      <h4>{{ 'CLIENT_VISIT.FORM.VIDEO.PREVIEW' | translate }}</h4>
       <video [src]="recordedVideoUrl" controls style="width: 100%; border-radius: 8px;"></video>
     </div>
 
     <ion-button expand="block" fill="clear" (click)="grabarVideo()" color="blue-gray" class="ion-margin-top">
       <ion-icon slot="start" name="videocam-outline"></ion-icon>
-      Grabar video
+      {{ 'CLIENT_VISIT.FORM.VIDEO.RECORD' | translate }}
     </ion-button>
 
     <ion-button expand="block" (click)="onSubmit()" color="blue-gray">
       <ion-icon slot="start" name="cloud-upload-outline" type="submit"></ion-icon>
-      Registrar visita
+      {{ 'CLIENT_VISIT.FORM.SUBMIT' | translate }}
     </ion-button>
 
   </form>
