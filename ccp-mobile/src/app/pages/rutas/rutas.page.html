@@ -5,50 +5,87 @@
     </ion-buttons>
     <ion-title>Rutas</ion-title>
   </ion-toolbar>
+  <ion-toolbar>
+    <ion-searchbar
+      [(ngModel)]="searchTerm"
+      placeholder="Buscar por dirección"
+      animated="true"
+    ></ion-searchbar>
+  </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content>
   <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <ion-searchbar placeholder="Buscar ruta" mode="ios"></ion-searchbar>
-
-  <h2 class="ion-padding-top">Visitas programadas</h2>
-  
-  <div class="fecha-container ion-padding-vertical">
-    <ion-icon name="calendar-outline" size="large"></ion-icon>
-    <div class="fecha-info">
-      <h3>Fecha</h3>
-      <p>{{ currentDate | date:'dd/MM/yyyy' }}</p>
-    </div>
+  <div *ngIf="loading" class="ion-text-center ion-padding">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando rutas...</p>
   </div>
 
-  <h2>Lista de visitas programadas</h2>
-
-  <ng-container *ngIf="!loading; else loadingTemplate">
-    <ion-list *ngIf="rutas.length > 0; else noRutas" class="rutas-list">
-      <ion-item *ngFor="let ruta of rutas" [routerLink]="['/rutas', ruta.id]" class="ruta-item">
-        <div class="timeline-dot"></div>
-        <ion-label class="ion-padding-start">
-          <h2>{{ ruta.paradas[0]?.nombre_cliente || 'Ruta ' + ruta.id }}</h2>
-          <p>{{ ruta.paradas[0]?.direccion }}</p>
-          <p>Hora estimada: {{ ruta.paradas[0]?.hora_llegada | date:'shortTime' }}</p>
+  <ion-list *ngIf="!loading && rutas.length > 0">
+    <ion-item-group *ngFor="let ruta of filtrarRutas()">
+      <ion-item-divider sticky>
+        <ion-label>
+          <h2>{{ formatearFecha(ruta.fecha) }}</h2>
+          <p>Ruta #{{ ruta.numero_ruta }} - {{ ruta.estado_ruta.estado_ruta }}</p>
         </ion-label>
-        <ion-badge slot="end" [color]="getBadgeColor(ruta.estado)" class="estado-badge">
-          {{ ruta.estado }}
-        </ion-badge>
+      </ion-item-divider>
+
+      <ion-item>
+        <ion-icon name="car-outline" slot="start"></ion-icon>
+        <ion-label>
+          <h3>{{ ruta.camion.placa }}</h3>
+          <p>Conductor: {{ ruta.camion.nombre_conductor }}</p>
+          <p>Celular: {{ ruta.camion.celular_conductor }}</p>
+        </ion-label>
       </ion-item>
-    </ion-list>
-  </ng-container>
 
-  <ng-template #loadingTemplate>
-    <div class="ion-text-center ion-padding">
-      <ion-spinner></ion-spinner>
-      <p>Cargando rutas...</p>
-    </div>
-  </ng-template>
+      <ion-item-group *ngIf="ruta.nodos_rutas.length">
+        <ion-item-divider>
+          <ion-label>Paradas programadas</ion-label>
+        </ion-item-divider>
 
+        <ion-item *ngFor="let nodo of ruta.nodos_rutas">
+          <ion-icon 
+            [name]="nodo.id_bodega ? 'business' : 'location'"
+            slot="start"
+            [color]="nodo.id_bodega ? 'primary' : 'success'"
+          ></ion-icon>
+          <ion-label>
+            <h3>{{ nodo.direccion }}</h3>
+            <p>
+              <ion-text color="medium">
+                Llegada: {{ formatearHora(nodo.hora_llegada) }}
+              </ion-text>
+            </p>
+            <p>
+              <ion-text color="medium">
+                Salida: {{ formatearHora(nodo.hora_salida) }}
+              </ion-text>
+            </p>
+          </ion-label>
+          <ion-badge slot="end" color="medium">
+            {{ nodo.numero_nodo_programado }}
+          </ion-badge>
+        </ion-item>
+      </ion-item-group>
+
+      <ion-item lines="none">
+        <ion-icon name="time-outline" slot="start"></ion-icon>
+        <ion-label>
+          <p>Duración estimada: {{ ruta.duracion_estimada }} min</p>
+          <p>Distancia total: {{ ruta.distancia_total }} km</p>
+        </ion-label>
+      </ion-item>
+    </ion-item-group>
+  </ion-list>
+
+  <div *ngIf="!loading && (!rutas.length || !filtrarRutas().length)" class="ion-text-center ion-padding">
+    <ion-icon name="map-outline" size="large" color="medium"></ion-icon>
+    <p>{{ !rutas.length ? 'No hay rutas disponibles' : 'No se encontraron rutas con la búsqueda actual' }}</p>
+  </div>
   <ng-template #noRutas>
     <div class="ion-text-center ion-padding">
       <ion-icon name="map-outline" style="font-size: 48px; color: var(--ion-color-medium)"></ion-icon>

@@ -4,7 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { IonicModule, LoadingController } from '@ionic/angular';
 import { HttpClientModule } from '@angular/common/http';
-import { RutasService, Ruta, Parada } from '../../../services/rutas.service';
+import { RutasService } from '../../../services/rutas.service';
+import { Ruta, NodoRuta } from '../../../interfaces/ruta.interface';
 import { BodegasService, Bodega } from '../../../services/bodegas.service';
 import { ClientesService } from '../../../services/clientes.service';
 
@@ -18,73 +19,61 @@ import { ClientesService } from '../../../services/clientes.service';
 export class RutaDetailPage implements OnInit {
   routeTitle = 'Detalles de la Ruta';
   ruta?: Ruta;
+  currentNodo?: NodoRuta;
   loading = true;
-  activeStep = 0;
-  bodegaMap: { [key: string]: Bodega } = {};
-  clienteMap: { [key: string]: { nombre: string } } = {};
-
-  get currentParada(): Parada | undefined {
-    return this.ruta?.paradas[this.activeStep];
-  }
+  bodegaMap: Record<string, Bodega> = {};
+  clienteMap: Record<string, { nombre: string }> = {};
 
   constructor(
     private route: ActivatedRoute,
-    private loadingCtrl: LoadingController,
     private rutasService: RutasService,
     private bodegasService: BodegasService,
-    private clientesService: ClientesService
+    private clientesService: ClientesService,
   ) {}
 
   async ngOnInit() {
     const rutaId = this.route.snapshot.paramMap.get('id');
     if (rutaId) {
-      await this.loadRutaDetails(rutaId);
+      await this.loadRuta(rutaId);
     }
   }
 
-  async loadRutaDetails(rutaId: string) {
-    const loading = await this.loadingCtrl.create({
-      message: 'Cargando detalles de la ruta...',
-    });
-    await loading.present();
-
-    try {
-      const [ruta, bodegaMap, clienteMap] = await Promise.all([
-        this.rutasService.getRutaDetails(rutaId),
-        this.bodegasService.getBodegasMap(),
-        this.clientesService.getClientesMap()
-      ]);
-
+  async loadRuta(id: string) {
+    const ruta = await this.rutasService.getRutaDetails(id);
+    if (ruta) {
       this.ruta = ruta;
-      this.bodegaMap = bodegaMap;
-      this.clienteMap = clienteMap;
-
-      console.log('Datos cargados:', {
-        ruta: this.ruta,
-        bodegaMap: this.bodegaMap,
-        clienteMap: this.clienteMap
-      });
-    } catch (error) {
-      console.error('Error loading ruta details:', error);
-    } finally {
-      this.loading = false;
-      await loading.dismiss();
+      if (this.ruta.nodos_rutas.length) {
+        this.currentNodo = this.ruta.nodos_rutas[0];
+        await this.loadBodegaDetails();
+        await this.loadClienteDetails();
+      }
     }
   }
 
-  segmentChanged(event: any) {
-    this.activeStep = parseInt(event.detail.value, 10);
-  }
-
-  previousStep() {
-    if (this.activeStep > 0) {
-      this.activeStep--;
+  async loadBodegaDetails() {
+    if (this.currentNodo && this.currentNodo.id_bodega) {
+      const bodega = await this.bodegasService.getBodega(this.currentNodo.id_bodega);
+      if (bodega) {
+        this.bodegaMap[this.currentNodo.id_bodega] = bodega;
+      }
     }
   }
 
-  nextStep() {
-    if (this.ruta && this.activeStep < this.ruta.paradas.length - 1) {
-      this.activeStep++;
+  async loadClienteDetails() {
+    if (this.currentNodo && this.currentNodo.id_cliente) {
+      const cliente = await this.clientesService.getCliente(this.currentNodo.id_cliente);
+      if (cliente) {
+        this.clienteMap[this.currentNodo.id_cliente] = cliente;
+      }
+    }
+  }
+
+  onParadaChange(event: any) {
+    const index = parseInt(event.detail.value, 10);
+    if (this.ruta?.nodos_rutas[index]) {
+      this.currentNodo = this.ruta.nodos_rutas[index];
+      this.loadBodegaDetails();
+      this.loadClienteDetails();
     }
   }
 }

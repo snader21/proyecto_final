@@ -4,7 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule, LoadingController } from '@ionic/angular';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
-import { RutasService, Ruta } from '../../services/rutas.service';
+import { Ruta } from 'src/app/interfaces/ruta.interface';
+import { RutasService } from 'src/app/services/rutas.service';
 
 @Component({
   selector: 'app-rutas',
@@ -15,12 +16,10 @@ import { RutasService, Ruta } from '../../services/rutas.service';
 })
 export class RutasPage implements OnInit {
   rutas: Ruta[] = [];
-  loading = true;
-  currentDate = new Date();
+  loading = false;
   searchTerm = '';
 
   constructor(
-    private loadingCtrl: LoadingController,
     private rutasService: RutasService
   ) {}
 
@@ -29,19 +28,15 @@ export class RutasPage implements OnInit {
   }
 
   async loadRutas() {
-    const loading = await this.loadingCtrl.create({
-      message: 'Cargando rutas...',
-    });
-    await loading.present();
+    this.loading = true;
 
     try {
-      this.rutas = await this.rutasService.getRutas();
+      this.rutas = await this.rutasService.getRutas('entrega de pedidos');
       console.log('Rutas cargadas:', this.rutas);
     } catch (error) {
       console.error('Error loading rutas:', error);
     } finally {
       this.loading = false;
-      await loading.dismiss();
     }
   }
 
@@ -53,8 +48,34 @@ export class RutasPage implements OnInit {
     }
   }
 
-  getBadgeColor(estado: Ruta['estado']): string {
-    switch (estado) {
+  formatearFecha(fecha: string): string {
+    return new Date(fecha).toLocaleDateString('es-CO', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  }
+
+  formatearHora(hora: string): string {
+    return new Date(hora).toLocaleTimeString('es-CO', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  }
+
+  filtrarRutas(): Ruta[] {
+    if (!this.searchTerm.trim()) return this.rutas;
+    
+    return this.rutas.filter(ruta => 
+      ruta.nodos_rutas.some(nodo => 
+        nodo.direccion.toLowerCase().includes(this.searchTerm.toLowerCase())
+      )
+    );
+  }
+
+  getBadgeColor(estado: string): string {
+    switch (estado.toLowerCase()) {
       case 'PENDIENTE':
         return 'warning';
       case 'EN_PROGRESO':

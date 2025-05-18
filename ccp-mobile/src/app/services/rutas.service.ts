@@ -1,48 +1,51 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
-
-export interface Parada {
-  id: string;
-  nombre_cliente?: string;
-  id_cliente?: string;
-  id_bodega?: string;
-  id_pedido?: string;
-  direccion?: string;
-  hora_llegada?: string;
-  estado?: string;
-}
-
-export interface Ruta {
-  id: string;
-  fecha: Date;
-  estado: 'PENDIENTE' | 'EN_PROGRESO' | 'COMPLETADA';
-  paradas: Parada[];
-}
+import { Ruta } from '../interfaces/ruta.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RutasService {
-  private apiUrl = `${environment.apiUrl}/rutas`;
+  private readonly API_URL = `${environment.apiUrl}/rutas`;
 
-  constructor(private http: HttpClient) {}
-
-  async getRutas(): Promise<Ruta[]> {
-    return firstValueFrom(
-      this.http.get<Ruta[]>(this.apiUrl)
-    );
+  constructor(private http: HttpClient) {
+    console.log('API URL:', this.API_URL);
   }
 
-  async getRuta(rutaId: string): Promise<Ruta> {
-    return firstValueFrom(
-      this.http.get<Ruta>(`${this.apiUrl}/${rutaId}`)
-    );
+  async getRutas(tipoRuta?: string): Promise<Ruta[]> {
+    try {
+      let url = this.API_URL;
+      if (tipoRuta) {
+        const params = new URLSearchParams();
+        params.set('tipoRuta', tipoRuta);
+        url = `${url}?${params.toString()}`;
+      }
+      console.log('Fetching rutas from:', url);
+      const response = await firstValueFrom(
+        this.http.get<Ruta[]>(url)
+      );
+      console.log('Rutas response:', response);
+      return response || [];
+    } catch (error) {
+      console.error('Error fetching rutas:', error);
+      return [];
+    }
   }
 
-  async getRutaDetails(rutaId: string): Promise<Ruta> {
-    const ruta = await this.getRuta(rutaId);
-    return ruta;
+  async getRutaDetails(rutaId: string): Promise<Ruta | null> {
+    try {
+      const url = `${this.API_URL}/${rutaId}`;
+      console.log('Fetching ruta details from:', url);
+      const ruta = await firstValueFrom(
+        this.http.get<Ruta>(url)
+      );
+      console.log('Ruta details response:', ruta);
+      return ruta || null;
+    } catch (error) {
+      console.error('Error fetching ruta details:', error);
+      return null;
+    }
   }
 }
