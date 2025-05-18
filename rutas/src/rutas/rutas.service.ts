@@ -79,7 +79,7 @@ export class RutasService {
               numeroNodoProgramado: nodo.numeroNodoProgramado,
               latitud: nodo.latitud,
               longitud: nodo.longitud,
-              direccion: nodo.direccion || '',
+              direccion: nodo.direccion || `${nodo.latitud}, ${nodo.longitud}`,
               hora_llegada: nodo.hora_llegada,
               hora_salida: nodo.hora_salida,
               id_bodega: undefined,
@@ -185,8 +185,13 @@ export class RutasService {
 
         // 4.3 Crear nodos
         if (dto.nodos?.length) {
+          const nodosConDireccion = dto.nodos.map(nodo => ({
+            ...nodo,
+            direccion: nodo.direccion || `${nodo.latitud}, ${nodo.longitud}`,
+          }));
+
           await this.nodosRutasService.bulkCreateNodos(
-            dto.nodos,
+            nodosConDireccion,
             ruta,
             queryRunner.manager,
           );
