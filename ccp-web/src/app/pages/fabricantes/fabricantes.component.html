@@ -15,7 +15,9 @@
     <p-table [value]="fabricantes" [tableStyle]="{ 'min-width': '50rem' }">
       <ng-template #caption>
         <div class="flex items-center justify-between">
-          <span class="text-xl font-bold" i18n="manufacturersListTitle">Listado de fabricantes</span>
+          <span class="text-xl font-bold" i18n="manufacturersListTitle"
+            >Listado de fabricantes</span
+          >
           <p-iconfield iconPosition="left" class="ml-auto">
             <p-inputicon>
               <i class="pi pi-search"></i>
@@ -73,7 +75,9 @@
       </ng-template>
       <ng-template #emptymessage>
         <tr>
-          <td colspan="6" i18n="noManufacturersFound">No se encontraron fabricantes.</td>
+          <td colspan="6" i18n="noManufacturersFound">
+            No se encontraron fabricantes.
+          </td>
         </tr>
       </ng-template>
     </p-table>
@@ -81,6 +85,7 @@
   <app-fabricantes-form
     [fabricante]="selectedFabricante"
     [(visible)]="dialogVisible"
+    (visibleChange)="onDialogVisibilityChange($event)"
     (success)="onSuccess($event)"
   ></app-fabricantes-form>
 </p-card>

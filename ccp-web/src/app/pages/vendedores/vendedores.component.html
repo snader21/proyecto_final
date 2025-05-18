@@ -106,6 +106,7 @@
     [vendedor]="selectedVendedor"
     [(visible)]="dialogVisible"
     (success)="onSuccess($event)"
+    (visibleChange)="onDialogVisibilityChange($event)"
   ></app-vendedores-form>
 
   <app-vendedores-plan

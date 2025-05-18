@@ -77,4 +77,8 @@ export class RutasComponent implements OnInit {
     this.selectedRuta = ruta;
     this.dialogVisible = true;
   }
+
+  onDialogVisibilityChange(visible: boolean) {
+    this.dialogVisible = visible;
+  }
 }
