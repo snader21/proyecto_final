@@ -7,7 +7,7 @@ import { ClienteService } from './services/cliente.service';
 import { ClienteController } from './controllers/cliente.controller';
 import { TipoClienteController } from './controllers/tipo-cliente.controller';
 import { TipoClienteService } from './services/tipo-cliente.service';
-import { UsuariosModule } from 'src/usuarios/usuarios.module';
+import { UsuariosModule } from '../usuarios/usuarios.module';
 
 @Module({
   imports: [HttpModule, ConfigModule, UsuariosModule],

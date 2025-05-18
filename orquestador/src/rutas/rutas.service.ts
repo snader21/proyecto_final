@@ -8,9 +8,9 @@ import { PedidosService } from '../pedidos/pedidos.service';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { ClienteService } from '../clientes/services/cliente.service';
-import { VisitaService } from 'src/clientes/services/visita.service';
+import { VisitaService } from '../clientes/services/visita.service';
 import { generarPromptGeneracionRutaVisitaVendedores } from './calculo-ruta-visitas.promt';
-import { RutaEntity } from '../../../rutas/src/rutas/entities/ruta.entity';
+import { RutaEntity } from './entities/ruta.entity';
 
 interface NodoVisita {
   numeroNodoProgramado: number;
