@@ -88,7 +88,7 @@ export class RutasService {
   }
 
   // cron every 5 seconds
-  async findAll() {
+  findAll() {
     return this.rutaRepository.find({
       relations: ['tipo_ruta', 'estado_ruta', 'camion', 'nodos_rutas'],
     });

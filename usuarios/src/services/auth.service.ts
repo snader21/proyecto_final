@@ -33,26 +33,13 @@ export class AuthService {
     const { correo, contrasena } = loginDto;
 
     // Buscar usuario por correo con sus roles y permisos
-    console.log('Buscando usuario:', { correo });
     const usuario = await this.usuarioRepository.findOne({
       where: { correo },
       relations: ['roles', 'roles.permisos'],
-      select: ['id', 'nombre', 'correo', 'contrasena_hash', 'estado']
-    });
-    console.log('Resultado de la búsqueda:', { 
-      encontrado: !!usuario,
-      estado: usuario?.estado,
-      roles: usuario?.roles?.length
     });
 
     if (!usuario) {
-      console.log('Login fallido - Usuario no encontrado:', { correo });
       throw new UnauthorizedException('Credenciales inválidas');
-    }
-
-    if (!usuario.estado) {
-      console.log('Login fallido - Usuario inactivo:', { correo });
-      throw new UnauthorizedException('Usuario inactivo');
     }
 
     // Verificar contraseña

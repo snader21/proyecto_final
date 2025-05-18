@@ -61,18 +61,14 @@ export class AuthService {
 
   async signIn(loginDto: LoginDto): Promise<AuthResponse> {
     try {
-      console.log('Iniciando proceso de login en orquestador:', { correo: loginDto.correo });
       const usersServiceUrl = this.configService.get<string>('URL_USUARIOS');
-      console.log('URL del servicio de usuarios:', { usersServiceUrl });
 
-      console.log('Enviando solicitud a usuarios:', { url: `${usersServiceUrl}/auth/login` });
       const response = await firstValueFrom(
         this.httpService.post<AuthResponse>(
           `${usersServiceUrl}/auth/login`,
           loginDto,
         ),
       );
-      console.log('Respuesta recibida del servicio de usuarios:', { success: !!response.data.token });
 
       if (response.data.token) {
         // Asegurarnos de que los permisos estén incluidos en el token
@@ -92,11 +88,6 @@ export class AuthService {
       }
       throw new UnauthorizedException('Invalid credentials');
     } catch (error) {
-      console.error('Error en el proceso de login:', {
-        error: error.message,
-        response: error.response?.data,
-        status: error.response?.status
-      });
       if (error.response?.status === 401) {
         throw new UnauthorizedException('Invalid credentials');
       }
