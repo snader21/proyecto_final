@@ -1,0 +1,34 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Visitas</ion-title>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-searchbar
+      [(ngModel)]="searchTerm"
+      (ionChange)="onSearchChange($event)"
+      placeholder="Buscar visita"
+      animated="true"
+      debounce="300"
+    ></ion-searchbar>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div *ngIf="loading" class="ion-text-center ion-padding">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando visitas...</p>
+  </div>
+
+  <!-- Aquí irá el contenido de las visitas -->
+  <div *ngIf="!loading" class="ion-text-center ion-padding">
+    <ion-icon name="calendar-outline" size="large" color="medium"></ion-icon>
+    <p>Próximamente: Lista de visitas</p>
+  </div>
+</ion-content>

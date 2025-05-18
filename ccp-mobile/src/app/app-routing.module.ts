@@ -47,6 +47,11 @@ const routes: Routes = [
   {
     path: 'rutas',
     loadChildren: () => import('./pages/rutas/rutas.module').then( m => m.RutasPageModule)
+  },
+  {
+    path: 'visitas',
+    loadChildren: () => import('./pages/visitas/visitas.module').then( m => m.VisitasPageModule),
+    canActivate: [AuthGuard]
   }
 ];
 
