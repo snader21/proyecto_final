@@ -1,49 +1,55 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { RutasController } from './rutas.controller';
 import { RutasService } from './rutas.service';
 import { HttpModule } from '@nestjs/axios';
-import { ConfigModule } from '@nestjs/config';
-import { PedidosModule } from '../pedidos/pedidos.module';
-import { ProductosModule } from '../productos/productos.module';
-import { ProveedorAiService } from '../proveedor-ai/proveedor-ai.service';
-import { ClienteService } from '../clientes/services/cliente.service';
 
 describe('RutasController', () => {
   let controller: RutasController;
-  const mockClienteService = {
-    obtenerCliente: jest
-      .fn()
-      .mockResolvedValue({ id: '1', nombre: 'Cliente 1' }),
+
+  const mockRutasService = {
+    obtenerListaRutas: jest.fn().mockResolvedValue([]),
+    calcularYGuardarRutaDeEntregaDePedidos: jest.fn().mockResolvedValue([]),
+    calcularYGuardarRutaDeVisitaDeVendedores: jest.fn().mockResolvedValue([]),
   };
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        HttpModule,
-        ConfigModule.forRoot({ isGlobal: true }),
-        ProductosModule,
-        PedidosModule,
-      ],
+    const module = await Test.createTestingModule({
+      imports: [HttpModule],
       controllers: [RutasController],
       providers: [
-        RutasService,
         {
-          provide: ClienteService,
-          useValue: mockClienteService,
-        },
-        {
-          provide: ProveedorAiService,
-          useValue: {
-            enviarPrompt: jest.fn().mockResolvedValue({ content: '{}' }),
-          },
+          provide: RutasService,
+          useValue: mockRutasService,
         },
       ],
     }).compile();
 
-    controller = module.get<RutasController>(RutasController);
+    controller = module.get(RutasController);
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  describe('obtenerListaRutas', () => {
+    it('should call RutasService.obtenerListaRutas', () => {
+      const tipoRuta = 'visita';
+      void controller.obtenerListaRutas(tipoRuta);
+      expect(mockRutasService.obtenerListaRutas).toHaveBeenCalledWith(tipoRuta);
+    });
+  });
+
+  describe('calcularYGuardarRutaEntregaDePedidos', () => {
+    it('should call RutasService.calcularYGuardarRutaDeEntregaDePedidos', () => {
+      void controller.calcularYGuardarRutaEntregaDePedidos();
+      expect(mockRutasService.calcularYGuardarRutaDeEntregaDePedidos).toHaveBeenCalled();
+    });
+  });
+
+  describe('calcularYGuardarRutaVisitaVendedores', () => {
+    it('should call RutasService.calcularYGuardarRutaDeVisitaDeVendedores', () => {
+      void controller.calcularYGuardarRutaVisitaVendedores();
+      expect(mockRutasService.calcularYGuardarRutaDeVisitaDeVendedores).toHaveBeenCalled();
+    });
   });
 });
