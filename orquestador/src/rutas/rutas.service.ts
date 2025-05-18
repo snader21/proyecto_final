@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { map } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 import { ProveedorAiService } from '../proveedor-ai/proveedor-ai.service';
 import { generarPromptOptimizacionRutas } from './calculo-ruta-entregas.promt';
@@ -10,6 +10,36 @@ import { HttpService } from '@nestjs/axios';
 import { ClienteService } from '../clientes/services/cliente.service';
 import { VisitaService } from 'src/clientes/services/visita.service';
 import { generarPromptGeneracionRutaVisitaVendedores } from './calculo-ruta-visitas.promt';
+
+interface NodoVisita {
+  numeroNodoProgramado: number;
+  latitud: number;
+  longitud: number;
+  direccion: string | null;
+  hora_llegada: string;
+  hora_salida: string;
+  id_bodega: string | null;
+  id_cliente: string;
+  id_pedido: string | null;
+  productos: null;
+}
+
+interface VisitaProgramada {
+  duracionEstimada: number;
+  fecha: string;
+  distanciaTotal: number;
+  camionId: string | null;
+  nodos: NodoVisita[];
+}
+
+interface VendedorVisitas {
+  id_vendedor: string;
+  visitas_programadas: VisitaProgramada[];
+}
+
+interface RutaVisitaVendedores {
+  vendedores: VendedorVisitas[];
+}
 
 export interface CreateNodoProductoDto {
   productoId: string;
@@ -184,18 +214,59 @@ export class RutasService {
 
       // 3. Persistir en la base de datos la ruta del vendedor para hacer la visita
       const respuesta = await this.aiProviderService.enviarPrompt(prompt);
+      console.log('🚀 ~ Respuesta de IA:', respuesta);
 
       if (respuesta?.content) {
         try {
-          const ruta: OptimizedRoutesResponse = JSON.parse(
-            respuesta.content,
-          ) as OptimizedRoutesResponse;
+          // Parsear la respuesta de la IA
+          const ruta = JSON.parse(respuesta.content) as RutaVisitaVendedores;
+          
+          // Redondear distanciaTotal a entero
+          ruta.vendedores.forEach((vendedor) => {
+            vendedor.visitas_programadas.forEach((visita) => {
+              if (typeof visita.distanciaTotal === 'number') {
+                visita.distanciaTotal = Math.round(visita.distanciaTotal);
+              }
+            });
+          });
 
-          console.table(ruta);
+          console.log('🚀 ~ Ruta generada:', JSON.stringify(ruta, null, 2));
+
+          // Configurar el endpoint
+          const api = this.configService.get<string>('URL_RUTAS');
+          if (!api) {
+            throw new Error('URL_RUTAS no está configurada');
+          }
+
+          const apiEndPoint = `${api}/rutas/ruta-visita-vendedores`;
+          console.log('🚀 ~ URL del servicio:', apiEndPoint);
+
+          // Enviar la ruta al servicio
+          const response = await firstValueFrom(
+            this.httpService
+              .post(apiEndPoint, ruta)
+              .pipe(
+                map((res) => {
+                  console.log('🚀 ~ Respuesta del servicio:', JSON.stringify(res.data, null, 2));
+                  return res.data;
+                }),
+                catchError((error: any) => {
+                  console.error('Error al llamar al servicio:', error.response?.data);
+                  console.error('URL usada:', apiEndPoint);
+                  console.error('Datos enviados:', JSON.stringify(ruta, null, 2));
+                  throw new BadRequestException(
+                    error.response?.data?.message || 'Error al crear la ruta en el servicio'
+                  );
+                }),
+              ),
+          );
 
           return response;
         } catch (error) {
-          throw new Error('Error processing AI response: ' + error);
+          console.error('Error al procesar la ruta:', error);
+          throw new BadRequestException(
+            error instanceof Error ? error.message : 'Error al procesar la ruta'
+          );
         }
       }
       return null;
