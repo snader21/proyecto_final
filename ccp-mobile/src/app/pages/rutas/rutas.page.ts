@@ -1,13 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, LoadingController } from '@ionic/angular';
-import { HttpClientModule } from '@angular/common/http';
+import { IonicModule } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
 import { Ruta } from 'src/app/interfaces/ruta.interface';
 import { RutasService } from 'src/app/services/rutas.service';
-import { ClientesService } from 'src/app/services/clientes.service';
-import { BodegasService } from 'src/app/services/bodegas.service';
 
 @Component({
   selector: 'app-rutas',
@@ -22,9 +20,7 @@ import { BodegasService } from 'src/app/services/bodegas.service';
     HttpClientModule
   ],
   providers: [
-    RutasService,
-    ClientesService,
-    BodegasService
+    RutasService
   ]
 })
 export class RutasPage implements OnInit {
@@ -32,13 +28,9 @@ export class RutasPage implements OnInit {
   filteredRutas: Ruta[] = [];
   loading = false;
   searchTerm = '';
-  clienteMap: Record<string, { nombre: string }> = {};
-  bodegaMap: Record<string, { nombre: string }> = {};
 
   constructor(
-    private rutasService: RutasService,
-    private clientesService: ClientesService,
-    private bodegasService: BodegasService
+    private rutasService: RutasService
   ) {}
 
   ngOnInit() {
@@ -51,7 +43,6 @@ export class RutasPage implements OnInit {
     try {
       this.rutas = await this.rutasService.getRutas('entrega de pedidos');
       this.filteredRutas = [...this.rutas];
-      await this.loadClientesYBodegas();
       console.log('Rutas cargadas:', this.rutas);
     } catch (error) {
       console.error('Error loading rutas:', error);
@@ -60,32 +51,7 @@ export class RutasPage implements OnInit {
     }
   }
 
-  async loadClientesYBodegas() {
-    for (const ruta of this.rutas) {
-      for (const nodo of ruta.nodos_rutas) {
-        if (nodo.id_cliente) {
-          try {
-            const cliente = await this.clientesService.getCliente(nodo.id_cliente);
-            if (cliente) {
-              this.clienteMap[nodo.id_cliente] = { nombre: cliente.nombre };
-            }
-          } catch (error) {
-            console.error('Error loading cliente:', error);
-          }
-        }
-        if (nodo.id_bodega) {
-          try {
-            const bodega = await this.bodegasService.getBodega(nodo.id_bodega);
-            if (bodega) {
-              this.bodegaMap[nodo.id_bodega] = { nombre: bodega.nombre };
-            }
-          } catch (error) {
-            console.error('Error loading bodega:', error);
-          }
-        }
-      }
-    }
-  }
+  // Removed loadClientesYBodegas method as it's not needed anymore
 
   async doRefresh(event: any) {
     try {
@@ -120,9 +86,7 @@ export class RutasPage implements OnInit {
 
     this.filteredRutas = this.rutas.filter(ruta => 
       ruta.nodos_rutas.some(nodo => 
-        nodo.direccion.toLowerCase().includes(searchTerm) ||
-        (nodo.id_cliente && this.clienteMap[nodo.id_cliente]?.nombre.toLowerCase().includes(searchTerm)) ||
-        (nodo.id_bodega && this.bodegaMap[nodo.id_bodega]?.nombre.toLowerCase().includes(searchTerm))
+        nodo.direccion.toLowerCase().includes(searchTerm)
       )
     );
   }

@@ -51,9 +51,9 @@
 
         <ion-item *ngFor="let nodo of ruta.nodos_rutas">
           <ion-icon 
-            [name]="nodo.id_bodega ? 'business' : 'location'"
+            name="location"
             slot="start"
-            [color]="nodo.id_bodega ? 'primary' : 'success'"
+            color="success"
           ></ion-icon>
           <ion-label>
             <h3>{{ nodo.direccion }}</h3>
