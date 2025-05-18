@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
 import { RutasService } from '../../services/rutas.service';
 import { Ruta } from '../../interfaces/ruta.interface';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-visitas',
@@ -16,8 +16,7 @@ import { Ruta } from '../../interfaces/ruta.interface';
     CommonModule,
     FormsModule,
     IonicModule,
-    RouterModule,
-    HttpClientModule
+    RouterModule
   ],
   providers: [RutasService]
 })
@@ -27,7 +26,10 @@ export class VisitasPage implements OnInit {
   rutas: Ruta[] = [];
   filteredRutas: Ruta[] = [];
 
-  constructor(private rutasService: RutasService) {}
+  constructor(
+    private rutasService: RutasService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
     this.loadVisitas();
@@ -36,7 +38,14 @@ export class VisitasPage implements OnInit {
   async loadVisitas() {
     this.loading = true;
     try {
+      const vendedor = this.authService.getLoggedInUser();
+      if (!vendedor) {
+        throw new Error('No hay un vendedor autenticado');
+      }
+
       this.rutas = await this.rutasService.getRutas('visita');
+      // Filtrar solo las rutas del vendedor actual
+      this.rutas = this.rutas.filter(ruta => ruta.vendedor_id === vendedor.id);
       this.filteredRutas = [...this.rutas];
       console.log('Visitas cargadas:', this.rutas);
     } catch (error) {
