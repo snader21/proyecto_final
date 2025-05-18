@@ -12,10 +12,10 @@ export class BodegaEntity {
   @Column()
   direccion: string;
 
-  @Column('float')
+  @Column('float', { nullable: true })
   latitud: number;
 
-  @Column('float')
+  @Column('float', { nullable: true })
   longitud: number;
 
   @Column('int')

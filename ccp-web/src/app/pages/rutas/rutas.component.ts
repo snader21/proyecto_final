@@ -44,7 +44,7 @@ export class RutasComponent implements OnInit {
   public async listarRutas() {
     this.loading = true;
     try {
-      const rutas = await this.rutasService.getRutas();
+      const rutas = await this.rutasService.getRutas('entrega de pedidos');
       this.rutas = rutas;
 
       console.log("Datos crudos:", {
