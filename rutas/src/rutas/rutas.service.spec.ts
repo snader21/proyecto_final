@@ -320,7 +320,7 @@ describe('RutasService', () => {
           },
         ],
       };
-
+      // Mocks
       const tipoRuta = { id: 'tipo-2', tipo_ruta: 'Visita a cliente', rutas: [] } as unknown as TipoRutaEntity;
       const estadoRuta = { id: 'estado-1', estado_ruta: 'Programada', rutas: [] } as unknown as EstadoRutaEntity;
       const rutaCreada = {
