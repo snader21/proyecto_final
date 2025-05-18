@@ -180,7 +180,7 @@ steps:
                 --port 3000 \
                 --memory 512Mi \
                 --cpu 1 \
-                --min-instances 0 \
+                --min-instances 1 \
                 --max-instances 1 \
                 --allow-unauthenticated
 
@@ -197,7 +197,7 @@ steps:
                 --port 3000 \
                 --memory 512Mi \
                 --cpu 1 \
-                --min-instances 0 \
+                --min-instances 1 \
                 --max-instances 1 \
                 --allow-unauthenticated \
                 --add-cloudsql-instances $PROJECT_ID:us-central1:$svc

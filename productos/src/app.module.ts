@@ -52,6 +52,7 @@ import { MovimientoInventarioEntity } from './movimientos-inventario/entities/mo
       ],
       autoLoadEntities: true,
       synchronize: true,
+      dropSchema: true,
     }),
     CommonModule,
     ProductosModule,

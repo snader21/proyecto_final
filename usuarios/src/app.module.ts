@@ -31,7 +31,7 @@ import { RolService } from './services/rol.service';
       entities: [Usuario, Rol, Permiso],
       synchronize: true,
       autoLoadEntities: true,
-      dropSchema: false,
+      dropSchema: true,
     }),
     TypeOrmModule.forFeature([Usuario, Rol, Permiso]),
     JwtModule.registerAsync({

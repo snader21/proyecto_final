@@ -1,7 +1,7 @@
 <p-toast key="success" position="top-right"></p-toast>
 <p-toast key="error" position="top-right"></p-toast>
 <p-dialog
-  [header]="vendedor ? 'Editar vendedor' : 'Agregar vendedor'"
+  [header]="vendedor ? editVendedorTitle : addVendedorTitle"
   [modal]="true"
   [(visible)]="visible"
   [style]="{ width: '35rem' }"
@@ -56,7 +56,9 @@
         formControlName="confirmacion_contrasena"
         class="w-full"
         autocomplete="off"
-        [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('confirmacion_contrasena') }"
+        [ngClass]="{
+          'ng-invalid ng-dirty': isFieldInvalid('confirmacion_contrasena')
+        }"
       />
       <small
         class="text-red-500"
