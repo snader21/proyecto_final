@@ -8,13 +8,15 @@ import { LoginPageRoutingModule } from './login-routing.module';
 import { HttpClient } from '@angular/common/http';
 
 import { LoginPage } from './login.page';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    LoginPageRoutingModule
+    LoginPageRoutingModule,
+    TranslateModule
   ],
   providers: [HttpClient],
   declarations: [LoginPage]

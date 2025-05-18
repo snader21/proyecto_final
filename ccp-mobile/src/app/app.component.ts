@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { SafeArea } from 'capacitor-plugin-safe-area';
 @Component({
   selector: 'app-root',
@@ -16,7 +17,14 @@ export class AppComponent {
     { title: 'Spam', url: '/folder/spam', icon: 'warning' },
   ];
   public labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
-  constructor() {}
+  constructor(private readonly translate: TranslateService) {
+    // Idioma por defecto
+    this.translate.setDefaultLang('es');
+    // Detectar idioma del navegador
+    const browserLang = translate.getBrowserLang();
+    // Usar idioma si está soportado, o usar español por defecto
+    this.translate.use(browserLang?.match(/en|es/) ? browserLang : 'es');
+  }
 }
 
 SafeArea.getSafeAreaInsets().then((data) => {

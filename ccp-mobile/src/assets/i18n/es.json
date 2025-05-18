@@ -1,0 +1,81 @@
+{
+  "CLIENTS": {
+    "TITLE": "Clientes"
+  },
+  "MENU": {
+    "HOME": "Inicio",
+    "CLIENTS": "Clientes",
+    "ROUTES": "Rutas",
+    "ORDERS": "Pedidos",
+    "LOGOUT": "Cerrar sesión",
+    "LOGOUT_TITLE": "Salir",
+    "LOGOUT_MSG": "¿Estás seguro que deseas cerrar sesión?",
+    "CANCEL": "Cancelar",
+    "CONFIRM": "Salir"
+  },
+  "VIDEO": {
+    "TITLE": "Grabar Video",
+    "START": "Iniciar Grabación",
+    "STOP": "Detener Grabación"
+  },
+  "VISIT_VIDEO": {
+    "TITLE": "Video de la Visita",
+    "CLOSE": "Cerrar"
+  },
+  "REGISTER_PAGE": {
+    "TITULO": "Registro",
+    "SUBTITULO": "Crea tu cuenta para continuar",
+    "NOMBRE_O_RAZON_SOCIAL": "Nombre o Razón Social",
+    "INGRESA_NOMBRE_COMPLETO": "Ingresa tu nombre completo",
+    "NOMBRE_REQUERIDO": "El nombre es obligatorio",
+    "NOMBRE_MINIMO": "El nombre debe tener al menos 3 caracteres",
+    "IDENTIFICACION_O_NIT": "Identificación o NIT",
+    "INGRESA_IDENTIFICACION": "Ingresa tu número de identificación",
+    "IDENTIFICACION_REQUERIDA": "La identificación es obligatoria",
+    "IDENTIFICACION_MINIMA": "La identificación debe tener al menos 8 caracteres",
+    "TIPO_CLIENTE": "Tipo de cliente",
+    "SELECCIONA_TIPO_CLIENTE": "Selecciona el tipo de cliente",
+    "TIPO_CLIENTE_REQUERIDO": "Debes seleccionar un tipo de cliente",
+    "TELEFONO": "Teléfono",
+    "INGRESA_TELEFONO": "Ingresa tu número de teléfono",
+    "TELEFONO_REQUERIDO": "El teléfono es obligatorio",
+    "TELEFONO_INVALIDO": "El número de teléfono no es válido",
+    "DIRECCION": "Dirección",
+    "INGRESA_DIRECCION": "Ingresa tu dirección",
+    "DIRECCION_REQUERIDA": "La dirección es obligatoria",
+    "DIRECCION_MINIMA": "La dirección debe tener al menos 5 caracteres",
+    "CORREO_ELECTRONICO": "Correo electrónico",
+    "INGRESA_CORREO": "Ingresa tu correo electrónico",
+    "CORREO_REQUERIDO": "El correo es obligatorio",
+    "CORREO_INVALIDO": "El correo electrónico no es válido",
+    "CONTRASENA": "Contraseña",
+    "INGRESA_CONTRASENA": "Ingresa tu contraseña",
+    "CONTRASENA_REQUERIDA": "La contraseña es obligatoria",
+    "CONTRASENA_MINIMA": "La contraseña debe tener al menos 6 caracteres",
+    "CONFIRMAR_CONTRASENA": "Confirmar contraseña",
+    "CONFIRMA_CONTRASENA": "Confirma tu contraseña",
+    "CONFIRMACION_REQUERIDA": "Debes confirmar tu contraseña",
+    "CONTRASENAS_NO_COINCIDEN": "Las contraseñas no coinciden",
+    "REGISTRARSE": "Registrarse",
+    "YA_TIENE_CUENTA": "¿Ya tienes cuenta?",
+    "INICIA_SESION": "Inicia sesión",
+    "VALIDAR_FORMULARIO": "Por favor valida todos los campos del formulario",
+    "REGISTRANDO": "Registrando...",
+    "REGISTRO_EXITOSO": "Registro exitoso. Ahora puedes iniciar sesión",
+    "ERROR_REGISTRO": "Ocurrió un error durante el registro",
+    "ERROR_CARGAR_TIPOS_CLIENTE": "No se pudieron cargar los tipos de cliente"
+  },
+  "LOGIN": {
+    "TITLE": "Bienvenido",
+    "SUBTITLE": "Inicia sesión para continuar",
+    "EMAIL_LABEL": "Correo electrónico",
+    "EMAIL_PLACEHOLDER": "Ingresa tu correo electrónico",
+    "PASSWORD_LABEL": "Contraseña",
+    "PASSWORD_PLACEHOLDER": "Ingresa tu contraseña",
+    "BUTTON": "Iniciar sesión",
+    "NO_ACCOUNT": "¿No tienes una cuenta?",
+    "REGISTER": "Regístrate",
+    "CREDENCIALES_INCORRECTAS": "Correo o contraseña incorrectos",
+    "FORMULARIO_VACIO": "No se han ingresado los datos"
+  }
+}

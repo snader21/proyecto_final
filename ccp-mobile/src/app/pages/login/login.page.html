@@ -1,5 +1,14 @@
 <ion-content [fullscreen]="true">
   <div class="logo-container">
+    <ion-buttons
+      slot="end"
+      class="language-toggle"
+      style="position: fixed; top: 10px; right: 10px; z-index: 1000"
+    >
+      <ion-button (click)="toggleLanguage()">
+        {{ currentLang === 'es' ? 'EN' : 'ES' }}
+      </ion-button>
+    </ion-buttons>
     <ion-img
       src="assets/CCP_logo.svg"
       alt="The Wisconsin State Capitol building in Madison, WI at night"
@@ -8,8 +17,8 @@
   </div>
   <ion-card class="login-card">
     <ion-card-header>
-      <ion-card-title>Bienvenido</ion-card-title>
-      <ion-card-subtitle>Inicia sesión para continuar</ion-card-subtitle>
+      <ion-card-title>{{ 'LOGIN.TITLE' | translate }}</ion-card-title>
+      <ion-card-subtitle>{{ 'LOGIN.SUBTITLE' | translate }}</ion-card-subtitle>
     </ion-card-header>
 
     <ion-card-content>
@@ -17,24 +26,29 @@
         <ion-item>
           <ion-input
             [(ngModel)]="correo"
-            label="Correo electrónico"
+            [placeholder]="'LOGIN.EMAIL_PLACEHOLDER' | translate"
+            [label]="'LOGIN.EMAIL_LABEL' | translate"
             label-placement="floating"
-            placeholder="Ingresa tu correo electrónico"
           ></ion-input>
         </ion-item>
         <ion-item>
           <ion-input
             [(ngModel)]="contrasena"
-            label="Contraseña"
+            [placeholder]="'LOGIN.PASSWORD_PLACEHOLDER' | translate"
+            [label]="'LOGIN.PASSWORD_LABEL' | translate"
             label-placement="floating"
-            placeholder="Ingresa tu contraseña"
             type="password"
           ></ion-input>
         </ion-item>
       </div>
-      <ion-button expand="full" (click)="login()" color="blue-gray">Iniciar sesión</ion-button>
+      <ion-button expand="full" (click)="login()" color="blue-gray">
+        {{ 'LOGIN.BUTTON' | translate }}
+      </ion-button>
       <div class="login-form-footer ion-text-center">
-        <p>¿No tienes una cuenta? <a (click)="goToRegister()">Regístrate</a></p>
+        <p>
+          {{ 'LOGIN.NO_ACCOUNT' | translate }}
+          <a (click)="goToRegister()">{{ 'LOGIN.REGISTER' | translate }}</a>
+        </p>
       </div>
     </ion-card-content>
   </ion-card>

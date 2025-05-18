@@ -5,6 +5,8 @@ import { ClienteService } from '../../services/cliente.service';
 import { LoadingController, ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
+import { LocaleService } from 'src/app/services/locale.service';
 
 @Component({
   selector: 'app-register',
@@ -23,8 +25,11 @@ export class RegisterPage implements OnInit {
     private readonly clienteService: ClienteService,
     private readonly loadingCtrl: LoadingController,
     private readonly toastCtrl: ToastController,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly translate: TranslateService,
+    private readonly localeService: LocaleService,
   ) {
+
     this.registerForm = this.formBuilder.group({
       nombre: ['', [Validators.required, Validators.minLength(3)]],
       correo: ['', [Validators.required, Validators.email]],
@@ -44,7 +49,7 @@ export class RegisterPage implements OnInit {
       this.tiposCliente = await firstValueFrom(this.clienteService.obtenerTiposDeCliente());
     } catch (error) {
       console.error('Error al cargar tipos de cliente:', error);
-      this.showToast('Error al cargar tipos de cliente');
+      this.showToast(this.translate.instant('REGISTER_PAGE.ERROR_CARGAR_TIPOS_CLIENTE'));
     }
   }
 
@@ -56,13 +61,13 @@ export class RegisterPage implements OnInit {
 
   async register() {
     if (this.registerForm.invalid) {
-      this.showToast('Por favor, completa todos los campos correctamente');
+      this.showToast(this.translate.instant('REGISTER_PAGE.VALIDAR_FORMULARIO'));
       return;
     }
 
     this.isLoading = true;
     const loading = await this.loadingCtrl.create({
-      message: 'Registrando...'
+      message: this.translate.instant('REGISTER_PAGE.REGISTRANDO')
     });
     await loading.present();
 
@@ -78,12 +83,12 @@ export class RegisterPage implements OnInit {
       };
 
       await firstValueFrom(this.clienteService.registrarCliente(userData));
-      await this.showToast('Registro exitoso');
+      await this.showToast(this.translate.instant('REGISTER_PAGE.REGISTRO_EXITOSO'));
       this.router.navigate(['/login']);
     } catch (error: any) {
       console.error('Error en el registro:', error);
-      let mensajeError = 'Error al registrar. Por favor, intenta nuevamente';
-      
+      let mensajeError = this.translate.instant('REGISTER_PAGE.ERROR_REGISTRO');
+
       if (error.error && error.error.message) {
         mensajeError = error.error.message;
       } else if (error.message) {
@@ -109,4 +114,4 @@ export class RegisterPage implements OnInit {
   goToLogin() {
     this.location.back();
   }
-} 
+}

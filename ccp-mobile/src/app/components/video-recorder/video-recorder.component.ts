@@ -1,13 +1,14 @@
 import { Component, ViewChild, ElementRef, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-video-recorder',
   templateUrl: './video-recorder.component.html',
   styleUrls: ['./video-recorder.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule]
+  imports: [IonicModule, CommonModule, TranslateModule]
 })
 export class VideoRecorderComponent implements OnDestroy {
   @ViewChild('previewVideo') previewVideoElement!: ElementRef<HTMLVideoElement>;

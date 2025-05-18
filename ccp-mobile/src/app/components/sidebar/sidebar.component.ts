@@ -5,6 +5,8 @@ import { AlertController } from '@ionic/angular';
 import { SafeArea } from 'capacitor-plugin-safe-area';
 import { Usuario } from '../../interfaces/permiso.interface';
 import { Subscription } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
+import { LocaleService } from 'src/app/services/locale.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -13,6 +15,7 @@ import { Subscription } from 'rxjs';
   standalone: false,
 })
 export class SidebarComponent implements OnInit, OnDestroy {
+  currentLang = 'es'; // idioma por defecto
   public appPages: { title: string; url: string; icon: string }[] = [];
   public labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
   private authSubscription: Subscription | undefined;
@@ -20,11 +23,18 @@ export class SidebarComponent implements OnInit, OnDestroy {
   constructor(
     private readonly router: Router,
     private readonly authService: AuthService,
-    private readonly alertController: AlertController
-  ) { }
+    private readonly alertController: AlertController,
+    private readonly translate: TranslateService,
+    private readonly localeService: LocaleService,
+  ) { 
+    this.currentLang = this.localeService.currentLanguage;
+  }
 
   ngOnInit() {
-    this.initializeMenuItems();
+    this.localeService.currentLanguage$.subscribe(lang => {
+      this.currentLang = lang;
+      this.initializeMenuItems(); // actualiza menú con textos en el nuevo idioma
+    });
 
     // Suscribirse a los cambios de autenticación
     this.authSubscription = this.authService.isAuthenticated().subscribe((isAuthenticated) => {
@@ -47,25 +57,22 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
     const usuario: Usuario = JSON.parse(usuarioStr);
     const rutasPermitidas = usuario.permisos.map(permiso => permiso.ruta);
-    console.log("🚀 ~ SidebarComponent ~ initializeMenuItems ~ rutasPermitidas:", rutasPermitidas)
+
     const menuItems: { title: string; url: string; icon: string }[] = [];
 
-    // Home siempre está disponible
-    menuItems.push({ title: 'Home', url: '/home', icon: 'home' });
+    // Usamos instant() para traducir de forma sincrónica
+    menuItems.push({ title: this.translate.instant('MENU.HOME'), url: '/home', icon: 'home' });
 
-    // Clientes
     if (rutasPermitidas.includes('/clientes')) {
-      menuItems.push({ title: 'Clientes', url: '/clientes', icon: 'people' });
+      menuItems.push({ title: this.translate.instant('MENU.CLIENTS'), url: '/clientes', icon: 'people' });
     }
 
-    // Rutas
     if (rutasPermitidas.includes('/rutas')) {
-      menuItems.push({ title: 'Rutas', url: '/rutas', icon: 'map' });
+      menuItems.push({ title: this.translate.instant('MENU.ROUTES'), url: '/rutas', icon: 'map' });
     }
 
-    // Pedidos
     if (rutasPermitidas.includes('/pedidos')) {
-      menuItems.push({ title: 'Pedidos', url: '/pedidos', icon: 'cart' });
+      menuItems.push({ title: this.translate.instant('MENU.ORDERS'), url: '/pedidos', icon: 'cart' });
     }
 
     this.appPages = menuItems;
@@ -73,18 +80,27 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   logout() {
     this.alertController.create({
-      header: 'Salir',
-      message: '¿Estás seguro que deseas cerrar sesión?',
+      header: this.translate.instant('MENU.LOGOUT_TITLE'),
+      message: this.translate.instant('MENU.LOGOUT_MSG'),
       buttons: [
-        { text: 'Cancelar', role: 'cancel' },
         {
-          text: 'Salir', role: 'confirm', handler: () => {
+          text: this.translate.instant('MENU.CANCEL'),
+          role: 'cancel'
+        },
+        {
+          text: this.translate.instant('MENU.CONFIRM'),
+          role: 'confirm',
+          handler: () => {
             this.authService.logout();
             this.router.navigate(['/login']);
           }
         }
       ]
     }).then(alert => alert.present());
+  }
+
+  toggleLanguage() {
+    this.localeService.toggleLanguage();
   }
 }
 

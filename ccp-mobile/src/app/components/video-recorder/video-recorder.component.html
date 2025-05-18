@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Grabar Video</ion-title>
+    <ion-title>{{ 'VIDEO.TITLE' | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="dismiss()">
         <ion-icon name="close"></ion-icon>
@@ -17,11 +17,11 @@
   <div class="controls">
     <ion-button expand="block" (click)="startRecording()" [disabled]="isRecording">
       <ion-icon name="videocam"></ion-icon>
-      Iniciar Grabación
+      {{ 'VIDEO.START' | translate }}
     </ion-button>
     <ion-button expand="block" (click)="stopRecording()" [disabled]="!isRecording" color="danger">
       <ion-icon name="stop"></ion-icon>
-      Detener Grabación
+      {{ 'VIDEO.STOP' | translate }}
     </ion-button>
   </div>
-</ion-content> 
+</ion-content>

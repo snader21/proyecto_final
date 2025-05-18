@@ -1,0 +1,81 @@
+{
+  "CLIENTS": {
+    "TITLE": "Clients"
+  },
+  "MENU": {
+    "HOME": "Home",
+    "CLIENTS": "Clients",
+    "ROUTES": "Routes",
+    "ORDERS": "Orders",
+    "LOGOUT": "Log out",
+    "LOGOUT_TITLE": "Log out",
+    "LOGOUT_MSG": "Are you sure you want to log out?",
+    "CANCEL": "Cancel",
+    "CONFIRM": "Log out"
+  },
+  "VIDEO": {
+    "TITLE": "Record Video",
+    "START": "Start Recording",
+    "STOP": "Stop Recording"
+  },
+  "VISIT_VIDEO": {
+    "TITLE": "Visit Video",
+    "CLOSE": "Close"
+  },
+  "REGISTER_PAGE": {
+    "TITULO": "Register",
+    "SUBTITULO": "Create your account to continue",
+    "NOMBRE_O_RAZON_SOCIAL": "Name or Business Name",
+    "INGRESA_NOMBRE_COMPLETO": "Enter your full name",
+    "NOMBRE_REQUERIDO": "Name is required",
+    "NOMBRE_MINIMO": "Name must be at least 3 characters",
+    "IDENTIFICACION_O_NIT": "Identification or NIT",
+    "INGRESA_IDENTIFICACION": "Enter your ID or NIT number",
+    "IDENTIFICACION_REQUERIDA": "Identification is required",
+    "IDENTIFICACION_MINIMA": "Identification must be at least 8 characters",
+    "TIPO_CLIENTE": "Client Type",
+    "SELECCIONA_TIPO_CLIENTE": "Select client type",
+    "TIPO_CLIENTE_REQUERIDO": "You must select a client type",
+    "TELEFONO": "Phone",
+    "INGRESA_TELEFONO": "Enter your phone number",
+    "TELEFONO_REQUERIDO": "Phone number is required",
+    "TELEFONO_INVALIDO": "Phone number must be 10 digits",
+    "DIRECCION": "Address",
+    "INGRESA_DIRECCION": "Enter your full address",
+    "DIRECCION_REQUERIDA": "Address is required",
+    "DIRECCION_MINIMA": "Address must be at least 5 characters",
+    "CORREO_ELECTRONICO": "Email",
+    "INGRESA_CORREO": "Enter your email address",
+    "CORREO_REQUERIDO": "Email is required",
+    "CORREO_INVALIDO": "Enter a valid email address",
+    "CONTRASENA": "Password",
+    "INGRESA_CONTRASENA": "Enter your password",
+    "CONTRASENA_REQUERIDA": "Password is required",
+    "CONTRASENA_MINIMA": "Password must be at least 6 characters",
+    "CONFIRMAR_CONTRASENA": "Confirm Password",
+    "CONFIRMA_CONTRASENA": "Confirm your password",
+    "CONFIRMACION_REQUERIDA": "Password confirmation is required",
+    "CONTRASENAS_NO_COINCIDEN": "Passwords do not match",
+    "REGISTRARSE": "Register",
+    "YA_TIENE_CUENTA": "Already have an account?",
+    "INICIA_SESION": "Log in",
+    "VALIDAR_FORMULARIO": "Please complete all required fields correctly",
+    "REGISTRANDO": "Registering...",
+    "REGISTRO_EXITOSO": "Registration successful. You can now log in",
+    "ERROR_REGISTRO": "An error occurred during registration",
+    "ERROR_CARGAR_TIPOS_CLIENTE": "Unable to load client types"
+  },
+  "LOGIN": {
+    "TITLE": "Welcome",
+    "SUBTITLE": "Log in to continue",
+    "EMAIL_LABEL": "Email",
+    "EMAIL_PLACEHOLDER": "Enter your email",
+    "PASSWORD_LABEL": "Password",
+    "PASSWORD_PLACEHOLDER": "Enter your password",
+    "BUTTON": "Log In",
+    "NO_ACCOUNT": "Don't have an account?",
+    "REGISTER": "Register",
+    "CREDENCIALES_INCORRECTAS": "Wrong user or password",
+    "FORMULARIO_VACIO": "Data has not been entered"
+  }
+}

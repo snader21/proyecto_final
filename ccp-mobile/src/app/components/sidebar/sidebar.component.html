@@ -12,12 +12,25 @@
           </ion-item>
         </ion-menu-toggle>
       }
-    </ion-list>
+
+      <!-- Logout -->
       <ion-menu-toggle auto-hide="false">
         <ion-item (click)="logout()" lines="none" detail="false">
           <ion-icon aria-hidden="true" slot="start" name="log-out-outline"></ion-icon>
-          <ion-label>Cerrar sesión</ion-label>
+          <ion-label>{{ 'MENU.LOGOUT' | translate }}</ion-label>
         </ion-item>
       </ion-menu-toggle>
+
+      <!-- Language switch -->
+      <ion-menu-toggle auto-hide="false">
+        <ion-item (click)="toggleLanguage()" lines="none" detail="false">
+          <ion-icon aria-hidden="true" slot="start" name="language-outline"></ion-icon>
+          <ion-label>
+            {{ currentLang === 'es' ? 'Change to english' : 'Cambiar a español' }}
+          </ion-label>
+        </ion-item>
+      </ion-menu-toggle>
+
+    </ion-list>
   </ion-content>
 </ion-menu>

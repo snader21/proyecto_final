@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
 import { firstValueFrom } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
+import { LocaleService } from 'src/app/services/locale.service';
 
 @Component({
   selector: 'app-login',
@@ -11,14 +13,26 @@ import { firstValueFrom } from 'rxjs';
   standalone: false,
 })
 export class LoginPage implements OnInit {
-
+  currentLang = 'es';
   correo: string = '';
   contrasena: string = '';
   private currentToast: HTMLIonToastElement | null = null;
 
-  constructor(private readonly router: Router, private readonly toastController: ToastController, private readonly authService: AuthService) { }
+  constructor(
+    private readonly router: Router,
+    private readonly toastController: ToastController,
+    private readonly authService: AuthService,
+    private readonly translate: TranslateService,
+    private readonly localeService: LocaleService,
+  ) {
+    this.currentLang = this.translate.currentLang || 'es';
+  }
 
-  ngOnInit() {}
+  ngOnInit() { 
+    this.localeService.currentLanguage$.subscribe(lang => {
+      this.currentLang = lang;
+    });
+  }
 
   async login() {
     if (this.correo && this.contrasena) {
@@ -29,10 +43,10 @@ export class LoginPage implements OnInit {
         this.router.navigate(['/home']);
       } catch (error) {
         console.log(error);
-        this.showToast('Correo o contraseña incorrectos', 'danger');
+        this.showToast(this.translate.instant('LOGIN.CREDENCIALES_INCORRECTAS'), 'danger');
       }
     } else {
-      this.showToast('No se han ingresado los datos', 'danger');
+      this.showToast(this.translate.instant('LOGIN.FORMULARIO_VACIO'), 'danger');
     }
   }
 
@@ -58,5 +72,9 @@ export class LoginPage implements OnInit {
 
   goToRegister() {
     this.router.navigate(['/register']);
+  }
+
+  toggleLanguage() {
+    this.localeService.toggleLanguage();
   }
 }
