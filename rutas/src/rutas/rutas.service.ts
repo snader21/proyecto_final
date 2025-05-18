@@ -62,7 +62,7 @@ export class RutasService {
             distancia_total: visita.distanciaTotal,
             camion: undefined,
             estado_ruta: estadoRuta,
-            vendedor_id: parseInt(vendedor.id_vendedor),
+            vendedor_id: vendedor.id_vendedor,
             numero_ruta: 0,
           };
 
@@ -186,7 +186,7 @@ export class RutasService {
   findOne(id: string) {
     return this.rutaRepository.findOne({
       where: { id },
-      relations: ['nodos_rutas', 'nodos_rutas.productos'],
+      relations: ['tipo_ruta', 'estado_ruta', 'camion', 'nodos_rutas', 'nodos_rutas.productos'],
     });
   }
 

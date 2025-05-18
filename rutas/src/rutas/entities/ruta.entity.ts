@@ -49,8 +49,9 @@ export class RutaEntity {
 
   @Column({
     nullable: true,
+    type: 'uuid',
   })
-  vendedor_id: number;
+  vendedor_id: string;
 
   @ManyToOne(() => EstadoRutaEntity, (estado_ruta) => estado_ruta.rutas, {
     nullable: false,

@@ -193,9 +193,9 @@ export class RutasService {
 
           console.table(ruta);
 
-          return ruta;
+          return response;
         } catch (error) {
-          throw new Error('Error parsing AI response: ' + error);
+          throw new Error('Error processing AI response: ' + error);
         }
       }
       return null;

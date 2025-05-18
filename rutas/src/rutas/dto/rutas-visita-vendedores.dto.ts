@@ -1,4 +1,4 @@
-interface NodoVisita {
+export class NodoVisita {
   numeroNodoProgramado: number;
   latitud: number;
   longitud: number;
@@ -11,7 +11,7 @@ interface NodoVisita {
   productos: null;
 }
 
-interface VisitaProgramada {
+export class VisitaProgramada {
   duracionEstimada: number;
   fecha: string;
   distanciaTotal: number;
@@ -19,7 +19,7 @@ interface VisitaProgramada {
   nodos: NodoVisita[];
 }
 
-interface VendedorVisitas {
+export class VendedorVisitas {
   id_vendedor: string;
   visitas_programadas: VisitaProgramada[];
 }
