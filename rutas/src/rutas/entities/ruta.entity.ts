@@ -41,11 +41,11 @@ export class RutaEntity {
   distancia_total: number;
 
   @ManyToOne(() => CamionEntity, (camion) => camion.rutas, {
-    nullable: false,
+    nullable: true,
     onDelete: 'RESTRICT',
   })
   @JoinColumn({ name: 'camion_id' })
-  camion: CamionEntity;
+  camion: CamionEntity | null;
 
   @Column({
     nullable: true,

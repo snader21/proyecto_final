@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateRutaDto } from './dto/create-ruta.dto';
-import { UpdateRutaDto } from './dto/update-ruta.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RutaEntity } from './entities/ruta.entity';
 import { DataSource, Repository } from 'typeorm';
@@ -10,6 +9,8 @@ import { EstadosRutasService } from '../estados-rutas/estados-rutas.service';
 import { CamionesService } from '../camiones/camiones.service';
 import { TipoRutaEntity } from '../tipos-rutas/entities/tipo-ruta.entity';
 import { EstadoRutaEntity } from '../estados-rutas/entities/estado-ruta.entity';
+import { RutasVisitaVendedores } from './dto/rutas-visita-vendedores.dto';
+
 @Injectable()
 export class RutasService {
   constructor(
@@ -21,6 +22,94 @@ export class RutasService {
     private readonly camionesService: CamionesService,
     private readonly dataSource: DataSource,
   ) {}
+
+  async createRutaDeVisitaVendedores(rutasVisita: RutasVisitaVendedores) {
+    console.log(
+      '🚀 ~ RutasService ~ createRutaDeVisitaVendedores ~ rutasVisita:',
+      JSON.stringify(rutasVisita, null, 2),
+    );
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    const tipoRuta = (await this.tiposRutasService.findAll())?.find(
+      (tipoRuta: TipoRutaEntity) => tipoRuta.tipo_ruta === 'Visita a cliente',
+    );
+
+    if (!tipoRuta) {
+      throw new BadRequestException('Tipo de ruta Visita a cliente no encontrado');
+    }
+
+    const estadoRuta = (await this.estadosRutasService.findAll())?.find(
+      (estadoRuta: EstadoRutaEntity) => estadoRuta.estado_ruta === 'Programada',
+    );
+
+    if (!estadoRuta) {
+      throw new BadRequestException('Estado de ruta Programada no encontrado');
+    }
+
+    try {
+      const savedRutas: RutaEntity[] = [];
+      
+      for (const vendedor of rutasVisita.vendedores) {
+        for (const visita of vendedor.visitas_programadas) {
+          // 1. Crear la ruta
+          const rutaData: Partial<RutaEntity> = {
+            fecha: visita.fecha,
+            tipo_ruta: tipoRuta,
+            duracion_estimada: visita.duracionEstimada,
+            duracion_final: undefined,
+            distancia_total: visita.distanciaTotal,
+            camion: undefined,
+            estado_ruta: estadoRuta,
+            vendedor_id: parseInt(vendedor.id_vendedor),
+            numero_ruta: 0,
+          };
+
+          const ruta = await queryRunner.manager.save(RutaEntity, rutaData);
+          savedRutas.push(ruta);
+
+          // 2. Crear los nodos
+          if (visita.nodos?.length) {
+            const nodosRuta = visita.nodos.map((nodo) => ({
+              numeroNodoProgramado: nodo.numeroNodoProgramado,
+              latitud: nodo.latitud,
+              longitud: nodo.longitud,
+              direccion: nodo.direccion || '',
+              hora_llegada: nodo.hora_llegada,
+              hora_salida: nodo.hora_salida,
+              id_bodega: undefined,
+              id_cliente: nodo.id_cliente,
+              id_pedido: undefined,
+              productos: [],
+            }));
+
+            await this.nodosRutasService.bulkCreateNodos(
+              nodosRuta,
+              ruta,
+              queryRunner.manager,
+            );
+          }
+        }
+      }
+
+      await queryRunner.commitTransaction();
+      const rutas = await Promise.all(
+        savedRutas.map((r) => this.findOne(r.id)),
+      );
+      return rutas.filter((r): r is RutaEntity => r !== null);
+    } catch (error) {
+      console.error(error);
+      await queryRunner.rollbackTransaction();
+      throw new BadRequestException(
+        error instanceof Error
+          ? error.message
+          : 'Error al crear las rutas de visita',
+      );
+    } finally {
+      await queryRunner.release();
+    }
+  }
 
   async createRutaDeEntregaDePedidos(createRutaDto: CreateRutaDto[]) {
     console.log(
@@ -101,7 +190,7 @@ export class RutasService {
     });
   }
 
-  update(id: number, updateRutaDto: UpdateRutaDto) {
+  update(id: number) {
     return `This action updates a #${id} ruta`;
   }
 
