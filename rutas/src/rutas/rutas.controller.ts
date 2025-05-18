@@ -27,16 +27,8 @@ export class RutasController {
   }
 
   @Get()
-  async findAll(@Query('tipoRuta') tipoRuta?: 'entrega' | 'visita') {
-    let tipoRutaNombre: string | undefined;
-    if (tipoRuta === 'entrega') {
-      tipoRutaNombre = 'Entrega de pedido';
-    } else if (tipoRuta === 'visita') {
-      tipoRutaNombre = 'Visita a cliente';
-    }
-
-    const rutas = await this.rutasService.findAll(tipoRutaNombre);
-    return rutas;
+  async findAll() {
+    return await this.rutasService.findAll();
   }
 
   @Get(':id')

@@ -349,9 +349,20 @@ export class RutasService {
   // @Cron('*/5 * * * * *')
   obtenerListaRutas(tipoRuta: string) {
     const api = this.configService.get<string>('URL_RUTAS');
-    const apiEndPoint = `${api}/rutas?tipoRuta=${tipoRuta}`;
-    return this.httpService
-      .get(apiEndPoint)
-      .pipe(map((response) => response.data));
+    if (!api) {
+      throw new Error('URL_RUTAS no está configurada');
+    }
+
+    const apiEndPoint = `${api}/rutas`;
+    const tipoRutaMapeado = tipoRuta === 'visita' ? 'Visita a cliente' : 'Entrega de pedido';
+
+    return this.httpService.get<RutaEntity[]>(apiEndPoint).pipe(
+      map((response) => {
+        const rutas = response.data;
+        return rutas.filter(
+          (ruta) => ruta.tipo_ruta?.tipo_ruta === tipoRutaMapeado,
+        );
+      }),
+    );
   }
 }

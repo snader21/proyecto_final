@@ -23,32 +23,36 @@ export class RutasService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async createRutaDeVisitaVendedores(rutasVisita: RutasVisitaVendedores) {
-    console.log(
-      '🚀 ~ RutasService ~ createRutaDeVisitaVendedores ~ rutasVisita:',
-      JSON.stringify(rutasVisita, null, 2),
-    );
+  async createRutaDeEntregaDePedidos(createRutaDto: CreateRutaDto[]) {
+    return this.createRutas(createRutaDto, 'Entrega de pedido', true);
+  }
+
+  async createRutaDeVisitaVendedores(rutasVisita: RutasVisitaVendedores | CreateRutaDto[]) {
+    if (Array.isArray(rutasVisita)) {
+      return this.createRutas(rutasVisita, 'Visita a cliente', false);
+    }
+
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
-    const tipoRuta = (await this.tiposRutasService.findAll())?.find(
-      (tipoRuta: TipoRutaEntity) => tipoRuta.tipo_ruta === 'Visita a cliente',
-    );
-
-    if (!tipoRuta) {
-      throw new BadRequestException('Tipo de ruta Visita a cliente no encontrado');
-    }
-
-    const estadoRuta = (await this.estadosRutasService.findAll())?.find(
-      (estadoRuta: EstadoRutaEntity) => estadoRuta.estado_ruta === 'Programada',
-    );
-
-    if (!estadoRuta) {
-      throw new BadRequestException('Estado de ruta Programada no encontrado');
-    }
-
     try {
+      const tipoRuta = (await this.tiposRutasService.findAll())?.find(
+        (tipoRuta: TipoRutaEntity) => tipoRuta.tipo_ruta === 'Visita a cliente',
+      );
+
+      if (!tipoRuta) {
+        throw new BadRequestException('Tipo de ruta Visita a cliente no encontrado');
+      }
+
+      const estadoRuta = (await this.estadosRutasService.findAll())?.find(
+        (estadoRuta: EstadoRutaEntity) => estadoRuta.estado_ruta === 'Programada',
+      );
+
+      if (!estadoRuta) {
+        throw new BadRequestException('Estado de ruta Programada no encontrado');
+      }
+
       const savedRutas: RutaEntity[] = [];
       
       for (const vendedor of rutasVisita.vendedores) {
@@ -111,14 +115,6 @@ export class RutasService {
     }
   }
 
-  async createRutaDeEntregaDePedidos(createRutaDto: CreateRutaDto[]) {
-    return this.createRutas(createRutaDto, 'Entrega de pedido', true);
-  }
-
-  async createRutaDeVisitaVendedores(createRutaDto: CreateRutaDto[]) {
-    return this.createRutas(createRutaDto, 'Visita a cliente', false);
-  }
-
   private async createRutas(
     createRutaDto: CreateRutaDto[],
     tipoRutaNombre: string,
@@ -177,7 +173,7 @@ export class RutasService {
           fecha: dto.fecha,
           tipo_ruta: tipoRuta,
           duracion_estimada: dto.duracionEstimada,
-          duracion_final: null,
+          duracion_final: undefined,
           distancia_total: dto.distanciaTotal,
           camion: camion,
           estado_ruta: estadoRuta,
@@ -217,23 +213,10 @@ export class RutasService {
     }
   }
 
-  // cron every 5 seconds
-  async findAll(tipoRutaNombre?: string) {
-    const queryBuilder = this.rutaRepository
-      .createQueryBuilder('ruta')
-      .leftJoinAndSelect('ruta.tipo_ruta', 'tipo_ruta')
-      .leftJoinAndSelect('ruta.estado_ruta', 'estado_ruta')
-      .leftJoinAndSelect('ruta.camion', 'camion')
-      .leftJoinAndSelect('ruta.nodos_rutas', 'nodos_rutas');
-
-    if (tipoRutaNombre) {
-      queryBuilder.where('tipo_ruta.tipo_ruta = :tipoRutaNombre', { tipoRutaNombre });
-    }
-
-    console.log('SQL Query:', queryBuilder.getSql());
-    console.log('Parameters:', queryBuilder.getParameters());
-
-    return queryBuilder.getMany();
+  async findAll() {
+    return this.rutaRepository.find({
+      relations: ['tipo_ruta', 'estado_ruta', 'camion', 'nodos_rutas'],
+    });
   }
 
   findOne(id: string) {
