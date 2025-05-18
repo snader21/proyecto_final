@@ -2,15 +2,15 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateRutaDto } from './dto/create-ruta.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RutaEntity } from './entities/ruta.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, DeepPartial, Repository } from 'typeorm';
 import { NodosRutasService } from '../nodos-rutas/nodos-rutas.service';
 import { TiposRutasService } from '../tipos-rutas/tipos-rutas.service';
 import { EstadosRutasService } from '../estados-rutas/estados-rutas.service';
 import { CamionesService } from '../camiones/camiones.service';
 import { TipoRutaEntity } from '../tipos-rutas/entities/tipo-ruta.entity';
 import { EstadoRutaEntity } from '../estados-rutas/entities/estado-ruta.entity';
+import { CamionEntity } from '../camiones/entities/camion.entity';
 import { RutasVisitaVendedores } from './dto/rutas-visita-vendedores.dto';
-
 @Injectable()
 export class RutasService {
   constructor(
@@ -112,6 +112,18 @@ export class RutasService {
   }
 
   async createRutaDeEntregaDePedidos(createRutaDto: CreateRutaDto[]) {
+    return this.createRutas(createRutaDto, 'Entrega de pedido', true);
+  }
+
+  async createRutaDeVisitaVendedores(createRutaDto: CreateRutaDto[]) {
+    return this.createRutas(createRutaDto, 'Visita a cliente', false);
+  }
+
+  private async createRutas(
+    createRutaDto: CreateRutaDto[],
+    tipoRutaNombre: string,
+    requiresCamion: boolean,
+  ): Promise<RutaEntity[]> {
     console.log(
       '🚀 ~ RutasService ~ create ~ CreateRutaDto:',
       JSON.stringify(createRutaDto, null, 2),
@@ -120,67 +132,108 @@ export class RutasService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
-    const tipoRuta = (await this.tiposRutasService.findAll())?.find(
-      (tipoRuta: TipoRutaEntity) => tipoRuta.tipo_ruta === 'Entrega de pedido',
-    );
-
-    const estadoRuta = (await this.estadosRutasService.findAll())?.find(
-      (estadoRuta: EstadoRutaEntity) => estadoRuta.estado_ruta === 'Programada',
-    );
-
-    const fechas = [...new Set(createRutaDto.map((dto) => dto.fecha))];
-    for (const fecha of fechas) {
-      await queryRunner.manager.delete(RutaEntity, {
-        fecha,
-      });
-    }
-
     try {
+      // 1. Obtener tipo de ruta
+      const tipoRuta = (await this.tiposRutasService.findAll())?.find(
+        (tipoRuta: TipoRutaEntity) => tipoRuta.tipo_ruta === tipoRutaNombre,
+      );
+
+      if (!tipoRuta) {
+        throw new BadRequestException(`Tipo de ruta ${tipoRutaNombre} no encontrado`);
+      }
+
+      // 2. Obtener estado inicial
+      const estadoRuta = (await this.estadosRutasService.findAll())?.find(
+        (estadoRuta: EstadoRutaEntity) => estadoRuta.estado_ruta === 'Programada',
+      );
+
+      if (!estadoRuta) {
+        throw new BadRequestException('Estado de ruta Programada no encontrado');
+      }
+
+      // 3. Eliminar rutas existentes para las fechas
+      const fechas = [...new Set(createRutaDto.map((dto) => dto.fecha))];
+      for (const fecha of fechas) {
+        await queryRunner.manager.delete(RutaEntity, {
+          fecha,
+          tipo_ruta: { id: tipoRuta.id },
+        });
+      }
+
+      // 4. Crear nuevas rutas
       const savedRutas: RutaEntity[] = [];
       for (const dto of createRutaDto) {
-        const camion = await this.camionesService.findOne(dto.camionId);
-
-        if (!camion) {
-          throw new BadRequestException('Camion no encontrado');
+        // 4.1 Obtener camión si es necesario
+        let camion: CamionEntity | null = null;
+        if (requiresCamion && dto.camionId) {
+          camion = await this.camionesService.findOne(dto.camionId);
+          if (!camion) {
+            throw new BadRequestException(`Camión ${dto.camionId} no encontrado`);
+          }
         }
 
-        const ruta = this.rutaRepository.create({
+        // 4.2 Crear ruta
+        const rutaData: DeepPartial<RutaEntity> = {
           fecha: dto.fecha,
           tipo_ruta: tipoRuta,
           duracion_estimada: dto.duracionEstimada,
+          duracion_final: null,
           distancia_total: dto.distanciaTotal,
-          camion,
+          camion: camion,
           estado_ruta: estadoRuta,
-        });
+          vendedor_id: dto.vendedor_id || null,
+          numero_ruta: 0, // Se generará automáticamente
+        };
 
-        const savedRuta = await queryRunner.manager.save(RutaEntity, ruta);
-        savedRutas.push(savedRuta);
+        const ruta = await queryRunner.manager.save(RutaEntity, rutaData);
+
+        // 4.3 Crear nodos
         if (dto.nodos?.length) {
           await this.nodosRutasService.bulkCreateNodos(
             dto.nodos,
-            savedRuta,
+            ruta,
             queryRunner.manager,
           );
         }
+
+        savedRutas.push(ruta);
       }
 
+      // 5. Confirmar transacción
       await queryRunner.commitTransaction();
 
-      return Promise.all(savedRutas.map((r) => this.findOne(r.id)));
+      // 6. Retornar rutas con relaciones
+      const rutas = await Promise.all(savedRutas.map((r) => this.findOne(r.id)));
+      return rutas.filter((r): r is RutaEntity => r !== null);
     } catch (error) {
-      console.error(error);
+      console.error('Error creando rutas:', error);
       await queryRunner.rollbackTransaction();
-      throw new BadRequestException('Failed to create routes');
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException('Error al crear las rutas');
     } finally {
       await queryRunner.release();
     }
   }
 
   // cron every 5 seconds
-  findAll() {
-    return this.rutaRepository.find({
-      relations: ['tipo_ruta', 'estado_ruta', 'camion', 'nodos_rutas'],
-    });
+  async findAll(tipoRutaNombre?: string) {
+    const queryBuilder = this.rutaRepository
+      .createQueryBuilder('ruta')
+      .leftJoinAndSelect('ruta.tipo_ruta', 'tipo_ruta')
+      .leftJoinAndSelect('ruta.estado_ruta', 'estado_ruta')
+      .leftJoinAndSelect('ruta.camion', 'camion')
+      .leftJoinAndSelect('ruta.nodos_rutas', 'nodos_rutas');
+
+    if (tipoRutaNombre) {
+      queryBuilder.where('tipo_ruta.tipo_ruta = :tipoRutaNombre', { tipoRutaNombre });
+    }
+
+    console.log('SQL Query:', queryBuilder.getSql());
+    console.log('Parameters:', queryBuilder.getParameters());
+
+    return queryBuilder.getMany();
   }
 
   findOne(id: string) {

@@ -37,29 +37,20 @@ export class RutaEntity {
   })
   duracion_final: number;
 
-  @Column()
+  @Column({ type: 'float' })
   distancia_total: number;
 
-  @ManyToOne(() => CamionEntity, (camion) => camion.rutas, {
-    nullable: true,
-    onDelete: 'RESTRICT',
-  })
+  @ManyToOne(() => CamionEntity, { eager: true, nullable: true })
   @JoinColumn({ name: 'camion_id' })
   camion: CamionEntity | null;
 
-  @Column({
-    nullable: true,
-    type: 'uuid',
-  })
-  vendedor_id: string;
+  @Column({ type: 'uuid', nullable: true })
+  vendedor_id: string | null;
 
-  @ManyToOne(() => EstadoRutaEntity, (estado_ruta) => estado_ruta.rutas, {
-    nullable: false,
-    onDelete: 'RESTRICT',
-  })
+  @ManyToOne(() => EstadoRutaEntity, { eager: true })
   @JoinColumn({ name: 'estado_ruta_id' })
   estado_ruta: EstadoRutaEntity;
 
-  @OneToMany(() => NodoRutaEntity, (nodo_ruta) => nodo_ruta.ruta)
+  @OneToMany(() => NodoRutaEntity, (nodo) => nodo.ruta, { eager: true })
   nodos_rutas: NodoRutaEntity[];
 }

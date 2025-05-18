@@ -10,6 +10,7 @@ import { HttpService } from '@nestjs/axios';
 import { ClienteService } from '../clientes/services/cliente.service';
 import { VisitaService } from 'src/clientes/services/visita.service';
 import { generarPromptGeneracionRutaVisitaVendedores } from './calculo-ruta-visitas.promt';
+import { RutaEntity } from '../../../rutas/src/rutas/entities/ruta.entity';
 
 interface NodoVisita {
   numeroNodoProgramado: number;
@@ -46,29 +47,39 @@ export interface CreateNodoProductoDto {
   cantidad: number;
 }
 
-export interface OptimizedRoutesResponse {
-  visitas_programadas: Array<{
-    duracionEstimada: number;
-    fecha: string;
-    distanciaTotal: number;
-    camionId: string | null;
-    nodos: Array<{
-      numeroNodoProgramado: number;
-      latitud: number;
-      longitud: number;
-      direccion: string;
-      hora_llegada: string;
-      hora_salida: string;
-      id_bodega: string | null;
-      id_cliente: string;
-      id_pedido: string | null;
-      productos: Array<{
-        productoId: string;
-        cantidad: number;
+export interface VisitasVendedoresResponse {
+  vendedores: Array<{
+    id_vendedor: string;
+    visitas_programadas: Array<{
+      duracionEstimada: number;
+      fecha: string;
+      distanciaTotal: number;
+      camionId: string | null;
+      nodos: Array<{
+        numeroNodoProgramado: number;
+        latitud: number;
+        longitud: number;
+        direccion: string | null;
+        hora_llegada: string;
+        hora_salida: string;
+        id_bodega: string | null;
+        id_cliente: string;
+        id_pedido: string | null;
+        productos: Array<{
+          productoId: string;
+          cantidad: number;
+        }> | null;
       }>;
     }>;
   }>;
 }
+
+export interface RutasEntregaResponse {
+  camiones_insuficientes: boolean;
+  rutas: RutaDto[];
+}
+
+export type OptimizedRoutesResponse = VisitasVendedoresResponse | RutasEntregaResponse;
 
 export interface CreateNodoRutaDto {
   numeroNodoProgramado: number;
@@ -218,11 +229,12 @@ export class RutasService {
 
       if (respuesta?.content) {
         try {
-          // Parsear la respuesta de la IA
-          const ruta = JSON.parse(respuesta.content) as RutaVisitaVendedores;
-          
+          const rutaResponse = JSON.parse(respuesta.content) as VisitasVendedoresResponse;
+
+          console.log('Rutas generadas:', JSON.stringify(rutaResponse, null, 2));
+
           // Redondear distanciaTotal a entero
-          ruta.vendedores.forEach((vendedor) => {
+          rutaResponse.vendedores.forEach((vendedor) => {
             vendedor.visitas_programadas.forEach((visita) => {
               if (typeof visita.distanciaTotal === 'number') {
                 visita.distanciaTotal = Math.round(visita.distanciaTotal);
@@ -230,40 +242,66 @@ export class RutasService {
             });
           });
 
-          console.log('🚀 ~ Ruta generada:', JSON.stringify(ruta, null, 2));
+          // 4. Guardar las rutas en la base de datos
+          if (rutaResponse.vendedores) {
+            for (const vendedor of rutaResponse.vendedores) {
+              for (const visita of vendedor.visitas_programadas) {
+                const rutaData = {
+                  fecha: visita.fecha,
+                  duracionEstimada: visita.duracionEstimada,
+                  distanciaTotal: visita.distanciaTotal,
+                  vendedor_id: vendedor.id_vendedor,
+                  tipo_ruta: 'visita' as const,
+                  nodos: visita.nodos.map((nodo) => ({
+                    numeroNodoProgramado: nodo.numeroNodoProgramado,
+                    latitud: nodo.latitud,
+                    longitud: nodo.longitud,
+                    hora_llegada: nodo.hora_llegada,
+                    hora_salida: nodo.hora_salida,
+                    id_bodega: null,
+                    id_cliente: nodo.id_cliente,
+                    id_pedido: null
+                  }))
+                };
 
-          // Configurar el endpoint
-          const api = this.configService.get<string>('URL_RUTAS');
-          if (!api) {
-            throw new Error('URL_RUTAS no está configurada');
+                const api = this.configService.get<string>('URL_RUTAS');
+                if (!api) {
+                  throw new Error('URL_RUTAS no está configurada');
+                }
+
+                const apiEndPoint = `${api}/rutas/ruta-visita-vendedores`;
+                console.log('URL del servicio:', apiEndPoint);
+
+                await firstValueFrom(
+                  this.httpService
+                    .post<RutaEntity>(
+                      apiEndPoint,
+                      [rutaData]
+                    )
+                    .pipe(
+                      map((response) => {
+                        console.log('Respuesta del servidor:');
+                        console.log('Status:', response.status, response.statusText);
+                        console.log('Body:', JSON.stringify(response.data, null, 2));
+                        return response.data[0];
+                      }),
+                      catchError((error: any) => {
+                        console.error('Error al llamar al servicio:', error.response?.data);
+                        console.error('URL usada:', apiEndPoint);
+                        console.error('Datos enviados:', JSON.stringify(rutaData, null, 2));
+                        throw new BadRequestException(
+                          error.response?.data?.message || 'Error al crear la ruta en el servicio'
+                        );
+                      }),
+                    ),
+                );
+              }
+            }
           }
 
-          const apiEndPoint = `${api}/rutas/ruta-visita-vendedores`;
-          console.log('🚀 ~ URL del servicio:', apiEndPoint);
-
-          // Enviar la ruta al servicio
-          const response = await firstValueFrom(
-            this.httpService
-              .post(apiEndPoint, ruta)
-              .pipe(
-                map((res) => {
-                  console.log('🚀 ~ Respuesta del servicio:', JSON.stringify(res.data, null, 2));
-                  return res.data;
-                }),
-                catchError((error: any) => {
-                  console.error('Error al llamar al servicio:', error.response?.data);
-                  console.error('URL usada:', apiEndPoint);
-                  console.error('Datos enviados:', JSON.stringify(ruta, null, 2));
-                  throw new BadRequestException(
-                    error.response?.data?.message || 'Error al crear la ruta en el servicio'
-                  );
-                }),
-              ),
-          );
-
-          return response;
+          return rutaResponse;
         } catch (error) {
-          console.error('Error al procesar la ruta:', error);
+          console.error('Error general:', error);
           throw new BadRequestException(
             error instanceof Error ? error.message : 'Error al procesar la ruta'
           );
@@ -271,14 +309,17 @@ export class RutasService {
       }
       return null;
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw new BadRequestException((error as Error).message);
     }
   }
 
   async calcularRuta({
     productosPorDespachar,
     camiones,
-  }: any): Promise<OptimizedRoutesResponse | null> {
+  }: {
+    productosPorDespachar: any[];
+    camiones: any[];
+  }): Promise<RutasEntregaResponse | null> {
     const prompt = generarPromptOptimizacionRutas({
       productosPorDespachar,
       camiones,
@@ -287,12 +328,10 @@ export class RutasService {
 
     if (respuesta?.content) {
       try {
-        const ruta: OptimizedRoutesResponse = JSON.parse(
-          respuesta.content,
-        ) as OptimizedRoutesResponse;
+        const ruta = JSON.parse(respuesta.content) as RutasEntregaResponse;
         return ruta;
       } catch (error) {
-        throw new Error('Error parsing AI response: ' + error);
+        throw new Error('Error parsing AI response: ' + (error as Error).message);
       }
     }
     return null;
@@ -307,7 +346,7 @@ export class RutasService {
     const apiEndPoint = `${api}/rutas/ruta-entrega-de-pedidos`;
 
     return this.httpService
-      .post<any>(apiEndPoint, createRutaDto)
+      .post<RutaEntity[]>(apiEndPoint, createRutaDto)
       .pipe(map((response) => response.data));
   }
 

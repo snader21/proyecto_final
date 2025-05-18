@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { RutasService } from './rutas.service';
 import { CreateRutaDto } from './dto/create-ruta.dto';
@@ -21,13 +22,21 @@ export class RutasController {
   }
 
   @Post('ruta-visita-vendedores')
-  createRutaDeVisitaVendedores(@Body() createRutaDto: RutasVisitaVendedores) {
+  createRutaDeVisitaVendedores(@Body() createRutaDto: CreateRutaDto[]) {
     return this.rutasService.createRutaDeVisitaVendedores(createRutaDto);
   }
 
   @Get()
-  findAll() {
-    return this.rutasService.findAll();
+  async findAll(@Query('tipoRuta') tipoRuta?: 'entrega' | 'visita') {
+    let tipoRutaNombre: string | undefined;
+    if (tipoRuta === 'entrega') {
+      tipoRutaNombre = 'Entrega de pedido';
+    } else if (tipoRuta === 'visita') {
+      tipoRutaNombre = 'Visita a cliente';
+    }
+
+    const rutas = await this.rutasService.findAll(tipoRutaNombre);
+    return rutas;
   }
 
   @Get(':id')
