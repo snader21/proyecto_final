@@ -31,7 +31,7 @@
       <ion-item-divider sticky>
         <ion-label>
           <h2>{{ 'VISITS.ROUTE_INFO.NUMBER' | translate }}{{ruta.numero_ruta}}</h2>
-          <p>{{ruta.fecha | date:'fullDate'}}</p>
+          <p>{{ruta.fecha}}</p>
         </ion-label>
         <ion-badge slot="end" [color]="getBadgeColor(ruta.estado_ruta.estado_ruta)">
           {{ruta.estado_ruta.estado_ruta | translate}}

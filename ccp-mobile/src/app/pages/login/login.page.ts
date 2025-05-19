@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { firstValueFrom } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { LocaleService } from 'src/app/services/locale.service';
+import { SafeArea } from 'capacitor-plugin-safe-area';
 
 @Component({
   selector: 'app-login',
@@ -78,3 +79,14 @@ export class LoginPage implements OnInit {
     this.localeService.toggleLanguage();
   }
 }
+
+SafeArea.getSafeAreaInsets().then((data) => {
+  const { insets } = data;
+  document.body.style.setProperty('--ion-safe-area-top', `${insets.top}px`);
+  document.body.style.setProperty('--ion-safe-area-right', `${insets.right}px`);
+  document.body.style.setProperty(
+    '--ion-safe-area-bottom',
+    `${insets.bottom}px`
+  );
+  document.body.style.setProperty('--ion-safe-area-left', `${insets.left}px`);
+});

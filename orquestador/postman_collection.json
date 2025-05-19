@@ -1,0 +1,904 @@
+{
+  "info": {
+    "name": "Orquestador API",
+    "description": "API collection for the Orquestador microservice",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"correo\": \"string\",\n    \"contrasena\": \"string\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nombre\": \"string\",\n    \"correo\": \"string\",\n    \"contrasena\": \"string\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/usuarios",
+              "host": ["{{base_url}}"],
+              "path": ["usuarios"]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/usuarios/:id",
+              "host": ["{{base_url}}"],
+              "path": ["usuarios", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nombre\": \"string\",\n    \"correo\": \"string\",\n    \"contrasena\": \"string\",\n    \"estado\": \"string\",\n    \"roles\": []\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/usuarios",
+              "host": ["{{base_url}}"],
+              "path": ["usuarios"]
+            }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nombre\": \"string\",\n    \"correo\": \"string\",\n    \"estado\": \"string\",\n    \"roles\": []\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/usuarios/:id",
+              "host": ["{{base_url}}"],
+              "path": ["usuarios", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/usuarios/:id",
+              "host": ["{{base_url}}"],
+              "path": ["usuarios", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Roles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/usuarios/roles",
+              "host": ["{{base_url}}"],
+              "path": ["usuarios", "roles"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products & Inventory",
+      "item": [
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/productos",
+              "host": ["{{base_url}}"],
+              "path": ["productos"]
+            }
+          }
+        },
+        {
+          "name": "Get Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/productos/categorias",
+              "host": ["{{base_url}}"],
+              "path": ["productos", "categorias"]
+            }
+          }
+        },
+        {
+          "name": "Get Brands",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/productos/marcas",
+              "host": ["{{base_url}}"],
+              "path": ["productos", "marcas"]
+            }
+          }
+        },
+        {
+          "name": "Get Units",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/productos/unidades-medida",
+              "host": ["{{base_url}}"],
+              "path": ["productos", "unidades-medida"]
+            }
+          }
+        },
+        {
+          "name": "Get Locations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/productos/ubicaciones",
+              "host": ["{{base_url}}"],
+              "path": ["productos", "ubicaciones"]
+            }
+          }
+        },
+        {
+          "name": "Create Inventory Entry",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"idProducto\": \"string\",\n    \"idUbicacion\": \"string\",\n    \"cantidad\": 0,\n    \"idUsuario\": \"string\",\n    \"fechaRegistro\": \"string\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/productos/movimientos-inventario/entradas",
+              "host": ["{{base_url}}"],
+              "path": ["productos", "movimientos-inventario", "entradas"]
+            }
+          }
+        },
+        {
+          "name": "Create Pre-Reservation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"idProducto\": \"string\",\n    \"cantidad\": 0,\n    \"idUsuario\": \"string\",\n    \"fechaRegistro\": \"string\",\n    \"idPedido\": \"string\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/productos/movimientos-inventario/pre-reservas",
+              "host": ["{{base_url}}"],
+              "path": ["productos", "movimientos-inventario", "pre-reservas"]
+            }
+          }
+        },
+        {
+          "name": "Upload CSV",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/productos/upload-csv",
+              "host": ["{{base_url}}"],
+              "path": ["productos", "upload-csv"]
+            }
+          }
+        },
+        {
+          "name": "Get CSV Files",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/productos/archivos-csv",
+              "host": ["{{base_url}}"],
+              "path": ["productos", "archivos-csv"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customers",
+      "item": [
+        {
+          "name": "Get All Customers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/clientes",
+              "host": ["{{base_url}}"],
+              "path": ["clientes"]
+            }
+          }
+        },
+        {
+          "name": "Get Customer by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/clientes/:id",
+              "host": ["{{base_url}}"],
+              "path": ["clientes", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nombre\": \"string\",\n    \"correo\": \"string\",\n    \"contrasena\": \"string\",\n    \"documento_identidad\": \"string\",\n    \"telefono\": \"string\",\n    \"direccion\": \"string\",\n    \"id_tipo_cliente\": \"string\",\n    \"lat\": 0,\n    \"lng\": 0,\n    \"pais\": \"string\",\n    \"ciudad\": \"string\",\n    \"id_vendedor\": \"string\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/clientes",
+              "host": ["{{base_url}}"],
+              "path": ["clientes"]
+            }
+          }
+        },
+        {
+          "name": "Update Customer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nombre\": \"string\",\n    \"apellido\": \"string\",\n    \"email\": \"string\",\n    \"telefono\": \"string\",\n    \"direccion\": \"string\",\n    \"id_vendedor\": \"string\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/clientes/:id",
+              "host": ["{{base_url}}"],
+              "path": ["clientes", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Customer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/clientes/:id",
+              "host": ["{{base_url}}"],
+              "path": ["clientes", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Customers by Sales Rep",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/clientes/vendedor?vendedorId=:vendedorId",
+              "host": ["{{base_url}}"],
+              "path": ["clientes", "vendedor"],
+              "query": [
+                {
+                  "key": "vendedorId",
+                  "value": ":vendedorId"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Assign Sales Rep to Customer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"id_vendedor\": \"string\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/clientes/:id/vendedor",
+              "host": ["{{base_url}}"],
+              "path": ["clientes", ":id", "vendedor"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Customer Types",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/tipos-cliente",
+              "host": ["{{base_url}}"],
+              "path": ["tipos-cliente"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sales Representatives",
+      "item": [
+        {
+          "name": "Get All Sales Reps",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/vendedores",
+              "host": ["{{base_url}}"],
+              "path": ["vendedores"]
+            }
+          }
+        },
+        {
+          "name": "Get Sales Rep by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/vendedores/:id",
+              "host": ["{{base_url}}"],
+              "path": ["vendedores", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Sales Rep",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nombre\": \"string\",\n    \"contrasena\": \"string\",\n    \"correo\": \"string\",\n    \"telefono\": \"string\",\n    \"zonaId\": \"string\",\n    \"estado\": \"active\",\n    \"roles\": []\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/vendedores",
+              "host": ["{{base_url}}"],
+              "path": ["vendedores"]
+            }
+          }
+        },
+        {
+          "name": "Delete Sales Rep",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/vendedores/:id",
+              "host": ["{{base_url}}"],
+              "path": ["vendedores", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Sales Rep User",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"correo\": \"string\",\n    \"contrasena\": \"string\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/vendedores/:id/usuario",
+              "host": ["{{base_url}}"],
+              "path": ["vendedores", ":id", "usuario"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Zones",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/vendedores/zonas",
+              "host": ["{{base_url}}"],
+              "path": ["vendedores", "zonas"]
+            }
+          }
+        },
+        {
+          "name": "Get Sales Plan",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/plan-ventas/:idVendedor/:ano",
+              "host": ["{{base_url}}"],
+              "path": ["plan-ventas", ":idVendedor", ":ano"],
+              "variable": [
+                {
+                  "key": "idVendedor",
+                  "value": ""
+                },
+                {
+                  "key": "ano",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Sales Plan",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"idVendedor\": \"string\",\n    \"ano\": 0,\n    \"trimestres\": []\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/plan-ventas",
+              "host": ["{{base_url}}"],
+              "path": ["plan-ventas"]
+            }
+          }
+        },
+        {
+          "name": "Get Quarters by Year",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/plan-ventas/trimestres/:ano",
+              "host": ["{{base_url}}"],
+              "path": ["plan-ventas", "trimestres", ":ano"],
+              "variable": [
+                {
+                  "key": "ano",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Get Payment Methods",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/metodos-pago",
+              "host": ["{{base_url}}"],
+              "path": ["metodos-pago"]
+            }
+          }
+        },
+        {
+          "name": "Get Shipping Methods",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/metodos-envio",
+              "host": ["{{base_url}}"],
+              "path": ["metodos-envio"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Routes",
+      "item": [
+        {
+          "name": "Calculate Delivery Route",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/rutas/calcular-ruta-entrega-de-pedidos",
+              "host": ["{{base_url}}"],
+              "path": ["rutas", "calcular-ruta-entrega-de-pedidos"]
+            }
+          }
+        },
+        {
+          "name": "Get Routes List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/rutas",
+              "host": ["{{base_url}}"],
+              "path": ["rutas"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Execute Sales ETL Report",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reports/ejecutar-etl-reporte-ventas",
+              "host": ["{{base_url}}"],
+              "path": ["reports", "ejecutar-etl-reporte-ventas"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "your_jwt_token_here",
+      "type": "string"
+    }
+  ]
+} 
