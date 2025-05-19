@@ -92,7 +92,6 @@ export class PedidosPage implements OnInit {
         case 'Cliente':
           this.idVendedor = null;
           const cliente = await firstValueFrom(this.clienteService.obtenerClientePorUsuario(this.usuario.id));
-          console.log("cliente", cliente);
           this.idCliente = cliente[0].id_cliente;
           const data = await firstValueFrom(this.pedidosService.getPedidosCliente(this.idCliente!, params));
           this.pedidos = data || [];

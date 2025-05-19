@@ -26,9 +26,9 @@ jobs:
         run: npm install
         working-directory: ccp-web
 
-      # - name: Run tests
-      #   run: npm test -- --watch=false --browsers=ChromeHeadless...
-      #   working-directory: ccp-web
+      # - name: Run tests..
+      #   run: npm test -- --watch=false --browsers=ChromeHeadless.
+      #   working-directory: ccp-web..
 
       - name: Build app
         run: npm run build -- --configuration=production --localize --base-href /proyecto_final/
